@@ -5,25 +5,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'adapters/preference_adapter.dart';
 
-/// A [ValueRetriever] is a function that retrieves a value of type of [T] from
-/// the persistent storage.
-typedef T ValueRetriever<T>();
-
-/// A [ValueSetter] sets a value of type [T] for the predefined key in persistent
-/// storage, and returns true or false depending if the operation was successful.
-typedef Future<bool> ValueSetter<T>(T value);
-
-/// A [ValueRemover] removes the value from the persistent storage.
-typedef Future<bool> ValueRemover();
-
 /// A [Preference] is a [Stream] that emits a value whenever the value associated
 /// with [key] changes.
 ///
-/// Whenever the value for [key] is null, emits [defaultValue].
-///
-/// For example, if an instance of [Preference] is created when the value for
-/// [key] is initially null, emits [defaultValue]. Whenever the value gets later
-/// set to null, emits the [defaultValue] again.
+/// Whenever the backing value associated with [key] transitions from non-null to
+/// null, emits [defaultValue]. The [defaultValue] is also emitted initially if
+/// the value is null when initially listening to the stream.
 ///
 /// Instead of calling `setXYZ(key, value)` methods on [SharedPreferences], you
 /// can store a reference to [Preference] and call [set] directly:
@@ -40,8 +27,8 @@ class Preference<T> extends StreamView<T> {
     @required T defaultValue,
     @required PreferenceAdapter<T> adapter,
     @required StreamController<String> keyChanges,
-  })  : value = (() => adapter.get(preferences, key) ?? defaultValue),
-        set = ((value) async {
+  })  : _value = (() => adapter.get(preferences, key) ?? defaultValue),
+        _set = ((value) async {
           if (key == null) {
             throw UnsupportedError(
               'set() not supported for Preference with a null key.',
@@ -53,7 +40,7 @@ class Preference<T> extends StreamView<T> {
 
           return result;
         }),
-        clear = (() async {
+        _clear = (() async {
           if (key == null) {
             throw UnsupportedError(
               'clear() not supported for Preference with a null key.',
@@ -70,15 +57,21 @@ class Preference<T> extends StreamView<T> {
         ));
 
   /// Get the latest value from persistent storage synchronously.
-  final ValueRetriever<T> value;
+  T value() => _value();
 
   /// Update the value and notify all listeners about the new value.
-  final ValueSetter<T> set;
-
-  /// Clear (=remove) the value.
   ///
-  /// After removing a value, [Preference] will emit the default value once.
-  final ValueRemover clear;
+  /// Returns true if the [value] was successfully set, otherwise returns false.
+  Future<bool> set(T value) => _set(value);
+
+  /// Clear (or in other words, remove) the value.
+  ///
+  /// After removing a value, this [Preference] will emit the default value once.
+  Future<bool> clear() => _clear();
+
+  final T Function() _value;
+  final Future<bool> Function(T) _set;
+  final Future<bool> Function() _clear;
 }
 
 class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
