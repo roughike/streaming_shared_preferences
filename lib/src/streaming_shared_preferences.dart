@@ -9,54 +9,13 @@ import 'preference.dart';
 /// StreamingSharedPreferences is a reactive version of a [SharedPreferences].
 ///
 /// It wraps [SharedPreferences] with a [Stream] based layer, allowing you to
-/// listen to changes in the underlying values. Every `getXYZ()` method returns
-/// a [Stream] that doesn't emit anything unless listened to. You can also obtain
-/// the current value synchronously by calling `getXYZ().value()`.
+/// listen to changes in the underlying values.
+///
+/// Every `getXYZ()` method returns a [Stream] that doesn't emit anything unless
+/// listened to. You can also obtain the current value synchronously by calling
+/// `getXYZ().value()`.
 ///
 /// To start using it, await on [StreamingSharedPreferences.instance].
-///
-/// For example:
-///
-/// ```
-/// final preferences = await StreamingSharedPreferences.instance;
-/// ```
-///
-/// ## Listening to changes in values
-///
-/// Every method call starting with `get` returns a [Preference]. A [Preference]
-/// is a [Stream] that emits updates when there are changes to the underlying value.
-///
-/// Let's say we are interested in a [String] value with a key "myString":
-///
-/// ```dart
-/// final myString = preferences.getString('myString', defaultsTo: '');
-///
-/// myString.listen((value) {
-///   print(value);
-/// });
-///
-/// /* -- OR: preferences.setString('myString', 'hello world!'); */
-/// myString.set('hello world!');
-/// ```
-///
-/// Assuming that the "myString" key is previously unset, the above code will
-/// print "", "hello world!" to the console. If "myString" had an existing stored
-/// value, it would be the first value the stream emits.
-///
-/// ## Getting values synchronously
-///
-/// Streams are great in terms of getting notified about updates. But sometimes
-/// you only need to know what the value is right now.
-///
-/// For that use case, every [Preference] has a method called `value()`:
-///
-/// ```dart
-/// /* -- OR: print(preferences.getString('myString').value()); */
-/// print(myString.value());
-/// ```
-///
-/// The above example synchronously retrieves the value of "myString" and prints
-/// it to the console.
 class StreamingSharedPreferences {
   static Completer<StreamingSharedPreferences> _instanceCompleter;
 
