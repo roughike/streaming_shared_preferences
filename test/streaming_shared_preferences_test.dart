@@ -37,6 +37,10 @@ void main() {
     setUp(() async {
       delegate = MockSharedPreferences();
 
+      // Disable throwing errors when Preference is listened suspiciously many
+      // times in a short time period.
+      debugTrackOnListenEvents = false;
+
       // Swap the instance obtainer with one that always returns a mocked verison
       // of shared preferences.
       debugObtainSharedPreferencesInstance = Future.value(delegate);
@@ -44,7 +48,7 @@ void main() {
     });
 
     tearDown(() {
-      debugResetMobileKeyValueStoreInstance();
+      debugResetStreamingSharedPreferencesInstance();
     });
 
     test('obtaining instance calls delegate only once', () async {
@@ -52,7 +56,9 @@ void main() {
 
       // Need to reset the instance as the singleton was already obtained in
       // the [setUp] method in tests.
-      debugResetMobileKeyValueStoreInstance();
+      debugResetStreamingSharedPreferencesInstance();
+
+      debugTrackOnListenEvents = false;
 
       // Swap the instance obtainer to a spying one that increases the counter
       // whenever it's called.

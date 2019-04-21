@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -119,6 +120,10 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
               .transform(_EmitOnlyMatchingKeys(key))
               .map((_) => _getValueFromPersistentStorage())
               .listen(controller.add, onDone: controller.close);
+
+          // Track onListen() events for this specific key and throw an error if
+          // it seems that a Preference is used improperly.
+          _debugTrackOnListenEvent(key);
         },
         onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
@@ -150,3 +155,68 @@ class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
     return stream;
   }
 }
+
+/// Tracks `onListen()` events and throws a [FlutterError] if a [Preference] is
+/// listened to too many times in a short time period.
+///
+/// There is a performance penalty when accidentally recreating (and fetching a
+/// persistent value) a [Preference] every time a widget is rebuilt. This would
+/// commonly happen when accidentally creating a new [Preference] by using a
+/// `StreamBuilder` widget and passing `preferences.getXYZ()` to it directly.
+///
+/// Currently throws if there's 4 or more `onListen()` events for the same key
+/// in one second.
+///
+/// Only enabled in debug mode.
+void _debugTrackOnListenEvent(String key) {
+  if (!kReleaseMode) {
+    if (!debugTrackOnListenEvents) return;
+
+    _keysByLastOnListenTime ??= {};
+
+    final onListenTimes = _keysByLastOnListenTime[key] ?? [];
+    final currentTime = DateTime.now();
+
+    if (onListenTimes.isNotEmpty) {
+      final index = onListenTimes.length - 3;
+      final referenceTime = index > -1 ? onListenTimes[index] : null;
+
+      if (referenceTime != null) {
+        final difference = currentTime.difference(referenceTime);
+        final isTooFast = difference < const Duration(seconds: 1);
+
+        if (isTooFast) {
+          _keysByLastOnListenTime = null;
+
+          throw FlutterError(
+            'Called onListen() on a Preference with a key "$key"\n'
+            'suspiciously many times on a short time frame.\n\n'
+            'This error usually happens because of creating a new Preference '
+            'multiple times when using the StreamBuilder widget.\nIf you pass '
+            'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
+            'a new instance of a Preference is created\non every rebuild. '
+            'This is highly discouraged, because it will refetch a value from '
+            'persistent storage every time the\nwidget rebuilds.\n\n'
+            'To combat this issue, cache the value returned by StreamingShared'
+            'Preferences.getXYZ() and pass the returned Preference\nobject to your StreamBuilder widget.\n\n'
+            'For more information, see the StreamingSharedPreferences '
+            'documentation or the README at:\nhttps://github.com/roughike/streaming_shared_preferences',
+          );
+        }
+      }
+    }
+
+    _keysByLastOnListenTime[key] = <DateTime>[]
+      ..addAll(onListenTimes)
+      ..add(currentTime);
+  }
+}
+
+/// Enable or disable throwing errors when a [Preference] is listened suspiciously
+/// many times in a short time period.
+///
+/// Only exposed for testing purposes - should not be used in production code.
+@visibleForTesting
+@deprecated
+bool debugTrackOnListenEvents = true;
+Map<String, List<DateTime>> _keysByLastOnListenTime;

@@ -275,7 +275,7 @@ class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
       throw UnsupportedError('SharedPreferences.setKeys() is not supported.');
 }
 
-/// Used for obtaining an instance of [SharedPreferences] by [MobileKeyValueStore].
+/// Used for obtaining an instance of [SharedPreferences] by [StreamingSharedPreferences].
 ///
 /// Should not be used outside of tests.
 @visibleForTesting
@@ -283,12 +283,12 @@ class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
 Future<SharedPreferences> debugObtainSharedPreferencesInstance =
     SharedPreferences.getInstance();
 
-/// Resets the singleton instance of [MobileKeyValueStore] so that it can be
-/// always tested from a clean slate. Only exists here for testing purposes.
+/// Resets the singleton instance of [StreamingSharedPreferences] so that it can
+/// be always tested from a clean slate. Only for testing purposes.
 ///
 /// Should not be called outside of tests.
 @visibleForTesting
 @deprecated
-void debugResetMobileKeyValueStoreInstance() {
+void debugResetStreamingSharedPreferencesInstance() {
   StreamingSharedPreferences._instanceCompleter = null;
 }
