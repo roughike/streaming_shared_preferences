@@ -31,7 +31,8 @@ void main() {
       adapter = _TestValueAdapter();
       keyChanges = StreamController<String>.broadcast();
 
-      storedValue = Preference(
+      // ignore: deprecated_member_use_from_same_package
+      storedValue = Preference.$$_private(
         preferences: preferences,
         key: 'key',
         defaultValue: 'default value',

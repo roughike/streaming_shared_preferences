@@ -32,6 +32,7 @@ class StreamingSharedPreferences {
     if (_instanceCompleter == null) {
       _instanceCompleter = Completer();
 
+      // ignore: deprecated_member_use_from_same_package
       debugObtainSharedPreferencesInstance.then((preferences) {
         final streamingPreferences = StreamingSharedPreferences._(preferences);
         _instanceCompleter.complete(streamingPreferences);
@@ -141,7 +142,8 @@ class StreamingSharedPreferences {
     assert(adapter != null, 'ValueAdapter must not be null.');
     assert(defaultsTo != null, 'The default value must not be null.');
 
-    return Preference(
+    // ignore: invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+    return Preference.$$_private(
       preferences: _preferences,
       key: key,
       defaultValue: defaultsTo,

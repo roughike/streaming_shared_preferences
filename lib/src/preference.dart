@@ -21,7 +21,12 @@ import 'adapters/preference_adapter.dart';
 /// myString.set('hello world!');
 /// ```
 class Preference<T> extends StreamView<T> {
-  Preference({
+  /// Only exposed for testing and internal purposes. Do not call directly in
+  /// production code.
+  @deprecated
+  @visibleForTesting
+  // ignore: non_constant_identifier_names
+  Preference.$$_private({
     @required SharedPreferences preferences,
     @required String key,
     @required T defaultValue,
