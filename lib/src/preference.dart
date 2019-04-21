@@ -79,6 +79,8 @@ class Preference<T> extends StreamView<T> {
   final Future<bool> Function() _clear;
 }
 
+/// A [StreamTransformer] that starts with the current persisted value and emits
+/// a new one whenever the [key] has update events.
 class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   _EmitValueChanges(
     this.key,
@@ -93,7 +95,7 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   final SharedPreferences preferences;
 
   T _getValueFromPersistentStorage() {
-    // Return the latest value from key-value store.
+    // Return the latest value from preferences,
     // If null, returns the default value.
     return valueAdapter.get(preferences, key) ?? defaultValue;
   }
@@ -107,8 +109,12 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
       controller = StreamController<T>(
         sync: true,
         onListen: () {
+          // When the stream is listened to, start with the current persisted
+          // value.
           controller.add(_getValueFromPersistentStorage());
 
+          // Whenever a key has been updated, fetch the current persisted value
+          // and emit it.
           subscription = input
               .transform(_EmitOnlyMatchingKeys(key))
               .map((_) => _getValueFromPersistentStorage())
@@ -124,6 +130,11 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   }
 }
 
+/// A [StreamTransformer] that filters out values that don't match the [key].
+///
+/// One exception is when the [key] is null - in this case, returns the source
+/// stream as is. One such case would be calling the `getKeys()` method on the
+/// `StreamingSharedPreferences`, as in that case there's no specific [key].
 class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
   _EmitOnlyMatchingKeys(this.key);
   final String key;

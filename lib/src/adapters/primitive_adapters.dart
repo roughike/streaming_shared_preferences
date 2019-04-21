@@ -1,19 +1,5 @@
 import 'preference_adapter.dart';
 
-/// A [PreferenceAdapter] implementation for storing and retrieving a [Set] of
-/// [String] objects.
-class StringSetAdapter extends PreferenceAdapter<Set<String>> {
-  static const instance = StringSetAdapter._();
-  const StringSetAdapter._();
-
-  @override
-  Set<String> get(preferences, _) => preferences.getKeys();
-
-  @override
-  Future<bool> set(_, __, ___) =>
-      throw UnsupportedError('SharedPreferences.setKeys() is not supported.');
-}
-
 /// A [PreferenceAdapter] implementation for storing and retrieving a [bool].
 class BoolAdapter extends PreferenceAdapter<bool> {
   static const instance = BoolAdapter._();

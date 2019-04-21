@@ -11,9 +11,9 @@ import 'preference.dart';
 /// It wraps [SharedPreferences] with a [Stream] based layer, allowing you to
 /// listen to changes in the underlying values.
 ///
-/// Every `getXYZ()` method returns a [Stream] that doesn't emit anything unless
-/// listened to. You can also obtain the current value synchronously by calling
-/// `getXYZ().value()`.
+/// Every `getXYZ()` method returns a [Stream] that emits values whenever the
+/// underlying value updates. You can also obtain the current value synchronously
+/// by calling `getXYZ().value()`.
 ///
 /// To start using it, await on [StreamingSharedPreferences.instance].
 class StreamingSharedPreferences {
@@ -27,7 +27,7 @@ class StreamingSharedPreferences {
   final SharedPreferences _preferences;
   final StreamController<String> _keyChangeController;
 
-  /// Obtain an instance to a [StreamingSharedPreferences].
+  /// Obtain an instance to [StreamingSharedPreferences].
   static Future<StreamingSharedPreferences> get instance async {
     if (_instanceCompleter == null) {
       _instanceCompleter = Completer();
@@ -55,14 +55,16 @@ class StreamingSharedPreferences {
     return getCustomValue(
       null,
       defaultsTo: Set(),
-      adapter: StringSetAdapter.instance,
+      adapter: _GetKeysAdapter.instance,
     );
   }
 
   /// Starts with the current bool value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo].
+  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// the value transitions from non-null to null (ie. when the value is removed),
+  /// emits [defaultsTo].
   Preference<bool> getBool(String key, {@required bool defaultsTo}) {
     return getCustomValue(
       key,
@@ -74,7 +76,9 @@ class StreamingSharedPreferences {
   /// Starts with the current int value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo].
+  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// the value transitions from non-null to null (ie. when the value is removed),
+  /// emits [defaultsTo].
   Preference<int> getInt(String key, {@required int defaultsTo}) {
     return getCustomValue(
       key,
@@ -86,7 +90,9 @@ class StreamingSharedPreferences {
   /// Starts with the current double value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo].
+  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// the value transitions from non-null to null (ie. when the value is removed),
+  /// emits [defaultsTo].
   Preference<double> getDouble(String key, {@required double defaultsTo}) {
     return getCustomValue(
       key,
@@ -98,7 +104,9 @@ class StreamingSharedPreferences {
   /// Starts with the current String value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo].
+  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// the value transitions from non-null to null (ie. when the value is removed),
+  /// emits [defaultsTo].
   Preference<String> getString(String key, {@required String defaultsTo}) {
     return getCustomValue(
       key,
@@ -110,7 +118,9 @@ class StreamingSharedPreferences {
   /// Starts with the current String list value for the given [key], then emits
   /// a new value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo].
+  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// the value transitions from non-null to null (ie. when the value is removed),
+  /// emits [defaultsTo].
   Preference<List<String>> getStringList(
     String key, {
     @required List<String> defaultsTo,
@@ -133,7 +143,9 @@ class StreamingSharedPreferences {
   /// persistent storage. For an example of a custom adapter, see the source code
   /// for [getString] and [StringAdapter].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo].
+  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// the value transitions from non-null to null (ie. when the value is removed),
+  /// emits [defaultsTo].
   Preference<T> getCustomValue<T>(
     String key, {
     @required T defaultsTo,
@@ -247,6 +259,20 @@ class StreamingSharedPreferences {
 
     return isSuccessful;
   }
+}
+
+/// A special [PreferenceAdapter] for getting all currently stored keys. Does not
+/// support [set] operations.
+class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
+  static const instance = _GetKeysAdapter._();
+  const _GetKeysAdapter._();
+
+  @override
+  Set<String> get(preferences, _) => preferences.getKeys();
+
+  @override
+  Future<bool> set(_, __, ___) =>
+      throw UnsupportedError('SharedPreferences.setKeys() is not supported.');
 }
 
 /// Used for obtaining an instance of [SharedPreferences] by [MobileKeyValueStore].
