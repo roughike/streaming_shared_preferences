@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'adapter.dart';
+import 'preference_adapter.dart';
 
 /// A convenience adapter that handles common pitfalls when storing and retrieving
 /// JSON values.

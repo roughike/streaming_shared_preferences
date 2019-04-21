@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:streaming_shared_preferences/src/adapters/adapter.dart';
+
+import 'preference_adapter.dart';
 
 /// A [PreferenceAdapter] implementation for storing and retrieving a [DateTime].
 class DateTimeAdapter extends PreferenceAdapter<DateTime> {

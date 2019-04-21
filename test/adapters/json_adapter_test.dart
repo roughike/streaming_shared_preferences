@@ -1,5 +1,5 @@
 import 'package:mockito/mockito.dart';
-import 'package:streaming_shared_preferences/src/adapters/json_adapter.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test_api/test_api.dart';
 
 import '../mocks.dart';

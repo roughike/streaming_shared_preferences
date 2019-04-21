@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:streaming_shared_preferences/src/adapters/adapter.dart';
+import 'adapters/preference_adapter.dart';
 
 /// A [ValueRetriever] is a function that retrieves a value of type of [T] from
 /// the persistent storage.
