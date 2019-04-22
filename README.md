@@ -2,7 +2,7 @@
 
 A reactive key-value store for Flutter projects.
 
-It wraps the [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) key-value store with a `Stream` based layer, allowing you to **listen to changes** in the underlying values. It's a great companion to the [StreamBuilder widget]() or as a reactive data source that you can share between your BLoCs to keep your UI up to date.
+It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a `Stream` based layer, allowing you to **listen to changes** in the underlying values. It serves as a great companion to the [StreamBuilder widget](https://docs.flutter.io/flutter/widgets/StreamBuilder-class.html) or as a reactive data source that you can share between your BLoCs to keep your UI up to date.
 
 ## Simple usage example
 
