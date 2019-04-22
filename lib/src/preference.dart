@@ -123,7 +123,7 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
 
           // Track onListen() events for this specific key and throw an error if
           // it seems that a Preference is used improperly.
-          _debugTrackOnListenEvent(key);
+          _debugTrackOnListenEvent(key, controller);
         },
         onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
@@ -168,47 +168,49 @@ class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
 /// in one second.
 ///
 /// Only enabled in debug mode.
-void _debugTrackOnListenEvent(String key) {
+void _debugTrackOnListenEvent(String key, StreamController controller) {
   if (!kReleaseMode) {
+    // ignore: deprecated_member_use_from_same_package
     if (!debugTrackOnListenEvents) return;
 
     _keysByLastOnListenTime ??= {};
 
+    final DateTime currentTime = debugObtainCurrentTime();
     final onListenTimes = _keysByLastOnListenTime[key] ?? [];
-    final currentTime = DateTime.now();
+    onListenTimes.add(currentTime);
+
+    _keysByLastOnListenTime[key] = onListenTimes;
 
     if (onListenTimes.isNotEmpty) {
-      final index = onListenTimes.length - 3;
+      final index = onListenTimes.length - 4;
       final referenceTime = index > -1 ? onListenTimes[index] : null;
 
       if (referenceTime != null) {
         final difference = currentTime.difference(referenceTime);
-        final isTooFast = difference < const Duration(seconds: 1);
+        final isTooFast = difference + const Duration(milliseconds: 250) <
+            const Duration(seconds: 1);
 
         if (isTooFast) {
-          _keysByLastOnListenTime = null;
-
-          throw FlutterError(
-            'Called onListen() on a Preference with a key "$key"\n'
-            'suspiciously many times on a short time frame.\n\n'
+          final error = FlutterError(
+            'Called onListen() on a Preference with a key "$key" suspiciously '
+            'many times on a short time frame.\n\n'
             'This error usually happens because of creating a new Preference '
-            'multiple times when using the StreamBuilder widget.\nIf you pass '
+            'multiple times when using the StreamBuilder widget. If you pass '
             'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
-            'a new instance of a Preference is created\non every rebuild. '
+            'a new instance of a Preference is created on every rebuild. '
             'This is highly discouraged, because it will refetch a value from '
-            'persistent storage every time the\nwidget rebuilds.\n\n'
+            'persistent storage every time the widget rebuilds.\n\n'
             'To combat this issue, cache the value returned by StreamingShared'
-            'Preferences.getXYZ() and pass the returned Preference\nobject to your StreamBuilder widget.\n\n'
+            'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
             'For more information, see the StreamingSharedPreferences '
-            'documentation or the README at:\nhttps://github.com/roughike/streaming_shared_preferences',
+            'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
           );
+
+          controller.addError(error);
+          FlutterError.onError(FlutterErrorDetails(exception: error));
         }
       }
     }
-
-    _keysByLastOnListenTime[key] = <DateTime>[]
-      ..addAll(onListenTimes)
-      ..add(currentTime);
   }
 }
 
@@ -219,4 +221,12 @@ void _debugTrackOnListenEvent(String key) {
 @visibleForTesting
 @deprecated
 bool debugTrackOnListenEvents = true;
+
+@visibleForTesting
+@deprecated
+DateTime Function() debugObtainCurrentTime = () => DateTime.now();
+
+@visibleForTesting
+@deprecated
+void debugResetOnListenLog() => _keysByLastOnListenTime?.clear();
 Map<String, List<DateTime>> _keysByLastOnListenTime;

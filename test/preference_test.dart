@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:mockito/mockito.dart';
 import 'package:streaming_shared_preferences/src/preference.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
@@ -31,6 +33,10 @@ void main() {
       adapter = _TestValueAdapter();
       keyChanges = StreamController<String>.broadcast();
 
+      // Disable throwing errors for tests when Preference is listened suspiciously
+      // many times in a short time period.
+      debugTrackOnListenEvents = false;
+
       // ignore: deprecated_member_use_from_same_package
       storedValue = Preference.$$_private(
         preferences: preferences,
@@ -39,6 +45,10 @@ void main() {
         adapter: adapter,
         keyChanges: keyChanges,
       );
+    });
+
+    tearDown(() {
+      debugTrackOnListenEvents = true;
     });
 
     test('calling set() calls the correct key and emits key updates', () {
@@ -72,6 +82,84 @@ void main() {
 
       when(preferences.getString('key')).thenReturn('3');
       expect(storedValue, emits('3'));
+    });
+
+    test('throws when listened to 4 times in one second', () async {
+      debugTrackOnListenEvents = true;
+
+      FlutterError emittedError;
+      FlutterError reportedError;
+
+      FlutterError.onError = (details) {
+        reportedError = details.exception;
+      };
+
+      try {
+        debugResetOnListenLog();
+        var time = DateTime.now();
+
+        debugObtainCurrentTime = () => time;
+        storedValue.listen(null);
+
+        time = time.add(Duration(milliseconds: 250));
+        storedValue.listen(null);
+
+        time = time.add(Duration(milliseconds: 250));
+        storedValue.listen(null);
+
+        // Listened to 4 times in a 999 millisecond time period
+        time = time.add(Duration(milliseconds: 249));
+        await storedValue.listen(null).asFuture();
+      } catch (e) {
+        emittedError = e;
+      }
+
+      final errorMessage =
+          'Called onListen() on a Preference with a key "key" suspiciously '
+          'many times on a short time frame.\n\n'
+          'This error usually happens because of creating a new Preference '
+          'multiple times when using the StreamBuilder widget. If you pass '
+          'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
+          'a new instance of a Preference is created on every rebuild. '
+          'This is highly discouraged, because it will refetch a value from '
+          'persistent storage every time the widget rebuilds.\n\n'
+          'To combat this issue, cache the value returned by StreamingShared'
+          'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
+          'For more information, see the StreamingSharedPreferences '
+          'documentation or the README at: https://github.com/roughike/streaming_shared_preferences';
+
+      expect(emittedError, isNotNull);
+      expect(emittedError.message, errorMessage);
+
+      expect(reportedError, isNotNull);
+      expect(reportedError.message, errorMessage);
+    });
+
+    test(
+        'does not throw if listened to multiple times in a reasonable time period',
+        () async {
+      debugTrackOnListenEvents = true;
+      debugResetOnListenLog();
+
+      var time = DateTime.now();
+
+      debugObtainCurrentTime = () => time;
+      storedValue.listen(null);
+
+      time = time.add(Duration(milliseconds: 250));
+      storedValue.listen(null);
+
+      time = time.add(Duration(milliseconds: 250));
+      storedValue.listen(null);
+
+      time = time.add(Duration(milliseconds: 250));
+      storedValue.listen(null);
+
+      time = time.add(Duration(milliseconds: 250));
+      storedValue.listen(null);
+
+      time = time.add(Duration(milliseconds: 250));
+      storedValue.listen(null);
     });
   });
 }
