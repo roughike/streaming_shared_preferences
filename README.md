@@ -1,4 +1,4 @@
-# streaming_shared_preferences
+# streaming_shared_preferences - (dev preview)
 
 A reactive key-value store for Flutter projects.
 
