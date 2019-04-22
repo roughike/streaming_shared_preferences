@@ -1,9 +1,8 @@
 # streaming_shared_preferences
 
-StreamingSharedPreferences is a reactive, `Stream` based wrapper over the [shared_preferences plugin]().
+A reactive key-value store for Flutter projects.
 
-On top of just storing key-value pairs, `StreamingSharedPreferences` allows you to **observe changes in values**.
-And best of all, it's pure `Streams` - **no rxdart needed**.
+It wraps the [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) key-value store with a `Stream` based layer, allowing you to **listen to changes** in the underlying values. It's a great companion to the [StreamBuilder widget]() or as a reactive data source that you can share between your BLoCs to keep your UI up to date.
 
 ## Simple usage example
 
@@ -16,7 +15,6 @@ import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 final preferences = await StreamingSharedPreferences.instance;
 ```
 
-Then call any of the `getXYZ()` public methods.
 The public API follows the same naming convention as `shared_preferences` does, but with a little
 twist - every getter returns a `Preference` object, which is a `Stream`!
 
@@ -31,14 +29,12 @@ counter.listen((value) {
   print(value);
 });
 
-// Same as preferences.setInt('counter', <value>), but no need
-// to provide a key here.
+// Same as preferences.setInt('counter', <value>), but no need to provide a key here.
 counter.set(1);
 counter.set(2);
 counter.set(3);
 
-// Obtain current value synchronously by calling the ".value()"
-// method. In this case, "currentValue" is now 3.
+// Obtain current value synchronously. In this case, "currentValue" is now 3.
 final currentValue = counter.value();
 ```
 
