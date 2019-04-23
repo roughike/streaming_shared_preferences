@@ -114,6 +114,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.8"
+  streaming_key_value_store:
+    dependency: transitive
+    description:
+      path: "../../core"
+      relative: true
+    source: path
+    version: "1.0.0-dev"
   streaming_shared_preferences:
     dependency: "direct main"
     description:

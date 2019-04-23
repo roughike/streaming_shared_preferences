@@ -33,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Preference<int> _counter;
+  StoredValue<int> _counter;
 
   @override
   void initState() {

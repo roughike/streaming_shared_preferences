@@ -1,45 +1,33 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:streaming_key_value_store/src/key_value_store.dart';
+import 'package:streaming_key_value_store/src/stored_value.dart';
 
 import 'adapters/adapters.dart';
-import 'preference.dart';
 
-/// StreamingSharedPreferences is a reactive version of a [SharedPreferences].
+/// StreamingKeyValueStore is a reactive version of a [KeyValueStore].
 ///
-/// It wraps [SharedPreferences] with a [Stream] based layer, allowing you to
+/// It wraps [KeyValueStore] with a [Stream] based layer, allowing you to
 /// listen to changes in the underlying values.
 ///
 /// Every `getXYZ()` method returns a [Stream] that emits values whenever the
 /// underlying value updates. You can also obtain the current value synchronously
 /// by calling `getXYZ().value()`.
 ///
-/// To start using it, await on [StreamingSharedPreferences.instance].
-class StreamingSharedPreferences {
-  static Completer<StreamingSharedPreferences> _instanceCompleter;
-
-  /// Private constructor to prevent multiple instances. Creating multiple
-  /// instances of the class breaks change detection.
-  StreamingSharedPreferences._(this._preferences)
+/// To start using it, await on [StreamingKeyValueStore.instance].
+class StreamingKeyValueStore {
+  /// Wraps the provided [keyValueStore] with a reactive, stream-based layer that
+  /// allows you to react to changes in underlying values.
+  ///
+  /// You should not create multiple instances of a [StreamingKeyValueStore]. Since
+  /// the change detection is only tracked by this wrapper class, multiple instances
+  /// of a [StreamingKeyValueStore] will not know about each others changes.
+  StreamingKeyValueStore(this._keyValueStore)
       : _keyChanges = StreamController<String>.broadcast();
 
-  final SharedPreferences _preferences;
+  final KeyValueStore _keyValueStore;
   final StreamController<String> _keyChanges;
-
-  /// Obtain an instance to [StreamingSharedPreferences].
-  static Future<StreamingSharedPreferences> get instance async {
-    if (_instanceCompleter == null) {
-      _instanceCompleter = Completer();
-
-      debugObtainSharedPreferencesInstance.then((preferences) {
-        final streamingPreferences = StreamingSharedPreferences._(preferences);
-        _instanceCompleter.complete(streamingPreferences);
-      });
-    }
-
-    return _instanceCompleter.future;
-  }
 
   /// Emits all the keys that currently exist - which means keys that have a
   /// non-null value.
@@ -50,7 +38,7 @@ class StreamingSharedPreferences {
   /// key.
   ///
   /// If there are no keys, emits an empty [Set].
-  Preference<Set<String>> getKeys() {
+  StoredValue<Set<String>> getKeys() {
     return _getValueAllowingNullKey(
       null,
       defaultsTo: Set(),
@@ -64,7 +52,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultsTo]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultsTo].
-  Preference<bool> getBool(String key, {@required bool defaultsTo}) {
+  StoredValue<bool> getBool(String key, {@required bool defaultsTo}) {
     return getCustomValue(
       key,
       defaultsTo: defaultsTo,
@@ -78,7 +66,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultsTo]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultsTo].
-  Preference<int> getInt(String key, {@required int defaultsTo}) {
+  StoredValue<int> getInt(String key, {@required int defaultsTo}) {
     return getCustomValue(
       key,
       defaultsTo: defaultsTo,
@@ -92,7 +80,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultsTo]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultsTo].
-  Preference<double> getDouble(String key, {@required double defaultsTo}) {
+  StoredValue<double> getDouble(String key, {@required double defaultsTo}) {
     return getCustomValue(
       key,
       defaultsTo: defaultsTo,
@@ -106,7 +94,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultsTo]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultsTo].
-  Preference<String> getString(String key, {@required String defaultsTo}) {
+  StoredValue<String> getString(String key, {@required String defaultsTo}) {
     return getCustomValue(
       key,
       defaultsTo: defaultsTo,
@@ -120,7 +108,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultsTo]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultsTo].
-  Preference<List<String>> getStringList(
+  StoredValue<List<String>> getStringList(
     String key, {
     @required List<String> defaultsTo,
   }) {
@@ -131,8 +119,8 @@ class StreamingSharedPreferences {
     );
   }
 
-  /// Creates a [Preference] with a custom type. Requires an implementation of
-  /// a [PreferenceAdapter].
+  /// Creates a [StoredValue] with a custom type. Requires an implementation of
+  /// a [StoredValueAdapter].
   ///
   /// Like all other "get()" methods, starts with a current value for the given
   /// [key], then emits a new value every time there are changes to the value
@@ -145,12 +133,12 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultsTo]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultsTo].
-  Preference<T> getCustomValue<T>(
+  StoredValue<T> getCustomValue<T>(
     String key, {
     @required T defaultsTo,
-    @required PreferenceAdapter<T> adapter,
+    @required StoredValueAdapter<T> adapter,
   }) {
-    assert(key != null, 'Preference key must not be null.');
+    assert(key != null, 'StoredValue key must not be null.');
 
     return _getValueAllowingNullKey(
       key,
@@ -207,7 +195,7 @@ class StreamingSharedPreferences {
   /// Sets a value of custom type [T] and notifies all active listeners that
   /// there's a new value for the [key].
   ///
-  /// Requires an implementation of a [PreferenceAdapter] for the type [T]. For an
+  /// Requires an implementation of a [StoredValueAdapter] for the type [T]. For an
   /// example of a custom adapter, see the source code for [setString] and
   /// [StringAdapter].
   ///
@@ -216,12 +204,12 @@ class StreamingSharedPreferences {
   Future<bool> setCustomValue<T>(
     String key,
     T value, {
-    @required PreferenceAdapter<T> adapter,
+    @required StoredValueAdapter<T> adapter,
   }) {
     assert(key != null, 'key must not be null.');
-    assert(adapter != null, 'PreferenceAdapter must not be null.');
+    assert(adapter != null, 'StoredValueAdapter must not be null.');
 
-    return _updateAndNotify(key, adapter.set(_preferences, key, value));
+    return _updateAndNotify(key, adapter.set(_keyValueStore, key, value));
   }
 
   /// Removes the value associated with [key] and notifies all active listeners
@@ -230,7 +218,7 @@ class StreamingSharedPreferences {
   ///
   /// Returns true if [key] was successfully removed, otherwise returns false.
   Future<bool> remove(String key) {
-    return _updateAndNotify(key, _preferences.remove(key));
+    return _updateAndNotify(key, _keyValueStore.remove(key));
   }
 
   /// Clears the entire key-value storage by removing all keys and values.
@@ -238,8 +226,8 @@ class StreamingSharedPreferences {
   /// Notifies all active listeners that their keys got removed, which in turn
   /// makes them emit their respective `defaultsTo` values.
   Future<bool> clear() async {
-    final keys = _preferences.getKeys();
-    final isSuccessful = await _preferences.clear();
+    final keys = _keyValueStore.getKeys();
+    final isSuccessful = await _keyValueStore.clear();
     keys.forEach(_keyChanges.add);
 
     return isSuccessful;
@@ -256,17 +244,17 @@ class StreamingSharedPreferences {
 
   /// Bypasses the key != null assertion but makes sure [defaultsTo] and [adapter]
   /// are non-null.
-  Preference<T> _getValueAllowingNullKey<T>(
+  StoredValue<T> _getValueAllowingNullKey<T>(
     String key, {
     @required T defaultsTo,
-    @required PreferenceAdapter<T> adapter,
+    @required StoredValueAdapter<T> adapter,
   }) {
-    assert(adapter != null, 'PreferenceAdapter must not be null.');
+    assert(adapter != null, 'StoredValueAdapter must not be null.');
     assert(defaultsTo != null, 'The default value must not be null.');
 
     // ignore: invalid_use_of_visible_for_testing_member
-    return Preference.$$_private(
-      _preferences,
+    return StoredValue.$$_private(
+      _keyValueStore,
       key,
       defaultsTo,
       adapter,
@@ -275,32 +263,16 @@ class StreamingSharedPreferences {
   }
 }
 
-/// A special [PreferenceAdapter] for getting all currently stored keys. Does not
+/// A special [StoredValueAdapter] for getting all currently stored keys. Does not
 /// support [set] operations.
-class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
+class _GetKeysAdapter extends StoredValueAdapter<Set<String>> {
   static const instance = _GetKeysAdapter._();
   const _GetKeysAdapter._();
 
   @override
-  Set<String> get(preferences, _) => preferences.getKeys();
+  Set<String> get(keyValueStore, _) => keyValueStore.getKeys();
 
   @override
   Future<bool> set(_, __, ___) =>
-      throw UnsupportedError('SharedPreferences.setKeys() is not supported.');
-}
-
-/// Used for obtaining an instance of [SharedPreferences] by [StreamingSharedPreferences].
-///
-/// Should not be used outside of tests.
-@visibleForTesting
-Future<SharedPreferences> debugObtainSharedPreferencesInstance =
-    SharedPreferences.getInstance();
-
-/// Resets the singleton instance of [StreamingSharedPreferences] so that it can
-/// be always tested from a clean slate. Only for testing purposes.
-///
-/// Should not be called outside of tests.
-@visibleForTesting
-void debugResetStreamingSharedPreferencesInstance() {
-  StreamingSharedPreferences._instanceCompleter = null;
+      throw UnsupportedError('KeyValueStore.setKeys() is not supported.');
 }

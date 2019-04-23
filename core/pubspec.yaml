@@ -1,0 +1,12 @@
+name: streaming_key_value_store
+description: A starting point for Dart libraries or applications.
+version: 1.0.0-dev
+homepage: https://www.example.com
+author: iirokrankka <email@example.com>
+
+environment:
+  sdk: '>=2.1.0 <3.0.0'
+
+dev_dependencies:
+  test: ^1.0.0
+  mockito: ^4.0.0

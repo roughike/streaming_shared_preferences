@@ -1,41 +1,40 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:streaming_key_value_store/src/key_value_store.dart';
 
-import 'adapters/preference_adapter.dart';
+import 'adapters/stored_value_adapter.dart';
 
-/// A [Preference] is a [Stream] that emits a value whenever the value associated
+/// A [StoredValue] is a [Stream] that emits a value whenever the value associated
 /// with [key] changes.
 ///
 /// Whenever the backing value associated with [key] transitions from non-null to
 /// null, emits [defaultValue]. The [defaultValue] is also emitted initially if
 /// the value is null when initially listening to the stream.
 ///
-/// Instead of calling `setXYZ(key, value)` methods on [SharedPreferences], you
-/// can store a reference to [Preference] and call [set] directly:
+/// Instead of calling `setXYZ(key, value)` methods on [KeyValueStore], you
+/// can store a reference to [StoredValue] and call [set] directly:
 ///
 /// ```dart
-/// final myString = preferences.getString('myString', defaultsTo: '');
+/// final myString = keyValueStore.getString('myString', defaultsTo: '');
 ///
 /// myString.set('hello world!');
 /// ```
-class Preference<T> extends StreamView<T> {
+class StoredValue<T> extends StreamView<T> {
   /// Only exposed for testing and internal purposes. Do not call directly in
   /// production code.
   @visibleForTesting
   // ignore: non_constant_identifier_names
-  Preference.$$_private(this._preferences, this._key, this._defaultValue,
+  StoredValue.$$_private(this._keyValueStore, this._key, this._defaultValue,
       this._adapter, this._keyChanges)
       : super(_keyChanges.stream.transform(
-          _EmitValueChanges(_key, _defaultValue, _adapter, _preferences),
+          _EmitValueChanges(_key, _defaultValue, _adapter, _keyValueStore),
         ));
 
   /// Get the latest value from the persistent storage synchronously.
   ///
   /// If the returned value doesn't exist (=is null), returns [_defaultValue].
-  T value() => _adapter.get(_preferences, _key) ?? _defaultValue;
+  T value() => _adapter.get(_keyValueStore, _key) ?? _defaultValue;
 
   /// Update the value and notify all listeners about the new value.
   ///
@@ -43,25 +42,25 @@ class Preference<T> extends StreamView<T> {
   Future<bool> set(T value) async {
     if (_key == null) {
       throw UnsupportedError(
-        'set() not supported for Preference with a null key.',
+        'set() not supported for StoredValue with a null key.',
       );
     }
 
-    return _updateAndNotify(_adapter.set(_preferences, _key, value));
+    return _updateAndNotify(_adapter.set(_keyValueStore, _key, value));
   }
 
   /// Clear (or in other words, remove) the value. Effectively sets the [_key]
   /// to a null value.
   ///
-  /// After removing a value, this [Preference] will emit the default value once.
+  /// After removing a value, this [StoredValue] will emit the default value once.
   Future<bool> clear() async {
     if (_key == null) {
       throw UnsupportedError(
-        'clear() not supported for Preference with a null key.',
+        'clear() not supported for StoredValue with a null key.',
       );
     }
 
-    return _updateAndNotify(_preferences.remove(_key));
+    return _updateAndNotify(_keyValueStore.remove(_key));
   }
 
   /// Invokes [fn] and captures the result, notifies all listeners about an
@@ -74,10 +73,10 @@ class Preference<T> extends StreamView<T> {
   }
 
   // Private fields to not clutter autocompletion results for this class.
-  final SharedPreferences _preferences;
+  final KeyValueStore _keyValueStore;
   final String _key;
   final T _defaultValue;
-  final PreferenceAdapter<T> _adapter;
+  final StoredValueAdapter<T> _adapter;
   final StreamController<String> _keyChanges;
 }
 
@@ -88,18 +87,18 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
     this.key,
     this.defaultValue,
     this.valueAdapter,
-    this.preferences,
+    this.keyValueStore,
   );
 
   final String key;
   final T defaultValue;
-  final PreferenceAdapter<T> valueAdapter;
-  final SharedPreferences preferences;
+  final StoredValueAdapter<T> valueAdapter;
+  final KeyValueStore keyValueStore;
 
   T _getValueFromPersistentStorage() {
-    // Return the latest value from preferences,
+    // Return the latest value from keyValueStore,
     // If null, returns the default value.
-    return valueAdapter.get(preferences, key) ?? defaultValue;
+    return valueAdapter.get(keyValueStore, key) ?? defaultValue;
   }
 
   @override
@@ -123,8 +122,8 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
               .listen(controller.add, onDone: controller.close);
 
           // Track onListen() events for this specific key and throw an error if
-          // it seems that a Preference is used improperly.
-          _debugTrackOnListenEvent(key, controller);
+          // it seems that a StoredValue is used improperly.
+          // _debugTrackOnListenEvent(key, controller);
         },
         onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
@@ -140,7 +139,7 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
 ///
 /// One exception is when the [key] is null - in this case, returns the source
 /// stream as is. One such case would be calling the `getKeys()` method on the
-/// `StreamingSharedPreferences`, as in that case there's no specific [key].
+/// `StreamingKeyValueStore`, as in that case there's no specific [key].
 class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
   _EmitOnlyMatchingKeys(this.key);
   final String key;
@@ -157,13 +156,14 @@ class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
   }
 }
 
-/// Tracks `onListen()` events and throws a [FlutterError] if a [Preference] is
+/*
+/// Tracks `onListen()` events and throws a [FlutterError] if a [StoredValue] is
 /// listened to too many times in a short time period.
 ///
 /// There is a performance penalty when accidentally recreating (and fetching a
-/// persistent value) a [Preference] every time a widget is rebuilt. This would
-/// commonly happen when accidentally creating a new [Preference] by using a
-/// `StreamBuilder` widget and passing `preferences.getXYZ()` to it directly.
+/// persistent value) a [StoredValue] every time a widget is rebuilt. This would
+/// commonly happen when accidentally creating a new [StoredValue] by using a
+/// `StreamBuilder` widget and passing `keyValueStore.getXYZ()` to it directly.
 ///
 /// Currently throws if there's 4 or more `onListen()` events for the same key
 /// in one second.
@@ -192,18 +192,18 @@ void _debugTrackOnListenEvent(String key, StreamController controller) {
 
         if (isTooFast) {
           final error = FlutterError(
-            'Called onListen() on a Preference with a key "$key" suspiciously '
+            'Called onListen() on a StoredValue with a key "$key" suspiciously '
                 'many times on a short time frame.\n\n'
-                'This error usually happens because of creating a new Preference '
+                'This error usually happens because of creating a new StoredValue '
                 'multiple times when using the StreamBuilder widget. If you pass '
-                'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
-                'a new instance of a Preference is created on every rebuild. '
+                'StreamingKeyValueStore.getXYZ() into StreamBuilder directly, '
+                'a new instance of a StoredValue is created on every rebuild. '
                 'This is highly discouraged, because it will refetch a value from '
                 'persistent storage every time the widget rebuilds.\n\n'
                 'To combat this issue, cache the value returned by StreamingShared'
-                'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
-                'For more information, see the StreamingSharedPreferences '
-                'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
+                'StoredValues.getXYZ() and pass the returned StoredValue object to your StreamBuilder widget.\n\n'
+                'For more information, see the StreamingKeyValueStore '
+                'documentation or the README at: https://github.com/roughike/streaming_shared_keyValueStore',
           );
 
           controller.addError(error);
@@ -214,7 +214,7 @@ void _debugTrackOnListenEvent(String key, StreamController controller) {
   }
 }
 
-/// Enable or disable throwing errors when a [Preference] is listened suspiciously
+/// Enable or disable throwing errors when a [StoredValue] is listened suspiciously
 /// many times in a short time period.
 ///
 /// Only exposed for testing purposes - should not be used in production code.
@@ -227,3 +227,4 @@ DateTime Function() debugObtainCurrentTime = () => DateTime.now();
 @visibleForTesting
 void debugResetOnListenLog() => _keysByLastOnListenTime?.clear();
 Map<String, List<DateTime>> _keysByLastOnListenTime;
+*/

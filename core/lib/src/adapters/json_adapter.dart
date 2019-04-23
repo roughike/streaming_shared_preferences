@@ -1,13 +1,12 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'preference_adapter.dart';
+import 'package:streaming_key_value_store/src/key_value_store.dart';
+import 'stored_value_adapter.dart';
 
 /// A convenience adapter that handles common pitfalls when storing and retrieving
 /// JSON values.
 ///
-/// [JsonAdapter] eliminates the need for a custom [PreferenceAdapter]. It also
+/// [JsonAdapter] eliminates the need for a custom [StoredValueAdapter]. It also
 /// saves you from duplicating `if (value == null) return null` custom adapters.
 ///
 /// For example, if we have a class called `SampleObject`:
@@ -31,7 +30,7 @@ import 'preference_adapter.dart';
 /// you need to provide a [deserializer] that calls `fromJson` manually:
 ///
 /// ```
-/// final sampleObject = preferences.getCustomValue<SampleObject>(
+/// final sampleObject = keyValueStore.getCustomValue<SampleObject>(
 ///   'my-key',
 ///   adapter: JsonAdapter(
 ///     deserializer: (value) => SampleObject.fromJson(value),
@@ -48,7 +47,7 @@ import 'preference_adapter.dart';
 /// For example:
 ///
 /// ```
-/// final sampleObject = preferences.getCustomValue<SampleObject>(
+/// final sampleObject = keyValueStore.getCustomValue<SampleObject>(
 ///   'my-key',
 ///   adapter: JsonAdapter(
 ///     serializer: (value) => serializers.serialize(value),
@@ -56,14 +55,14 @@ import 'preference_adapter.dart';
 ///   ),
 /// );
 /// ```
-class JsonAdapter<T> extends PreferenceAdapter<T> {
+class JsonAdapter<T> extends StoredValueAdapter<T> {
   const JsonAdapter({this.serializer, this.deserializer});
   final Object Function(T) serializer;
   final T Function(Object) deserializer;
 
   @override
-  T get(SharedPreferences preferences, String key) {
-    final value = preferences.getString(key);
+  T get(KeyValueStore keyValueStore, String key) {
+    final value = keyValueStore.getString(key);
     if (value == null) return null;
 
     final decoded = jsonDecode(value);
@@ -71,8 +70,8 @@ class JsonAdapter<T> extends PreferenceAdapter<T> {
   }
 
   @override
-  Future<bool> set(SharedPreferences preferences, String key, T value) {
+  Future<bool> set(KeyValueStore keyValueStore, String key, T value) {
     final serializedValue = serializer != null ? serializer(value) : value;
-    return preferences.setString(key, jsonEncode(serializedValue));
+    return keyValueStore.setString(key, jsonEncode(serializedValue));
   }
 }

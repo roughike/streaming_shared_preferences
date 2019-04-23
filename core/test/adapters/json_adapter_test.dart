@@ -1,5 +1,5 @@
 import 'package:mockito/mockito.dart';
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
+import 'package:streaming_key_value_store/streaming_key_value_store.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';
@@ -19,55 +19,55 @@ class TestObject {
 
 void main() {
   group('ValueAdapter tests', () {
-    MockSharedPreferences preferences;
+    MockKeyValueStore keyValueStore;
 
     setUp(() {
-      preferences = MockSharedPreferences();
+      keyValueStore = MockKeyValueStore();
     });
 
     group('JsonAdapter', () {
       test('fails gracefully when getting a null value', () {
-        when(preferences.getString('key')).thenReturn(null);
+        when(keyValueStore.getString('key')).thenReturn(null);
 
         final adapter = JsonAdapter();
-        final json = adapter.get(preferences, 'key');
+        final json = adapter.get(keyValueStore, 'key');
 
         expect(json, isNull);
       });
 
       test('decodes a stored JSON value into a Map', () {
-        when(preferences.getString('key')).thenReturn('{"hello":"world"}');
+        when(keyValueStore.getString('key')).thenReturn('{"hello":"world"}');
 
         final adapter = JsonAdapter();
-        final json = adapter.get(preferences, 'key');
+        final json = adapter.get(keyValueStore, 'key');
 
         expect(json, {'hello': 'world'});
       });
 
       test('decodes a stored JSON value into a List', () {
-        when(preferences.getString('key')).thenReturn('["hello","world"]');
+        when(keyValueStore.getString('key')).thenReturn('["hello","world"]');
 
         final adapter = JsonAdapter();
-        final json = adapter.get(preferences, 'key');
+        final json = adapter.get(keyValueStore, 'key');
 
         expect(json, ['hello', 'world']);
       });
 
       test('stores an object that implements a toJson() method', () {
         final adapter = JsonAdapter<TestObject>();
-        adapter.set(preferences, 'key', TestObject('world'));
+        adapter.set(keyValueStore, 'key', TestObject('world'));
 
-        verify(preferences.setString('key', '{"hello":"world"}'));
+        verify(keyValueStore.setString('key', '{"hello":"world"}'));
       });
 
       test('runs decoded json through deserializer when provided', () {
-        when(preferences.getString('key')).thenReturn('{"hello":"world"}');
+        when(keyValueStore.getString('key')).thenReturn('{"hello":"world"}');
 
         final adapter = JsonAdapter<TestObject>(
           deserializer: (v) => TestObject.fromJson(v),
         );
 
-        final testObject = adapter.get(preferences, 'key');
+        final testObject = adapter.get(keyValueStore, 'key');
         expect(testObject.hello, 'world');
       });
 
@@ -78,8 +78,8 @@ void main() {
 
         // What value we set here doesn't matter - we're testing that it's replaced
         // by the value returned by serializer.
-        adapter.set(preferences, 'key', null);
-        verify(preferences.setString('key', '{"encoded":"value"}'));
+        adapter.set(keyValueStore, 'key', null);
+        verify(keyValueStore.setString('key', '{"encoded":"value"}'));
       });
     });
   });
