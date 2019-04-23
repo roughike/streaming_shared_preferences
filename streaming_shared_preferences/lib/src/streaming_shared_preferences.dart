@@ -25,7 +25,7 @@ class StreamingSharedPreferences extends StreamingKeyValueStore {
   /// Obtain an instance to [StreamingSharedPreferences].
   ///
   /// Since  the change detection is tracked by [StreamingKeyValueStore] in Dart
-  /// side, multiple instances of a [StreamingSharedPreferences] will not know
+  /// side, multiple instances of [StreamingSharedPreferences] will not know
   /// about each others changes.
   static Future<StreamingSharedPreferences> get instance async {
     if (_instanceCompleter == null) {
