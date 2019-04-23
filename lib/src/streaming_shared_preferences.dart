@@ -22,17 +22,16 @@ class StreamingSharedPreferences {
   /// Private constructor to prevent multiple instances. Creating multiple
   /// instances of the class breaks change detection.
   StreamingSharedPreferences._(this._preferences)
-      : _keyChangeController = StreamController<String>.broadcast();
+      : _keyChanges = StreamController<String>.broadcast();
 
   final SharedPreferences _preferences;
-  final StreamController<String> _keyChangeController;
+  final StreamController<String> _keyChanges;
 
   /// Obtain an instance to [StreamingSharedPreferences].
   static Future<StreamingSharedPreferences> get instance async {
     if (_instanceCompleter == null) {
       _instanceCompleter = Completer();
 
-      // ignore: deprecated_member_use_from_same_package
       debugObtainSharedPreferencesInstance.then((preferences) {
         final streamingPreferences = StreamingSharedPreferences._(preferences);
         _instanceCompleter.complete(streamingPreferences);
@@ -52,7 +51,7 @@ class StreamingSharedPreferences {
   ///
   /// If there are no keys, emits an empty [Set].
   Preference<Set<String>> getKeys() {
-    return getCustomValue(
+    return _getValueAllowingNullKey(
       null,
       defaultsTo: Set(),
       adapter: _GetKeysAdapter.instance,
@@ -151,16 +150,12 @@ class StreamingSharedPreferences {
     @required T defaultsTo,
     @required PreferenceAdapter<T> adapter,
   }) {
-    assert(adapter != null, 'ValueAdapter must not be null.');
-    assert(defaultsTo != null, 'The default value must not be null.');
+    assert(key != null, 'Preference key must not be null.');
 
-    // ignore: invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
-    return Preference.$$_private(
-      _preferences,
+    return _getValueAllowingNullKey(
       key,
-      defaultsTo,
-      adapter,
-      _keyChangeController,
+      defaultsTo: defaultsTo,
+      adapter: adapter,
     );
   }
 
@@ -224,7 +219,7 @@ class StreamingSharedPreferences {
     @required PreferenceAdapter<T> adapter,
   }) {
     assert(key != null, 'key must not be null.');
-    assert(adapter != null, 'ValueAdapter must not be null.');
+    assert(adapter != null, 'PreferenceAdapter must not be null.');
 
     return _updateAndNotify(key, adapter.set(_preferences, key, value));
   }
@@ -245,19 +240,38 @@ class StreamingSharedPreferences {
   Future<bool> clear() async {
     final keys = _preferences.getKeys();
     final isSuccessful = await _preferences.clear();
-    keys.forEach(_keyChangeController.add);
+    keys.forEach(_keyChanges.add);
 
     return isSuccessful;
   }
 
-  /// Internal helper method for invoking [fn] and capturing the result,
-  /// notifying all listeners about an update to [key], and then returning the
-  /// previously captured result.
+  /// Invokes [fn] and captures the result, notifies all listeners about an
+  /// update to [key], and then returns the previously captured result.
   Future<bool> _updateAndNotify(String key, Future<bool> fn) async {
     final isSuccessful = await fn;
-    _keyChangeController.add(key);
+    _keyChanges.add(key);
 
     return isSuccessful;
+  }
+
+  /// Bypasses the key != null assertion but makes sure [defaultsTo] and [adapter]
+  /// are non-null.
+  Preference<T> _getValueAllowingNullKey<T>(
+    String key, {
+    @required T defaultsTo,
+    @required PreferenceAdapter<T> adapter,
+  }) {
+    assert(adapter != null, 'PreferenceAdapter must not be null.');
+    assert(defaultsTo != null, 'The default value must not be null.');
+
+    // ignore: invalid_use_of_visible_for_testing_member
+    return Preference.$$_private(
+      _preferences,
+      key,
+      defaultsTo,
+      adapter,
+      _keyChanges,
+    );
   }
 }
 
@@ -279,7 +293,6 @@ class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
 ///
 /// Should not be used outside of tests.
 @visibleForTesting
-@deprecated
 Future<SharedPreferences> debugObtainSharedPreferencesInstance =
     SharedPreferences.getInstance();
 
@@ -288,7 +301,6 @@ Future<SharedPreferences> debugObtainSharedPreferencesInstance =
 ///
 /// Should not be called outside of tests.
 @visibleForTesting
-@deprecated
 void debugResetStreamingSharedPreferencesInstance() {
   StreamingSharedPreferences._instanceCompleter = null;
 }

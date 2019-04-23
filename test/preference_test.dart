@@ -10,8 +10,8 @@ import '../test/mocks.dart';
 
 class _TestValueAdapter extends PreferenceAdapter<String> {
   @override
-  String get(keyValueStore, key) {
-    return keyValueStore.getString(key);
+  String get(preferences, key) {
+    return preferences.getString(key);
   }
 
   @override
@@ -25,7 +25,7 @@ void main() {
     MockSharedPreferences preferences;
     _TestValueAdapter adapter;
     StreamController<String> keyChanges;
-    Preference<String> storedValue;
+    Preference<String> preference;
 
     setUp(() {
       preferences = MockSharedPreferences();
@@ -34,10 +34,11 @@ void main() {
 
       // Disable throwing errors for tests when Preference is listened suspiciously
       // many times in a short time period.
+      expect(debugTrackOnListenEvents, true);
       debugTrackOnListenEvents = false;
 
       // ignore: deprecated_member_use_from_same_package
-      storedValue = Preference.$$_private(
+      preference = Preference.$$_private(
         preferences,
         'key',
         'default value',
@@ -51,9 +52,9 @@ void main() {
     });
 
     test('calling set() calls the correct key and emits key updates', () {
-      storedValue.set('value1');
-      storedValue.set('value2');
-      storedValue.set('value3');
+      preference.set('value1');
+      preference.set('value2');
+      preference.set('value3');
 
       verifyInOrder([
         preferences.setString('key', 'value1'),
@@ -65,22 +66,33 @@ void main() {
     });
 
     test('calling clear() calls delegate and removes key', () async {
-      storedValue.clear();
+      preference.clear();
 
       verify(preferences.remove('key'));
 
       expect(keyChanges.stream, emits('key'));
     });
 
+    test('calling set() or clear() on a Preference with null key throws', () {
+      final pref =
+          Preference.$$_private(preferences, null, '', adapter, keyChanges);
+
+      expect(pref.clear, throwsA(const TypeMatcher<UnsupportedError>()));
+      expect(
+        () => pref.set(''),
+        throwsA(const TypeMatcher<UnsupportedError>()),
+      );
+    });
+
     test('starts with the latest value whenever listened to', () {
       when(preferences.getString('key')).thenReturn('1');
-      expect(storedValue, emits('1'));
+      expect(preference, emits('1'));
 
       when(preferences.getString('key')).thenReturn('2');
-      expect(storedValue, emits('2'));
+      expect(preference, emits('2'));
 
       when(preferences.getString('key')).thenReturn('3');
-      expect(storedValue, emits('3'));
+      expect(preference, emits('3'));
     });
 
     test('throws when listened to 4 times in one second', () async {
@@ -98,17 +110,17 @@ void main() {
         var time = DateTime.now();
 
         debugObtainCurrentTime = () => time;
-        storedValue.listen(null);
+        preference.listen(null);
 
         time = time.add(Duration(milliseconds: 250));
-        storedValue.listen(null);
+        preference.listen(null);
 
         time = time.add(Duration(milliseconds: 250));
-        storedValue.listen(null);
+        preference.listen(null);
 
         // Listened to 4 times in a 999 millisecond time period
         time = time.add(Duration(milliseconds: 249));
-        await storedValue.listen(null).asFuture();
+        await preference.listen(null).asFuture();
       } catch (e) {
         emittedError = e;
       }
@@ -143,22 +155,22 @@ void main() {
       var time = DateTime.now();
 
       debugObtainCurrentTime = () => time;
-      storedValue.listen(null);
+      preference.listen(null);
 
       time = time.add(Duration(milliseconds: 250));
-      storedValue.listen(null);
+      preference.listen(null);
 
       time = time.add(Duration(milliseconds: 250));
-      storedValue.listen(null);
+      preference.listen(null);
 
       time = time.add(Duration(milliseconds: 250));
-      storedValue.listen(null);
+      preference.listen(null);
 
       time = time.add(Duration(milliseconds: 250));
-      storedValue.listen(null);
+      preference.listen(null);
 
       time = time.add(Duration(milliseconds: 250));
-      storedValue.listen(null);
+      preference.listen(null);
     });
   });
 }

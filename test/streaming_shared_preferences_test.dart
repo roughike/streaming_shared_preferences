@@ -277,6 +277,13 @@ void main() {
           );
         },
       );
+
+      test('trying to call set() on getKeys() throws an error', () {
+        expect(
+          () => preferences.getKeys().set(Set()),
+          throwsA(const TypeMatcher<UnsupportedError>()),
+        );
+      });
     });
 
     group('boolean tests', () {
@@ -743,6 +750,62 @@ void main() {
       expect(value1, emitsInOrder(['value', '']));
       expect(value2, emitsInOrder(['value', '']));
       expect(value3, emitsInOrder(['value', '']));
+    });
+
+    test('setters throw assertion error when key is null', () {
+      final assertionError = throwsA(const TypeMatcher<AssertionError>());
+
+      expect(() => preferences.setBool(null, true), assertionError);
+      expect(() => preferences.setInt(null, 0), assertionError);
+      expect(() => preferences.setDouble(null, 0), assertionError);
+      expect(() => preferences.setString(null, ''), assertionError);
+      expect(
+        () => preferences.setStringList(null, []),
+        assertionError,
+      );
+    });
+
+    test('throws assertion error for null preference adapter', () {
+      final assertionError = throwsA(const TypeMatcher<AssertionError>());
+      expect(
+        () => preferences.getCustomValue('', defaultsTo: '', adapter: null),
+        assertionError,
+      );
+
+      expect(
+        () => preferences.setCustomValue<String>('', '', adapter: null),
+        assertionError,
+      );
+    });
+
+    test('getters throw assertion error when key is null', () {
+      final assertionError = throwsA(const TypeMatcher<AssertionError>());
+
+      expect(() => preferences.getBool(null, defaultsTo: true), assertionError);
+      expect(() => preferences.getInt(null, defaultsTo: 0), assertionError);
+      expect(() => preferences.getDouble(null, defaultsTo: 0), assertionError);
+      expect(() => preferences.getString(null, defaultsTo: ''), assertionError);
+      expect(
+        () => preferences.getStringList(null, defaultsTo: []),
+        assertionError,
+      );
+    });
+
+    test('getters throw assertion error when default value is null', () {
+      final assertionError = throwsA(const TypeMatcher<AssertionError>());
+
+      expect(() => preferences.getBool('k', defaultsTo: null), assertionError);
+      expect(() => preferences.getInt('k', defaultsTo: null), assertionError);
+      expect(() => preferences.getDouble('', defaultsTo: null), assertionError);
+      expect(
+        () => preferences.getString('k', defaultsTo: null),
+        assertionError,
+      );
+
+      expect(
+        () => preferences.getStringList('', defaultsTo: null),
+        assertionError,
+      );
     });
   });
 }

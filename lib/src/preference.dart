@@ -24,7 +24,6 @@ import 'adapters/preference_adapter.dart';
 class Preference<T> extends StreamView<T> {
   /// Only exposed for testing and internal purposes. Do not call directly in
   /// production code.
-  @deprecated
   @visibleForTesting
   // ignore: non_constant_identifier_names
   Preference.$$_private(this._preferences, this._key, this._defaultValue,
@@ -51,7 +50,8 @@ class Preference<T> extends StreamView<T> {
     return _updateAndNotify(_adapter.set(_preferences, _key, value));
   }
 
-  /// Clear (or in other words, remove) the value.
+  /// Clear (or in other words, remove) the value. Effectively sets the [_key]
+  /// to a null value.
   ///
   /// After removing a value, this [Preference] will emit the default value once.
   Future<bool> clear() async {
@@ -64,9 +64,8 @@ class Preference<T> extends StreamView<T> {
     return _updateAndNotify(_preferences.remove(_key));
   }
 
-  /// Internal helper method for invoking [fn] and capturing the result,
-  /// notifying all listeners about an update to [key], and then returning the
-  /// previously captured result.
+  /// Invokes [fn] and captures the result, notifies all listeners about an
+  /// update to [_key], and then returns the previously captured result.
   Future<bool> _updateAndNotify(Future<bool> fn) async {
     final isSuccessful = await fn;
     _keyChanges.add(_key);
@@ -172,12 +171,10 @@ class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
 /// Only enabled in debug mode.
 void _debugTrackOnListenEvent(String key, StreamController controller) {
   if (!kReleaseMode) {
-    // ignore: deprecated_member_use_from_same_package
     if (!debugTrackOnListenEvents) return;
 
     _keysByLastOnListenTime ??= {};
 
-    // ignore: deprecated_member_use_from_same_package
     final DateTime currentTime = debugObtainCurrentTime();
     final onListenTimes = _keysByLastOnListenTime[key] ?? [];
     onListenTimes.add(currentTime);
@@ -222,14 +219,11 @@ void _debugTrackOnListenEvent(String key, StreamController controller) {
 ///
 /// Only exposed for testing purposes - should not be used in production code.
 @visibleForTesting
-@deprecated
 bool debugTrackOnListenEvents = true;
 
 @visibleForTesting
-@deprecated
 DateTime Function() debugObtainCurrentTime = () => DateTime.now();
 
 @visibleForTesting
-@deprecated
 void debugResetOnListenLog() => _keysByLastOnListenTime?.clear();
 Map<String, List<DateTime>> _keysByLastOnListenTime;
