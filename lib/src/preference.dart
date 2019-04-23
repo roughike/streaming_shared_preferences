@@ -27,57 +27,59 @@ class Preference<T> extends StreamView<T> {
   @deprecated
   @visibleForTesting
   // ignore: non_constant_identifier_names
-  Preference.$$_private({
-    @required SharedPreferences preferences,
-    @required String key,
-    @required T defaultValue,
-    @required PreferenceAdapter<T> adapter,
-    @required StreamController<String> keyChanges,
-  })  : _value = (() => adapter.get(preferences, key) ?? defaultValue),
-        _set = ((value) async {
-          if (key == null) {
-            throw UnsupportedError(
-              'set() not supported for Preference with a null key.',
-            );
-          }
-
-          final result = await adapter.set(preferences, key, value);
-          keyChanges.add(key);
-
-          return result;
-        }),
-        _clear = (() async {
-          if (key == null) {
-            throw UnsupportedError(
-              'clear() not supported for Preference with a null key.',
-            );
-          }
-
-          final result = await preferences.remove(key);
-          keyChanges.add(key);
-
-          return result;
-        }),
-        super(keyChanges.stream.transform(
-          _EmitValueChanges(key, defaultValue, adapter, preferences),
+  Preference.$$_private(this._preferences, this._key, this._defaultValue,
+      this._adapter, this._keyChanges)
+      : super(_keyChanges.stream.transform(
+          _EmitValueChanges(_key, _defaultValue, _adapter, _preferences),
         ));
 
-  /// Get the latest value from persistent storage synchronously.
-  T value() => _value();
+  /// Get the latest value from the persistent storage synchronously.
+  ///
+  /// If the returned value doesn't exist (=is null), returns [_defaultValue].
+  T value() => _adapter.get(_preferences, _key) ?? _defaultValue;
 
   /// Update the value and notify all listeners about the new value.
   ///
   /// Returns true if the [value] was successfully set, otherwise returns false.
-  Future<bool> set(T value) => _set(value);
+  Future<bool> set(T value) async {
+    if (_key == null) {
+      throw UnsupportedError(
+        'set() not supported for Preference with a null key.',
+      );
+    }
+
+    return _updateAndNotify(_adapter.set(_preferences, _key, value));
+  }
 
   /// Clear (or in other words, remove) the value.
   ///
   /// After removing a value, this [Preference] will emit the default value once.
-  Future<bool> clear() => _clear();
+  Future<bool> clear() async {
+    if (_key == null) {
+      throw UnsupportedError(
+        'clear() not supported for Preference with a null key.',
+      );
+    }
 
-  final T Function() _value;
-  final Future<bool> Function(T) _set;
-  final Future<bool> Function() _clear;
+    return _updateAndNotify(_preferences.remove(_key));
+  }
+
+  /// Internal helper method for invoking [fn] and capturing the result,
+  /// notifying all listeners about an update to [key], and then returning the
+  /// previously captured result.
+  Future<bool> _updateAndNotify(Future<bool> fn) async {
+    final isSuccessful = await fn;
+    _keyChanges.add(_key);
+
+    return isSuccessful;
+  }
+
+  // Private fields to not clutter autocompletion results for this class.
+  final SharedPreferences _preferences;
+  final String _key;
+  final T _defaultValue;
+  final PreferenceAdapter<T> _adapter;
+  final StreamController<String> _keyChanges;
 }
 
 /// A [StreamTransformer] that starts with the current persisted value and emits
@@ -175,6 +177,7 @@ void _debugTrackOnListenEvent(String key, StreamController controller) {
 
     _keysByLastOnListenTime ??= {};
 
+    // ignore: deprecated_member_use_from_same_package
     final DateTime currentTime = debugObtainCurrentTime();
     final onListenTimes = _keysByLastOnListenTime[key] ?? [];
     onListenTimes.add(currentTime);
@@ -193,17 +196,17 @@ void _debugTrackOnListenEvent(String key, StreamController controller) {
         if (isTooFast) {
           final error = FlutterError(
             'Called onListen() on a Preference with a key "$key" suspiciously '
-            'many times on a short time frame.\n\n'
-            'This error usually happens because of creating a new Preference '
-            'multiple times when using the StreamBuilder widget. If you pass '
-            'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
-            'a new instance of a Preference is created on every rebuild. '
-            'This is highly discouraged, because it will refetch a value from '
-            'persistent storage every time the widget rebuilds.\n\n'
-            'To combat this issue, cache the value returned by StreamingShared'
-            'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
-            'For more information, see the StreamingSharedPreferences '
-            'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
+                'many times on a short time frame.\n\n'
+                'This error usually happens because of creating a new Preference '
+                'multiple times when using the StreamBuilder widget. If you pass '
+                'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
+                'a new instance of a Preference is created on every rebuild. '
+                'This is highly discouraged, because it will refetch a value from '
+                'persistent storage every time the widget rebuilds.\n\n'
+                'To combat this issue, cache the value returned by StreamingShared'
+                'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
+                'For more information, see the StreamingSharedPreferences '
+                'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
           );
 
           controller.addError(error);

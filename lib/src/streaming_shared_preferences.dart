@@ -156,11 +156,11 @@ class StreamingSharedPreferences {
 
     // ignore: invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
     return Preference.$$_private(
-      preferences: _preferences,
-      key: key,
-      defaultValue: defaultsTo,
-      adapter: adapter,
-      keyChanges: _keyChangeController,
+      _preferences,
+      key,
+      defaultsTo,
+      adapter,
+      _keyChangeController,
     );
   }
 
