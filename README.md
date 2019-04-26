@@ -72,11 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('You have pushed the button this many times:'),
-        StreamBuilder<int>(
-          stream: _counter,
-          builder: (context, snapshot) {
+        PreferenceBuilder<int>(
+          _counter,
+          builder: (BuildContext context, int counter) {
             return Text(
-              '${snapshot.data}',
+              '$counter',
               style: Theme.of(context).textTheme.display1,
             );
           },
@@ -93,44 +93,4 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-```
-
-There's one thing worth noting here: **do NOT** pass `preferences.getInt(..)` to a `StreamBuilder`
-directly. Cache it instead.
-
-To illustrate, **DO**:
-
-```dart
-class _MyHomePageState extends State<MyHomePage> {
-  Preference<int> _counter;
-
-  @override
-  void initState() {
-    super.initState();
-    _counter = widget.preferences.getInt('counter', defaultsTo: 0);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: _counter, // Good :-)
-      builder: (context, snapshot) { .. },
-    );
-  }
-}
-```
-
-**DO NOT:**
-
-```dart
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: widget.preferences.getInt('counter', defaultsTo: 0), // BAD! >:-(
-      builder: (context, snapshot) { .. },
-    );
-  }
-}
 ```
