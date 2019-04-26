@@ -72,6 +72,8 @@ class Preference<T> extends StreamView<T> {
     return isSuccessful;
   }
 
+  /// The fallback value to default to when there's no stored value associated
+  /// with the [key].
   final T defaultValue;
 
   // Private fields to not clutter autocompletion results for this class.
@@ -124,7 +126,9 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
 
           // Track onListen() events for this specific key and throw an error if
           // it seems that a Preference is used improperly.
-          _debugTrackOnListenEvent(key, controller);
+          if (kReleaseMode == false) {
+            _debugTrackOnListenEvent(key, controller);
+          }
         },
         onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
@@ -165,52 +169,56 @@ class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
 /// commonly happen when accidentally creating a new [Preference] by using a
 /// `StreamBuilder` widget and passing `preferences.getXYZ()` to it directly.
 ///
-/// Currently throws if there's 4 or more `onListen()` events for the same key
-/// in one second.
-///
 /// Only enabled in debug mode.
 void _debugTrackOnListenEvent(String key, StreamController controller) {
-  if (!kReleaseMode) {
-    if (!debugTrackOnListenEvents) return;
+  if (!debugTrackOnListenEvents) return;
 
-    _keysByLastOnListenTime ??= {};
+  _keysByLastOnListenTime ??= {};
 
-    final DateTime currentTime = debugObtainCurrentTime();
-    final onListenTimes = _keysByLastOnListenTime[key] ?? [];
-    onListenTimes.add(currentTime);
+  final DateTime currentTime = debugObtainCurrentTime();
+  final onListenTimes = _keysByLastOnListenTime[key] ?? [];
+  onListenTimes.add(currentTime);
 
-    _keysByLastOnListenTime[key] = onListenTimes;
+  _keysByLastOnListenTime[key] = onListenTimes;
 
-    if (onListenTimes.isNotEmpty) {
-      final index = onListenTimes.length - 4;
-      final referenceTime = index > -1 ? onListenTimes[index] : null;
+  if (onListenTimes.isNotEmpty) {
+    final index = onListenTimes.length - 4;
+    final referenceTime = index > -1 ? onListenTimes[index] : null;
 
-      if (referenceTime != null) {
-        final difference = currentTime.difference(referenceTime);
-        final isTooFast = difference + const Duration(milliseconds: 250) <
-            const Duration(seconds: 1);
+    _throwErrorIfNeeded(key, controller, currentTime, referenceTime);
+  }
+}
 
-        if (isTooFast) {
-          final error = FlutterError(
-            'Called onListen() on a Preference with a key "$key" suspiciously '
-            'many times on a short time frame.\n\n'
-            'This error usually happens because of creating a new Preference '
-            'multiple times when using the StreamBuilder widget. If you pass '
-            'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
-            'a new instance of a Preference is created on every rebuild. '
-            'This is highly discouraged, because it will refetch a value from '
-            'persistent storage every time the widget rebuilds.\n\n'
-            'To combat this issue, cache the value returned by StreamingShared'
-            'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
-            'For more information, see the StreamingSharedPreferences '
-            'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
-          );
+/// Throw a helpful error about a likely performance issue.
+///
+/// Currently throws if there's 4 or more `onListen()` events for the same key
+/// in one second.
+void _throwErrorIfNeeded(String key, StreamController<String> controller,
+    DateTime currentTime, DateTime referenceTime) {
+  if (referenceTime == null) return;
 
-          controller.addError(error);
-          FlutterError.onError(FlutterErrorDetails(exception: error));
-        }
-      }
-    }
+  final difference = currentTime.difference(referenceTime);
+  final isTooFast = difference + const Duration(milliseconds: 250) <
+      const Duration(seconds: 1);
+
+  if (isTooFast) {
+    final error = FlutterError(
+      'Called onListen() on a Preference with a key "$key" suspiciously '
+      'many times on a short time frame.\n\n'
+      'This error usually happens because of creating a new Preference '
+      'multiple times when using the StreamBuilder widget. If you pass '
+      'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
+      'a new instance of a Preference is created on every rebuild. '
+      'This is highly discouraged, because it will refetch a value from '
+      'persistent storage every time the widget rebuilds.\n\n'
+      'To combat this issue, cache the value returned by StreamingShared'
+      'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
+      'For more information, see the StreamingSharedPreferences '
+      'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
+    );
+
+    controller.addError(error);
+    FlutterError.onError(FlutterErrorDetails(exception: error));
   }
 }
 
