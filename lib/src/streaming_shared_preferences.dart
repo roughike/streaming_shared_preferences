@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'adapters/adapters.dart';
 import 'preference.dart';
 
-/// StreamingSharedPreferences is a reactive version of a [SharedPreferences].
+/// StreamingSharedPreferences is a reactive version of [SharedPreferences].
 ///
 /// It wraps [SharedPreferences] with a [Stream] based layer, allowing you to
 /// listen to changes in the underlying values.
