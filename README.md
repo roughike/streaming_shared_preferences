@@ -6,7 +6,7 @@
 
 A reactive key-value store for Flutter projects.
 
-It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer <sub><sup>(and it's pure Streams **without rxdart**)</sup></sub>, allowing you to **listen to changes** in the underlying values.
+It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer, allowing you to **listen to changes** in the underlying values. <sub><sup>(and it's pure Streams **without rxdart**)</sup></sub>
 
 **For the tl;dr;** look into the [example](example/lib/main.dart) or [read this](#a-real-world-example).
 
