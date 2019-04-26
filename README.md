@@ -8,6 +8,8 @@ A reactive key-value store for Flutter projects.
 
 It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer <sub><sup>(and it's pure Streams **without rxdart**)</sup></sub>, allowing you to **listen to changes** in the underlying values.
 
+**For the tl;dr:** look into the [example](example/lib/main.dart) or [read this](#a-real-world-example)
+
 ## Simple usage example
 
 To get a hold of `StreamingSharedPreferences`, _await_ on `instance`:
@@ -145,7 +147,7 @@ class MyAppSettings {
 }
 ```
 
-Now you can create an instance of `MyAppSettings` and the calling code becomes quite neat:
+Now you can create an instance of `MyAppSettings` once, pass it down to the widgets that use it, and the calling code becomes quite neat:
 
 ```dart
 
@@ -181,7 +183,7 @@ class MyCounterWidget extends StatelessWidget {
 When your widget hierarchy becomes deep enough, you would want to pass `MyAppSettings` around with an `InheritedWidget`:
 Something like this:
 
-```
+```dart
 Future<void> main() async {
   final preferences = await StreamingSharedPreferences.instance;
   final settings = MyAppSettings(preferences);
