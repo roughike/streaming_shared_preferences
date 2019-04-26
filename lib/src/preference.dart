@@ -181,12 +181,9 @@ void _debugTrackOnListenEvent(String key, StreamController controller) {
 
   _keysByLastOnListenTime[key] = onListenTimes;
 
-  if (onListenTimes.isNotEmpty) {
-    final index = onListenTimes.length - 4;
-    final referenceTime = index > -1 ? onListenTimes[index] : null;
-
-    _throwErrorIfNeeded(key, controller, currentTime, referenceTime);
-  }
+  final index = onListenTimes.length - 4;
+  final referenceTime = index > -1 ? onListenTimes[index] : null;
+  _throwErrorIfNeeded(key, controller, currentTime, referenceTime);
 }
 
 /// Throw a helpful error about a likely performance issue.
