@@ -46,10 +46,23 @@ Assuming that there's no previously stored value for `counter`, the above exampl
 
 ## Naive example #1: simple usage with StreamBuilder
 
+It's recommended to obtain the instance once in the `main()` method and then pass it down:
+
+```dart
+Future<void> main() async {
+  final preferences = await StreamingSharedPreferences.instance;
+
+  runApp(MyApp(preferences));
+}
+```
+
 Since `Preference<int>` is actually a `Stream<int>`, you can pass the `counter` variable to the `StreamBuilder` widget as-is:
 
 ```dart
 class MyCounterWidget extends StatefulWidget {
+  MyCounterWidget(this.preferences);
+  final StreamingSharedPreferences preferences;
+
   @override
   _MyCounterWidgetState createState() => _MyCounterWidgetState();
 }
@@ -60,7 +73,7 @@ class _MyCounterWidgetState extends State<MyCounterWidget> {
   @override
   void initState() {
     super.initState();
-    _counter = preferences.getInt('counter', defaultValue: 0);
+    _counter = widget.preferences.getInt('counter', defaultValue: 0);
   }
 
   @override
