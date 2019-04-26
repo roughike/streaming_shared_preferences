@@ -93,7 +93,9 @@ class _MyCounterWidgetState extends State<MyCounterWidget> {
 
 Upon closer inspection, you might notice that it's a little boilerplatey.
 
-We had to provide the fallback value twice - once in `defaultValue` for `Preference` and once in `initialValue` for `StreamBuilder`. On top of that, we had to use a `StatefulWidget` in order to avoid creating a `Stream` in the build method. _"Boilerplate is awesome!"_ - said no one ever.
+We had to provide the fallback value twice - once in `defaultValue` for `Preference` and once in `initialValue` for `StreamBuilder`. On top of that, we had to use a `StatefulWidget` in order to avoid creating a `Stream` in the build method.
+
+_"Boilerplate is awesome!"_ - said no one ever.
 
 ## Naive example #2: simple usage with PreferenceBuilder
 
@@ -119,9 +121,9 @@ The `PreferenceBuilder` widget has a couple benefits:
 * instead of `AsyncSnapshot<int>`, you get the `int` directly
 * you can't shoot yourself on the foot by accidentally recreating and listening to a `Stream` on every rebuild
 
-However, you **don't have to use** `PreferenceBuilder` if you don't want to. 
+To be clear, you **don't have to use** `PreferenceBuilder` if you don't want to. 
 
-`StreamBuilder` is completely fine, with one little caveat: don't create preference objects inside the build method by calling `StreamBuilder(stream: preferences.getXYZ(..))`. Doing so will recreate and subscribe to a new `Stream` every time your widget rebuilds. 
+`StreamBuilder` is completely fine, with one little caveat: do not create `Preference` objects inside the build method by calling `StreamBuilder(stream: preferences.getXYZ(..))`. Doing so will recreate and subscribe to a new `Stream` every time your widget rebuilds. 
 
 If you end up doing so anyway, [you will get nagged a lot](https://github.com/roughike/streaming_shared_preferences/blob/master/lib/src/preference.dart#L164-L223) in debug mode.
 
@@ -129,8 +131,8 @@ If you end up doing so anyway, [you will get nagged a lot](https://github.com/ro
 
 Everything is so simple in theoretical code samples.
 
-It's highly likely that in a real app you have more values to store, unless your business is clicking on a button that increments a value.
-And you'll probably have bunch of other code too, which in turn makes for a lot of vertical clutter.
+It's highly likely that in a real app you have more values to store, unless your use case actually is clicking on a button that increments a value.
+And you'll probably end up with a bunch of other code too, which in turn makes for a lot of vertical code clutter.
 
 Once you start having multiple different settings, it makes sense to wrap them in a custom class:
 
