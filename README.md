@@ -8,7 +8,7 @@ A reactive key-value store for Flutter projects.
 
 It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer <sub><sup>(and it's pure Streams **without rxdart**)</sup></sub>, allowing you to **listen to changes** in the underlying values.
 
-**For the tl;dr:** look into the [example](example/lib/main.dart) or [read this](#a-real-world-example)
+**For the tl;dr;** look into the [example](example/lib/main.dart) or [read this](#a-real-world-example).
 
 ## Simple usage example
 
@@ -46,7 +46,7 @@ final currentValue = counter.value();
 Assuming that there's no previously stored value for `counter`, the above example will print `0`,
 `1`, `2` and `3` to the console.
 
-## Naive example #1: simple usage with StreamBuilder
+## Naive (and boilerplatey) example #1: simple usage with StreamBuilder
 
 It's recommended to obtain the instance once in the `main()` method and then pass it down:
 
@@ -93,13 +93,13 @@ class _MyCounterWidgetState extends State<MyCounterWidget> {
 
 Upon closer inspection, you might notice that it's a little boilerplatey.
 
-We had to provide the fallback value twice - once in `defaultValue` for `Preference` and once in `initialValue` for `StreamBuilder`. On top of that, we had to use a `StatefulWidget` in order to avoid creating a `Stream` in the build method.
+We had to provide the fallback value twice - once in `defaultValue` for `Preference` and once in `initialValue` for `StreamBuilder`. On top of that, we had to use a stateful widget in order to avoid creating a stream in the build method.
 
 _"Boilerplate is awesome!"_ - said no one ever.
 
 ## Naive example #2: simple usage with PreferenceBuilder
 
-To combat the previous boilerplate, there's a `PreferenceBuilder` widget.
+To combat the previous boilerplate, there's a `PreferenceBuilder` widget:
 
 ```dart
 class MyCounterWidget extends StatelessWidget {
@@ -182,7 +182,8 @@ class MyCounterWidget extends StatelessWidget {
 }
 ```
 
-When your widget hierarchy becomes deep enough, you would want to pass `MyAppSettings` around with an `InheritedWidget`:
+When your widget hierarchy becomes deep enough, you would want to pass `MyAppSettings` around with an `InheritedWidget`.
+
 Something like this:
 
 ```dart
