@@ -1,0 +1,20 @@
+name: streaming_shared_preferences
+description: A reactive, Stream-based wrapper for SharedPreferences
+version: 1.0.0-dev
+author: Iiro Krankka <iiro.krankka@gmail.com>
+homepage: https://github.com/roughike/streaming_shared_preferences
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^0.5.0
+  meta: ^1.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  test: ^1.0.0
+  mockito: ^4.0.0
