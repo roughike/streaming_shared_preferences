@@ -25,16 +25,16 @@ class Preference<T> extends StreamView<T> {
   /// Only exposed for internal purposes. Do not call directly.
   @visibleForTesting
   // ignore: non_constant_identifier_names
-  Preference.$$_private(this._preferences, this._key, this._defaultValue,
+  Preference.$$_private(this._preferences, this._key, this.defaultValue,
       this._adapter, this._keyChanges)
       : super(_keyChanges.stream.transform(
-          _EmitValueChanges(_key, _defaultValue, _adapter, _preferences),
+          _EmitValueChanges(_key, defaultValue, _adapter, _preferences),
         ));
 
   /// Get the latest value from the persistent storage synchronously.
   ///
-  /// If the returned value doesn't exist (=is null), returns [_defaultValue].
-  T value() => _adapter.get(_preferences, _key) ?? _defaultValue;
+  /// If the returned value doesn't exist (=is null), returns [defaultValue].
+  T value() => _adapter.get(_preferences, _key) ?? defaultValue;
 
   /// Update the value and notify all listeners about the new value.
   ///
@@ -72,10 +72,11 @@ class Preference<T> extends StreamView<T> {
     return isSuccessful;
   }
 
+  final T defaultValue;
+
   // Private fields to not clutter autocompletion results for this class.
   final SharedPreferences _preferences;
   final String _key;
-  final T _defaultValue;
   final PreferenceAdapter<T> _adapter;
   final StreamController<String> _keyChanges;
 }

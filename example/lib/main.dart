@@ -31,13 +31,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// Preference is a Stream, so it can be connected directly into the
-    /// StreamBuilder widget. It will emit the latest persisted value which
-    /// updates whenever the underlying value changes.
-    return StreamBuilder<bool>(
-      stream: settings.darkMode,
-      builder: (context, AsyncSnapshot<bool> snapshot) {
-        final brightness = snapshot.data ? Brightness.dark : Brightness.light;
+    /// Preference is a Stream - it can be used directly with a StreamBuilder widget.
+    ///
+    /// However, we're using a PreferenceBuilder for convenience. It means that
+    /// we don't have to specify the exact same value twice for both `defaultsTo`
+    /// on Preference and `initialValue` on the StreamBuilder widget.
+    ///
+    /// PreferenceBuilder will rebuild its `builder` method with the latest value
+    /// whenever it changes.
+    return PreferenceBuilder<bool>(
+      settings.darkMode,
+      builder: (BuildContext context, bool darkMode) {
+        final brightness = darkMode ? Brightness.dark : Brightness.light;
 
         return MaterialApp(
           title: 'StreamingSharedPreferences Demo',
@@ -85,12 +90,12 @@ class MyHomePage extends StatelessWidget {
             ),
 
             /// Same as with the "darkMode" boolean - we just connect the value
-            /// of "counter" to the UI with a StreamBuilder.
-            StreamBuilder<int>(
-              stream: settings.counter,
-              builder: (context, snapshot) {
+            /// of "counter" to the UI with a PreferenceBuilder.
+            PreferenceBuilder<int>(
+              settings.counter,
+              builder: (BuildContext context, int counter) {
                 return Text(
-                  '${snapshot.data}',
+                  '$counter',
                   style: Theme.of(context).textTheme.display1,
                 );
               },
