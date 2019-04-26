@@ -22,7 +22,7 @@ For example, here's how you would get and listen to changes in an `int` with the
 
 ```dart
 // Provide a default value of 0 in case "counter" is null.
-final counter = preferences.getInt('counter', defaultsTo: 0);
+final counter = preferences.getInt('counter', defaultValue: 0);
 
 // "counter" is a Stream - it can do anything a Stream can!
 counter.listen((value) {
@@ -60,7 +60,7 @@ class MyHomePage extends StatelessWidget {
       children: [
         Text('You have pushed the button this many times:'),
         PreferenceBuilder<int>(
-          preferences.getInt('counter', defaultsTo: 0),
+          preferences.getInt('counter', defaultValue: 0),
           builder: (BuildContext context, int counter) {
             return Text(
               '$counter',

@@ -17,7 +17,7 @@ import 'adapters/preference_adapter.dart';
 /// can store a reference to [Preference] and call [set] directly:
 ///
 /// ```dart
-/// final myString = preferences.getString('myString', defaultsTo: '');
+/// final myString = preferences.getString('myString', defaultValue: '');
 ///
 /// myString.set('hello world!');
 /// ```

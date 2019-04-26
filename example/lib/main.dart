@@ -9,8 +9,8 @@ import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 /// code more neat.
 class MyAppSettings {
   MyAppSettings(StreamingSharedPreferences preferences)
-      : counter = preferences.getInt('counter', defaultsTo: 0),
-        darkMode = preferences.getBool('darkMode', defaultsTo: false);
+      : counter = preferences.getInt('counter', defaultValue: 0),
+        darkMode = preferences.getBool('darkMode', defaultValue: false);
 
   final Preference<int> counter;
   final Preference<bool> darkMode;
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
     /// Preference is a Stream - it can be used directly with a StreamBuilder widget.
     ///
     /// However, we're using a PreferenceBuilder for convenience. It means that
-    /// we don't have to specify the exact same value twice for both `defaultsTo`
+    /// we don't have to specify the exact same value twice for both `defaultValue`
     /// on Preference and `initialValue` on the StreamBuilder widget.
     ///
     /// PreferenceBuilder will rebuild its `builder` method with the latest value

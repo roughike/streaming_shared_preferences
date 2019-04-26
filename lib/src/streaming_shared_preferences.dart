@@ -53,7 +53,7 @@ class StreamingSharedPreferences {
   Preference<Set<String>> getKeys() {
     return _getValueAllowingNullKey(
       null,
-      defaultsTo: Set(),
+      defaultValue: Set(),
       adapter: _GetKeysAdapter.instance,
     );
   }
@@ -61,13 +61,13 @@ class StreamingSharedPreferences {
   /// Starts with the current bool value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
-  /// emits [defaultsTo].
-  Preference<bool> getBool(String key, {@required bool defaultsTo}) {
+  /// emits [defaultValue].
+  Preference<bool> getBool(String key, {@required bool defaultValue}) {
     return getCustomValue(
       key,
-      defaultsTo: defaultsTo,
+      defaultValue: defaultValue,
       adapter: BoolAdapter.instance,
     );
   }
@@ -75,13 +75,13 @@ class StreamingSharedPreferences {
   /// Starts with the current int value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
-  /// emits [defaultsTo].
-  Preference<int> getInt(String key, {@required int defaultsTo}) {
+  /// emits [defaultValue].
+  Preference<int> getInt(String key, {@required int defaultValue}) {
     return getCustomValue(
       key,
-      defaultsTo: defaultsTo,
+      defaultValue: defaultValue,
       adapter: IntAdapter.instance,
     );
   }
@@ -89,13 +89,13 @@ class StreamingSharedPreferences {
   /// Starts with the current double value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
-  /// emits [defaultsTo].
-  Preference<double> getDouble(String key, {@required double defaultsTo}) {
+  /// emits [defaultValue].
+  Preference<double> getDouble(String key, {@required double defaultValue}) {
     return getCustomValue(
       key,
-      defaultsTo: defaultsTo,
+      defaultValue: defaultValue,
       adapter: DoubleAdapter.instance,
     );
   }
@@ -103,13 +103,13 @@ class StreamingSharedPreferences {
   /// Starts with the current String value for the given [key], then emits a new
   /// value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
-  /// emits [defaultsTo].
-  Preference<String> getString(String key, {@required String defaultsTo}) {
+  /// emits [defaultValue].
+  Preference<String> getString(String key, {@required String defaultValue}) {
     return getCustomValue(
       key,
-      defaultsTo: defaultsTo,
+      defaultValue: defaultValue,
       adapter: StringAdapter.instance,
     );
   }
@@ -117,16 +117,16 @@ class StreamingSharedPreferences {
   /// Starts with the current String list value for the given [key], then emits
   /// a new value every time there are changes to the value associated with [key].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
-  /// emits [defaultsTo].
+  /// emits [defaultValue].
   Preference<List<String>> getStringList(
     String key, {
-    @required List<String> defaultsTo,
+    @required List<String> defaultValue,
   }) {
     return getCustomValue(
       key,
-      defaultsTo: defaultsTo,
+      defaultValue: defaultValue,
       adapter: StringListAdapter.instance,
     );
   }
@@ -142,19 +142,19 @@ class StreamingSharedPreferences {
   /// persistent storage. For an example of a custom adapter, see the source code
   /// for [getString] and [StringAdapter].
   ///
-  /// If the value is null, starts with the value provided in [defaultsTo]. When
+  /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
-  /// emits [defaultsTo].
+  /// emits [defaultValue].
   Preference<T> getCustomValue<T>(
     String key, {
-    @required T defaultsTo,
+    @required T defaultValue,
     @required PreferenceAdapter<T> adapter,
   }) {
     assert(key != null, 'Preference key must not be null.');
 
     return _getValueAllowingNullKey(
       key,
-      defaultsTo: defaultsTo,
+      defaultValue: defaultValue,
       adapter: adapter,
     );
   }
@@ -226,7 +226,7 @@ class StreamingSharedPreferences {
 
   /// Removes the value associated with [key] and notifies all active listeners
   /// that [key] was removed. When a key is removed, the listeners associated
-  /// with it will emit their `defaultsTo` value.
+  /// with it will emit their `defaultValue` value.
   ///
   /// Returns true if [key] was successfully removed, otherwise returns false.
   Future<bool> remove(String key) {
@@ -236,7 +236,7 @@ class StreamingSharedPreferences {
   /// Clears the entire key-value storage by removing all keys and values.
   ///
   /// Notifies all active listeners that their keys got removed, which in turn
-  /// makes them emit their respective `defaultsTo` values.
+  /// makes them emit their respective `defaultValue` values.
   Future<bool> clear() async {
     final keys = _preferences.getKeys();
     final isSuccessful = await _preferences.clear();
@@ -254,21 +254,21 @@ class StreamingSharedPreferences {
     return isSuccessful;
   }
 
-  /// Bypasses the key != null assertion but makes sure [defaultsTo] and [adapter]
+  /// Bypasses the key != null assertion but makes sure [defaultValue] and [adapter]
   /// are non-null.
   Preference<T> _getValueAllowingNullKey<T>(
     String key, {
-    @required T defaultsTo,
+    @required T defaultValue,
     @required PreferenceAdapter<T> adapter,
   }) {
     assert(adapter != null, 'PreferenceAdapter must not be null.');
-    assert(defaultsTo != null, 'The default value must not be null.');
+    assert(defaultValue != null, 'The default value must not be null.');
 
     // ignore: invalid_use_of_visible_for_testing_member
     return Preference.$$_private(
       _preferences,
       key,
-      defaultsTo,
+      defaultValue,
       adapter,
       _keyChanges,
     );

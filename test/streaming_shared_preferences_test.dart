@@ -76,11 +76,11 @@ void main() {
     test('forwards all method invocations and parameters to the delegate',
         () async {
       preferences.getKeys().listen(null);
-      preferences.getBool('boolKey', defaultsTo: false).listen(null);
-      preferences.getInt('intKey', defaultsTo: 0).listen(null);
-      preferences.getDouble('doubleKey', defaultsTo: 0).listen(null);
-      preferences.getString('stringKey', defaultsTo: '').listen(null);
-      preferences.getStringList('stringListKey', defaultsTo: []).listen(null);
+      preferences.getBool('boolKey', defaultValue: false).listen(null);
+      preferences.getInt('intKey', defaultValue: 0).listen(null);
+      preferences.getDouble('doubleKey', defaultValue: 0).listen(null);
+      preferences.getString('stringKey', defaultValue: '').listen(null);
+      preferences.getStringList('stringListKey', defaultValue: []).listen(null);
 
       preferences.setBool('boolKey', true);
       preferences.setInt('intKey', 1337);
@@ -128,11 +128,11 @@ void main() {
       // These invocations make sure that a ".set(..)" method exists and is
       // accessible for all these getters. If the test doesn't crash, it's considered
       // a passing test.
-      preferences.getBool('key', defaultsTo: false).set(true);
-      preferences.getInt('key', defaultsTo: 0).set(1);
-      preferences.getDouble('key', defaultsTo: 0).set(1);
-      preferences.getString('key', defaultsTo: '').set('');
-      preferences.getStringList('key', defaultsTo: []).set(['a']);
+      preferences.getBool('key', defaultValue: false).set(true);
+      preferences.getInt('key', defaultValue: 0).set(1);
+      preferences.getDouble('key', defaultValue: 0).set(1);
+      preferences.getString('key', defaultValue: '').set('');
+      preferences.getStringList('key', defaultValue: []).set(['a']);
 
       // Casting "getKeys()" to dynamic and trying to call ".set(..)" on it should
       // throw an error.
@@ -294,7 +294,7 @@ void main() {
       });
 
       test('getBool() - can listen to multiple times', () {
-        final stream = preferences.getBool('myTrueBool', defaultsTo: false);
+        final stream = preferences.getBool('myTrueBool', defaultValue: false);
 
         // If this doesn't crash the test, the test is considered a passing test.
         stream.listen((_) {});
@@ -304,50 +304,50 @@ void main() {
 
       test('getBool().stream() - initial values', () {
         expect(
-          preferences.getBool('myTrueBool', defaultsTo: false),
+          preferences.getBool('myTrueBool', defaultValue: false),
           emits(true),
         );
 
         expect(
-          preferences.getBool('myFalseBool', defaultsTo: true),
+          preferences.getBool('myFalseBool', defaultValue: true),
           emits(false),
         );
 
         expect(
-          preferences.getBool('myNullBool', defaultsTo: true),
+          preferences.getBool('myNullBool', defaultValue: true),
           emits(true),
         );
 
         expect(
-          preferences.getBool('myNullBool', defaultsTo: false),
+          preferences.getBool('myNullBool', defaultValue: false),
           emits(false),
         );
       });
 
       test('getBool().value() - initial values', () {
         expect(
-          preferences.getBool('myTrueBool', defaultsTo: false).value(),
+          preferences.getBool('myTrueBool', defaultValue: false).value(),
           true,
         );
 
         expect(
-          preferences.getBool('myFalseBool', defaultsTo: true).value(),
+          preferences.getBool('myFalseBool', defaultValue: true).value(),
           false,
         );
 
         expect(
-          preferences.getBool('myNullBool', defaultsTo: true).value(),
+          preferences.getBool('myNullBool', defaultValue: true).value(),
           true,
         );
 
         expect(
-          preferences.getBool('myNullBool', defaultsTo: false).value(),
+          preferences.getBool('myNullBool', defaultValue: false).value(),
           false,
         );
       });
 
       test('getBool().value()', () async {
-        final storedBool = preferences.getBool('key1', defaultsTo: false);
+        final storedBool = preferences.getBool('key1', defaultValue: false);
         expect(storedBool.value(), isFalse);
 
         when(delegate.getBool('key1')).thenReturn(true);
@@ -355,24 +355,24 @@ void main() {
 
         when(delegate.getBool('key1')).thenReturn(false);
         expect(
-          preferences.getBool('key1', defaultsTo: true).value(),
+          preferences.getBool('key1', defaultValue: true).value(),
           isFalse,
         );
 
         when(delegate.getBool('key1')).thenReturn(null);
         expect(
-          preferences.getBool('key1', defaultsTo: true).value(),
+          preferences.getBool('key1', defaultValue: true).value(),
           isTrue,
         );
 
         expect(
-          preferences.getBool('key1', defaultsTo: false).value(),
+          preferences.getBool('key1', defaultValue: false).value(),
           isFalse,
         );
       });
 
       test('setBool emits an update in getBool', () async {
-        final storedBool = preferences.getBool('key1', defaultsTo: false);
+        final storedBool = preferences.getBool('key1', defaultValue: false);
 
         scheduleMicrotask(() {
           when(delegate.getBool('key1')).thenReturn(true);
@@ -394,7 +394,7 @@ void main() {
       });
 
       test('getInt() - can listen to multiple times', () {
-        final stream = preferences.getInt('myInt', defaultsTo: 0);
+        final stream = preferences.getInt('myInt', defaultValue: 0);
 
         // If this doesn't crash the test, the test is considered a passing test.
         stream.listen((_) {});
@@ -403,41 +403,41 @@ void main() {
       });
 
       test('getInt() - initial values', () {
-        expect(preferences.getInt('myInt', defaultsTo: 0), emits(1337));
-        expect(preferences.getInt('myNullInt', defaultsTo: 0), emits(0));
+        expect(preferences.getInt('myInt', defaultValue: 0), emits(1337));
+        expect(preferences.getInt('myNullInt', defaultValue: 0), emits(0));
         expect(
-          preferences.getInt('myNullInt', defaultsTo: 1337),
+          preferences.getInt('myNullInt', defaultValue: 1337),
           emits(1337),
         );
       });
 
       test('getInt().value() - initial values', () {
-        expect(preferences.getInt('myInt', defaultsTo: 0).value(), 1337);
+        expect(preferences.getInt('myInt', defaultValue: 0).value(), 1337);
         expect(
-          preferences.getInt('myNullInt', defaultsTo: 1337).value(),
+          preferences.getInt('myNullInt', defaultValue: 1337).value(),
           1337,
         );
       });
 
       test('getInt().value()', () async {
-        final storedInt = preferences.getInt('key1', defaultsTo: 0);
+        final storedInt = preferences.getInt('key1', defaultValue: 0);
         expect(storedInt.value(), 0);
 
         when(delegate.getInt('key1')).thenReturn(1);
         expect(storedInt.value(), 1);
 
         when(delegate.getInt('key1')).thenReturn(2);
-        expect(preferences.getInt('key1', defaultsTo: 0).value(), 2);
+        expect(preferences.getInt('key1', defaultValue: 0).value(), 2);
 
         when(delegate.getInt('key1')).thenReturn(null);
         expect(
-          preferences.getInt('key1', defaultsTo: 1).value(),
+          preferences.getInt('key1', defaultValue: 1).value(),
           1,
         );
       });
 
       test('setInt emits an update in getInt', () async {
-        final storedInt = preferences.getInt('key1', defaultsTo: 1);
+        final storedInt = preferences.getInt('key1', defaultValue: 1);
 
         scheduleMicrotask(() {
           when(delegate.getInt('key1')).thenReturn(2);
@@ -459,7 +459,7 @@ void main() {
       });
 
       test('getDouble() - can listen to multiple times', () {
-        final stream = preferences.getDouble('myDouble', defaultsTo: 0);
+        final stream = preferences.getDouble('myDouble', defaultValue: 0);
 
         // If this doesn't crash the test, the test is considered a passing test.
         stream.listen((_) {});
@@ -469,47 +469,47 @@ void main() {
 
       test('getDouble() - initial values', () {
         expect(
-          preferences.getDouble('myDouble', defaultsTo: 0),
+          preferences.getDouble('myDouble', defaultValue: 0),
           emits(13.37),
         );
 
         expect(
-          preferences.getDouble('myNullDouble', defaultsTo: 13.37),
+          preferences.getDouble('myNullDouble', defaultValue: 13.37),
           emits(13.37),
         );
       });
 
       test('getDouble().value() - initial values', () {
         expect(
-          preferences.getDouble('myDouble', defaultsTo: 0).value(),
+          preferences.getDouble('myDouble', defaultValue: 0).value(),
           13.37,
         );
 
         expect(
-          preferences.getDouble('myNullDouble', defaultsTo: 13.37).value(),
+          preferences.getDouble('myNullDouble', defaultValue: 13.37).value(),
           13.37,
         );
       });
 
       test('getDouble().value()', () async {
-        final storedDouble = preferences.getDouble('key1', defaultsTo: 0);
+        final storedDouble = preferences.getDouble('key1', defaultValue: 0);
         expect(storedDouble.value(), 0);
 
         when(delegate.getDouble('key1')).thenReturn(1.1);
         expect(storedDouble.value(), 1.1);
 
         when(delegate.getDouble('key1')).thenReturn(2.2);
-        expect(preferences.getDouble('key1', defaultsTo: 0).value(), 2.2);
+        expect(preferences.getDouble('key1', defaultValue: 0).value(), 2.2);
 
         when(delegate.getDouble('key1')).thenReturn(null);
         expect(
-          preferences.getDouble('key1', defaultsTo: 1.1).value(),
+          preferences.getDouble('key1', defaultValue: 1.1).value(),
           1.1,
         );
       });
 
       test('setDouble emits an update in getDouble', () async {
-        final storedDouble = preferences.getDouble('key1', defaultsTo: 1.1);
+        final storedDouble = preferences.getDouble('key1', defaultValue: 1.1);
 
         scheduleMicrotask(() {
           when(delegate.getDouble('key1')).thenReturn(2.2);
@@ -531,7 +531,7 @@ void main() {
       });
 
       test('getString() - can listen to multiple times', () {
-        final stream = preferences.getString('myString', defaultsTo: '');
+        final stream = preferences.getString('myString', defaultValue: '');
 
         // If this doesn't crash the test, the test is considered a passing test.
         stream.listen((_) {});
@@ -541,32 +541,32 @@ void main() {
 
       test('getString() - initial values', () {
         expect(
-          preferences.getString('myString', defaultsTo: ''),
+          preferences.getString('myString', defaultValue: ''),
           emits('myValue'),
         );
 
         expect(
-          preferences.getString('null-defValue', defaultsTo: 'defaultValue'),
+          preferences.getString('null-defValue', defaultValue: 'defaultValue'),
           emits('defaultValue'),
         );
       });
 
       test('getString().value() - initial values', () {
         expect(
-          preferences.getString('myString', defaultsTo: '').value(),
+          preferences.getString('myString', defaultValue: '').value(),
           'myValue',
         );
 
         expect(
           preferences
-              .getString('null-defValue', defaultsTo: 'defaultValue')
+              .getString('null-defValue', defaultValue: 'defaultValue')
               .value(),
           'defaultValue',
         );
       });
 
       test('getString().value()', () async {
-        final storedString = preferences.getString('key1', defaultsTo: '');
+        final storedString = preferences.getString('key1', defaultValue: '');
         expect(storedString.value(), isEmpty);
 
         when(delegate.getString('key1')).thenReturn('value 1');
@@ -574,20 +574,20 @@ void main() {
 
         when(delegate.getString('key1')).thenReturn('value 2');
         expect(
-          preferences.getString('key1', defaultsTo: '').value(),
+          preferences.getString('key1', defaultValue: '').value(),
           'value 2',
         );
 
         when(delegate.getString('key1')).thenReturn(null);
         expect(
-          preferences.getString('key1', defaultsTo: 'defaultValue').value(),
+          preferences.getString('key1', defaultValue: 'defaultValue').value(),
           'defaultValue',
         );
       });
 
       test('setString emits an update in getString Stream', () async {
         final storedString =
-            preferences.getString('key1', defaultsTo: 'defaultValue');
+            preferences.getString('key1', defaultValue: 'defaultValue');
 
         scheduleMicrotask(() {
           when(delegate.getString('key1')).thenReturn('updated string');
@@ -615,7 +615,7 @@ void main() {
       test('getStringList() - can listen to multiple times', () {
         final stream = preferences.getStringList(
           'myStringList',
-          defaultsTo: [],
+          defaultValue: [],
         );
 
         // If this doesn't crash the test, the test is considered a passing test.
@@ -626,14 +626,14 @@ void main() {
 
       test('getStringList() - initial values', () {
         expect(
-          preferences.getStringList('myStringList', defaultsTo: []),
+          preferences.getStringList('myStringList', defaultValue: []),
           emits(['a', 'b']),
         );
 
         expect(
           preferences.getStringList(
             'myEmptyStringList',
-            defaultsTo: ['nonempty'],
+            defaultValue: ['nonempty'],
           ),
           emits([]),
         );
@@ -641,7 +641,7 @@ void main() {
         expect(
           preferences.getStringList(
             'myNullStringList',
-            defaultsTo: ['default', 'value'],
+            defaultValue: ['default', 'value'],
           ),
           emits(['default', 'value']),
         );
@@ -649,14 +649,14 @@ void main() {
 
       test('getStringList().value() - initial values', () {
         expect(
-          preferences.getStringList('myStringList', defaultsTo: []).value(),
+          preferences.getStringList('myStringList', defaultValue: []).value(),
           ['a', 'b'],
         );
 
         expect(
           preferences.getStringList(
             'null-defValue',
-            defaultsTo: ['default', 'value'],
+            defaultValue: ['default', 'value'],
           ).value(),
           ['default', 'value'],
         );
@@ -665,7 +665,7 @@ void main() {
       test('getStringList().value()', () async {
         final storedStringList = preferences.getStringList(
           'key1',
-          defaultsTo: [],
+          defaultValue: [],
         );
 
         expect(storedStringList.value(), isEmpty);
@@ -675,7 +675,7 @@ void main() {
 
         when(delegate.getStringList('key1')).thenReturn(['b', 'b']);
         expect(
-          preferences.getStringList('key1', defaultsTo: []).value(),
+          preferences.getStringList('key1', defaultValue: []).value(),
           ['b', 'b'],
         );
 
@@ -683,7 +683,7 @@ void main() {
         expect(
           preferences.getStringList(
             'key1',
-            defaultsTo: ['default', 'value'],
+            defaultValue: ['default', 'value'],
           ).value(),
           ['default', 'value'],
         );
@@ -692,7 +692,7 @@ void main() {
       test('setStringList emits an update in getStringList', () async {
         final storedString = preferences.getStringList(
           'key1',
-          defaultsTo: ['default', 'value'],
+          defaultValue: ['default', 'value'],
         );
 
         scheduleMicrotask(() {
@@ -716,7 +716,7 @@ void main() {
 
     test('removing a key triggers an update in value stream', () {
       when(delegate.getString('myString')).thenReturn('initial value');
-      final stringValue = preferences.getString('myString', defaultsTo: '');
+      final stringValue = preferences.getString('myString', defaultValue: '');
 
       scheduleMicrotask(() {
         // We're  only testing that the removal triggers an update in the key stream.
@@ -733,9 +733,9 @@ void main() {
       when(delegate.getKeys()).thenReturn(Set.from(['key1', 'key2', 'key3']));
       when(delegate.getString(any)).thenReturn('value');
 
-      final value1 = preferences.getString('key1', defaultsTo: '');
-      final value2 = preferences.getString('key2', defaultsTo: '');
-      final value3 = preferences.getString('key3', defaultsTo: '');
+      final value1 = preferences.getString('key1', defaultValue: '');
+      final value2 = preferences.getString('key2', defaultValue: '');
+      final value3 = preferences.getString('key3', defaultValue: '');
 
       scheduleMicrotask(() {
         // We're  only testing that calling clear() triggers an update in the key
@@ -768,7 +768,7 @@ void main() {
     test('throws assertion error for null preference adapter', () {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
       expect(
-        () => preferences.getCustomValue('', defaultsTo: '', adapter: null),
+        () => preferences.getCustomValue('', defaultValue: '', adapter: null),
         assertionError,
       );
 
@@ -781,12 +781,12 @@ void main() {
     test('getters throw assertion error when key is null', () {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
-      expect(() => preferences.getBool(null, defaultsTo: true), assertionError);
-      expect(() => preferences.getInt(null, defaultsTo: 0), assertionError);
-      expect(() => preferences.getDouble(null, defaultsTo: 0), assertionError);
-      expect(() => preferences.getString(null, defaultsTo: ''), assertionError);
+      expect(() => preferences.getBool(null, defaultValue: true), assertionError);
+      expect(() => preferences.getInt(null, defaultValue: 0), assertionError);
+      expect(() => preferences.getDouble(null, defaultValue: 0), assertionError);
+      expect(() => preferences.getString(null, defaultValue: ''), assertionError);
       expect(
-        () => preferences.getStringList(null, defaultsTo: []),
+        () => preferences.getStringList(null, defaultValue: []),
         assertionError,
       );
     });
@@ -794,16 +794,16 @@ void main() {
     test('getters throw assertion error when default value is null', () {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
-      expect(() => preferences.getBool('k', defaultsTo: null), assertionError);
-      expect(() => preferences.getInt('k', defaultsTo: null), assertionError);
-      expect(() => preferences.getDouble('', defaultsTo: null), assertionError);
+      expect(() => preferences.getBool('k', defaultValue: null), assertionError);
+      expect(() => preferences.getInt('k', defaultValue: null), assertionError);
+      expect(() => preferences.getDouble('', defaultValue: null), assertionError);
       expect(
-        () => preferences.getString('k', defaultsTo: null),
+        () => preferences.getString('k', defaultValue: null),
         assertionError,
       );
 
       expect(
-        () => preferences.getStringList('', defaultsTo: null),
+        () => preferences.getStringList('', defaultValue: null),
         assertionError,
       );
     });
