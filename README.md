@@ -49,22 +49,9 @@ The difference to the regular one is that the value of `counter` is **persisted 
 This means that the state will not get lost between app restarts.
 
 ```dart
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage(this.preferences);
   final StreamingSharedPreferences preferences;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  Preference<int> _counter;
-
-  @override
-  void initState() {
-    super.initState();
-    _counter = widget.preferences.getInt('counter', defaultsTo: 0);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       children: [
         Text('You have pushed the button this many times:'),
         PreferenceBuilder<int>(
-          _counter,
+          preferences.getInt('counter', defaultsTo: 0),
           builder: (BuildContext context, int counter) {
             return Text(
               '$counter',
@@ -92,5 +79,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 ```

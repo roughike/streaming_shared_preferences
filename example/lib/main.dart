@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
     /// on Preference and `initialValue` on the StreamBuilder widget.
     ///
     /// PreferenceBuilder will rebuild its `builder` method with the latest value
-    /// whenever it changes.
+    /// whenever the value has updates.
     return PreferenceBuilder<bool>(
       settings.darkMode,
       builder: (BuildContext context, bool darkMode) {
@@ -70,12 +70,13 @@ class MyHomePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.palette),
             onPressed: () {
-              /// To obtain the current value synchronously, we call "value()".
-              final currentValue = settings.darkMode.value();
+              /// Obtain the current value synchronously by calling value()...
+              bool currentValue = settings.darkMode.value();
 
-              /// Our Preference knows the key it's associated with, so we can
-              /// just pass the value. To toggle dark mode, we just invert whatever
-              /// the current boolean value is.
+              /// ...and update the value by inverting it.
+              ///
+              /// This is identical to preferences.setBool('darkMode', !currentValue),
+              /// but this syntax is more convenient.
               settings.darkMode.set(!currentValue);
             },
           ),
@@ -85,12 +86,10 @@ class MyHomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'You have pushed the button this many times:',
-            ),
+            Text('You have pushed the button this many times:'),
 
-            /// Same as with the "darkMode" boolean - we just connect the value
-            /// of "counter" to the UI with a PreferenceBuilder.
+            /// Rebuild the Text widget with a new value every time "counter"
+            /// has a new value.
             PreferenceBuilder<int>(
               settings.counter,
               builder: (BuildContext context, int counter) {
@@ -105,9 +104,10 @@ class MyHomePage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          /// Same as with setting the "darkMode" boolean - obtain the current
-          /// counter value synchronously, then update it.
+          // Obtain the current counter value synchronously...
           final currentValue = settings.counter.value();
+
+          // ...and add one to the existing value and update it.
           settings.counter.set(currentValue + 1);
         },
         tooltip: 'Increment',
