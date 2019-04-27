@@ -32,6 +32,14 @@ void main() {
       preferences = MockSharedPreferences();
       keyChanges = StreamController<String>();
       preference = TestPreference(preferences, keyChanges);
+
+      // Disable throwing errors for tests when Preference is listened suspiciously
+      // many times in a short time period.
+      debugTrackOnListenEvents = false;
+    });
+
+    tearDown(() {
+      debugTrackOnListenEvents = true;
     });
 
     test('passing null Preference throws an error', () {
@@ -86,6 +94,71 @@ void main() {
       await tester.pump();
 
       expect(find.text('updated value'), findsOneWidget);
+    });
+
+    testWidgets('throws an error if a preference is swapped on the fly',
+        (tester) async {
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (_, stateSetter) {
+            return PreferenceBuilder<String>(
+              // Create a new Preference on every rebuild
+              TestPreference(preferences, keyChanges),
+
+              builder: (context, value) {
+                return GestureDetector(
+                  onTap: () => stateSetter(() {}),
+                  child: Text('X', textDirection: TextDirection.ltr),
+                );
+              },
+            );
+          },
+        ),
+      );
+
+      // Trigger a rebuild
+      await tester.tap(find.text('X'));
+      await tester.pump();
+
+      final exception = tester.takeException();
+      expect(exception, isNotNull);
+      expect(exception, isInstanceOf<PreferenceMismatchError>());
+    });
+
+    testWidgets('can rebuild infinitely with a reused Preference object',
+        (tester) async {
+      debugTrackOnListenEvents = true;
+
+      await tester.pumpWidget(
+        StatefulBuilder(
+          builder: (_, stateSetter) {
+            return PreferenceBuilder<String>(
+              preference,
+              builder: (context, value) {
+                return GestureDetector(
+                  onTap: () => stateSetter(() {}),
+                  child: Text('X', textDirection: TextDirection.ltr),
+                );
+              },
+            );
+          },
+        ),
+      );
+
+      await tester.tap(find.text('X'));
+      await tester.pump();
+
+      await tester.tap(find.text('X'));
+      await tester.pump();
+
+      await tester.tap(find.text('X'));
+      await tester.pump();
+
+      await tester.tap(find.text('X'));
+      await tester.pump();
+
+      final exception = tester.takeException();
+      expect(exception, isNull);
     });
   });
 }

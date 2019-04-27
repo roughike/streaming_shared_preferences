@@ -161,13 +161,8 @@ class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
   }
 }
 
-/// Tracks `onListen()` events and throws a [FlutterError] if a [Preference] is
-/// listened to too many times in a short time period.
-///
-/// There is a performance penalty when accidentally recreating (and fetching a
-/// persistent value) a [Preference] every time a widget is rebuilt. This would
-/// commonly happen when accidentally creating a new [Preference] by using a
-/// `StreamBuilder` widget and passing `preferences.getXYZ()` to it directly.
+/// Tracks `onListen()` events and throws a [TooManyListenEventsError] if a new
+/// [Preference] is created and listened to too many times in a short time period.
 ///
 /// Only enabled in debug mode.
 void _debugTrackOnListenEvent(String key, StreamController controller) {
@@ -190,7 +185,7 @@ void _debugTrackOnListenEvent(String key, StreamController controller) {
 ///
 /// Currently throws if there's 4 or more `onListen()` events for the same key
 /// in one second.
-void _throwErrorIfNeeded(String key, StreamController<String> controller,
+void _throwErrorIfNeeded(String key, StreamController controller,
     DateTime currentTime, DateTime referenceTime) {
   if (referenceTime == null) return;
 
@@ -199,24 +194,34 @@ void _throwErrorIfNeeded(String key, StreamController<String> controller,
       const Duration(seconds: 1);
 
   if (isTooFast) {
-    final error = FlutterError(
-      'Called onListen() on a Preference with a key "$key" suspiciously '
-      'many times on a short time frame.\n\n'
-      'This error usually happens because of creating a new Preference '
-      'multiple times when using the StreamBuilder widget. If you pass '
-      'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
-      'a new instance of a Preference is created on every rebuild. '
-      'This is highly discouraged, because it will refetch a value from '
-      'persistent storage every time the widget rebuilds.\n\n'
-      'To combat this issue, cache the value returned by StreamingShared'
-      'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
-      'For more information, see the StreamingSharedPreferences '
-      'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
-    );
-
+    final error = TooManyListenEventsError(key);
     controller.addError(error);
     FlutterError.onError(FlutterErrorDetails(exception: error));
   }
+}
+
+/// There is a performance penalty when recreating (and fetching a persistent
+/// value) a [Preference] every time a widget is rebuilt.
+///
+/// This would commonly happen when accidentally creating a new [Preference]
+/// inside the build method by calling `StreamBuilder(stream: preferences.getXYZ())`.
+class TooManyListenEventsError extends FlutterError {
+  TooManyListenEventsError(String key)
+      : super(
+          'Called onListen() on a Preference with a key "$key" suspiciously '
+          'many times on a short time frame.\n\n'
+          'This error usually happens because of creating a new Preference inside '
+          'the build method and listening to it multiple times when using the '
+          'StreamBuilder widget. If you call preferences.getXYZ() inside the build '
+          'method, a new instance of a Preference is created on every rebuild. On '
+          'top of needlessly creating extra Stream objects, it will refetch a value '
+          'from persistent storage every time the widget rebuilds.\n\n'
+          'To combat this issue, call preferences.getXYZ() outside of build method, '
+          'cache it in a variable, and pass the returned Preference object to your '
+          'StreamBuilder widget.\n\n'
+          'For more information, see the StreamingSharedPreferences '
+          'documentation or the README at: https://github.com/roughike/streaming_shared_preferences',
+        );
 }
 
 /// Enable or disable throwing errors when a [Preference] is listened suspiciously

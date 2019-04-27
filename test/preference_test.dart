@@ -98,8 +98,8 @@ void main() {
     test('throws when listened to 4 times in one second', () async {
       debugTrackOnListenEvents = true;
 
-      FlutterError emittedError;
-      FlutterError reportedError;
+      Error emittedError;
+      Error reportedError;
 
       FlutterError.onError = (details) {
         reportedError = details.exception;
@@ -125,25 +125,11 @@ void main() {
         emittedError = e;
       }
 
-      final errorMessage =
-          'Called onListen() on a Preference with a key "key" suspiciously '
-          'many times on a short time frame.\n\n'
-          'This error usually happens because of creating a new Preference '
-          'multiple times when using the StreamBuilder widget. If you pass '
-          'StreamingSharedPreferences.getXYZ() into StreamBuilder directly, '
-          'a new instance of a Preference is created on every rebuild. '
-          'This is highly discouraged, because it will refetch a value from '
-          'persistent storage every time the widget rebuilds.\n\n'
-          'To combat this issue, cache the value returned by StreamingShared'
-          'Preferences.getXYZ() and pass the returned Preference object to your StreamBuilder widget.\n\n'
-          'For more information, see the StreamingSharedPreferences '
-          'documentation or the README at: https://github.com/roughike/streaming_shared_preferences';
-
       expect(emittedError, isNotNull);
-      expect(emittedError.message, errorMessage);
+      expect(emittedError, const TypeMatcher<TooManyListenEventsError>());
 
       expect(reportedError, isNotNull);
-      expect(reportedError.message, errorMessage);
+      expect(reportedError, const TypeMatcher<TooManyListenEventsError>());
     });
 
     test(
