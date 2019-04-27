@@ -8,20 +8,6 @@ import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 import 'mocks.dart';
 
-class TestPreference extends Preference<String> {
-  // ignore: non_constant_identifier_names
-  TestPreference(
-    SharedPreferences preferences,
-    StreamController<String> keyChanges,
-  ) : super.$$_private(
-          preferences,
-          'test',
-          'default value',
-          StringAdapter.instance,
-          keyChanges,
-        );
-}
-
 void main() {
   group('PreferenceBuilder', () {
     MockSharedPreferences preferences;
@@ -161,4 +147,18 @@ void main() {
       expect(exception, isNull);
     });
   });
+}
+
+class TestPreference extends Preference<String> {
+  // ignore: non_constant_identifier_names
+  TestPreference(
+    SharedPreferences preferences,
+    StreamController<String> keyChanges,
+  ) : super.$$_private(
+          preferences,
+          'test',
+          'default value',
+          StringAdapter.instance,
+          keyChanges,
+        );
 }

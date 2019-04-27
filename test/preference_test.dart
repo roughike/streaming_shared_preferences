@@ -8,18 +8,6 @@ import 'package:test/test.dart';
 
 import '../test/mocks.dart';
 
-class _TestValueAdapter extends PreferenceAdapter<String> {
-  @override
-  String get(preferences, key) {
-    return preferences.getString(key);
-  }
-
-  @override
-  Future<bool> set(keyValueStore, key, value) {
-    return keyValueStore.setString(key, value);
-  }
-}
-
 void main() {
   group('Preference', () {
     MockSharedPreferences preferences;
@@ -159,4 +147,16 @@ void main() {
       preference.listen(null);
     });
   });
+}
+
+class _TestValueAdapter extends PreferenceAdapter<String> {
+  @override
+  String get(preferences, key) {
+    return preferences.getString(key);
+  }
+
+  @override
+  Future<bool> set(keyValueStore, key, value) {
+    return keyValueStore.setString(key, value);
+  }
 }

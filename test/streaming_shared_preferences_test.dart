@@ -15,10 +15,9 @@ void main() {
 
     setUpAll(() async {
       // SharedPreferences calls "getAll" through a method channel initially when
-      // creating an instance of it.
-      //
-      // This will crash in tests by default, so this is a minimal glue code to
-      // make sure that we can run the test below without crashes.
+      // creating an instance of it. This will crash in tests by default, so this
+      // is a minimal glue code to make sure that we can run the test below without
+      // crashes.
       const channel = MethodChannel('plugins.flutter.io/shared_preferences');
       channel.setMockMethodCallHandler((call) async {
         return call.method == 'getAll' ? {} : null;

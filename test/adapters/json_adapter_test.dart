@@ -4,19 +4,6 @@ import 'package:test/test.dart';
 
 import '../mocks.dart';
 
-class TestObject {
-  TestObject(this.hello);
-  final String hello;
-
-  TestObject.fromJson(Map<String, dynamic> json) : hello = json['hello'];
-
-  Map<String, dynamic> toJson() {
-    return {
-      'hello': 'world',
-    };
-  }
-}
-
 void main() {
   group('ValueAdapter tests', () {
     MockSharedPreferences preferences;
@@ -83,4 +70,17 @@ void main() {
       });
     });
   });
+}
+
+class TestObject {
+  TestObject(this.hello);
+  final String hello;
+
+  TestObject.fromJson(Map<String, dynamic> json) : hello = json['hello'];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'hello': 'world',
+    };
+  }
 }
