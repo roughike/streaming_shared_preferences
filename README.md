@@ -4,7 +4,7 @@
 
 [![pub package](https://img.shields.io/pub/v/streaming_shared_preferences.svg)](https://pub.dartlang.org/packages/streaming_shared_preferences)
  [![Build Status](https://travis-ci.org/roughike/streaming_shared_preferences.svg?branch=master)](https://travis-ci.org/roughike/streaming_shared_preferences) 
- [![Coverage Status](https://coveralls.io/repos/github/roughike/streaming_shared_preferences/badge.svg)](https://coveralls.io/github/roughike/flutter_facebook_login)
+ [![Coverage Status](https://coveralls.io/repos/github/roughike/streaming_shared_preferences/badge.svg?branch=master)](https://coveralls.io/github/roughike/streaming_shared_preferences?branch=master)
 
 A reactive key-value store for Flutter projects.
 
