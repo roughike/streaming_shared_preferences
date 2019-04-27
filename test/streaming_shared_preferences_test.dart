@@ -780,10 +780,13 @@ void main() {
     test('getters throw assertion error when key is null', () {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
-      expect(() => preferences.getBool(null, defaultValue: true), assertionError);
+      expect(
+          () => preferences.getBool(null, defaultValue: true), assertionError);
       expect(() => preferences.getInt(null, defaultValue: 0), assertionError);
-      expect(() => preferences.getDouble(null, defaultValue: 0), assertionError);
-      expect(() => preferences.getString(null, defaultValue: ''), assertionError);
+      expect(
+          () => preferences.getDouble(null, defaultValue: 0), assertionError);
+      expect(
+          () => preferences.getString(null, defaultValue: ''), assertionError);
       expect(
         () => preferences.getStringList(null, defaultValue: []),
         assertionError,
@@ -793,9 +796,11 @@ void main() {
     test('getters throw assertion error when default value is null', () {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
-      expect(() => preferences.getBool('k', defaultValue: null), assertionError);
+      expect(
+          () => preferences.getBool('k', defaultValue: null), assertionError);
       expect(() => preferences.getInt('k', defaultValue: null), assertionError);
-      expect(() => preferences.getDouble('', defaultValue: null), assertionError);
+      expect(
+          () => preferences.getDouble('', defaultValue: null), assertionError);
       expect(
         () => preferences.getString('k', defaultValue: null),
         assertionError,
