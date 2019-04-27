@@ -14,19 +14,15 @@ import 'preference.dart';
 /// Every `preferences.get(..)` method returns a [Preference] which is a [Stream]
 /// that emits values whenever the underlying value updates. You can also obtain
 /// the current value synchronously by calling `preferences.get(..).value()`.
-///
 /// To set values, every [Preference] has a convenient `set()` method, but you
 /// can also call `preferences.set(..)` like you would do with [SharedPreferences].
 ///
 /// You should *not* call `preferences.get(..)` inside a Flutter build method.
 /// Doing so will create and listen to a new [Stream] every time your widget rebuilds.
 /// If you accidentally end up doing that, the library will nag at you by throwing
-/// exceptions when in debug mode.
-///
-/// It is recommended to initialize your [Preference] objects outside the build
-/// method and connect them to your widgets by using a [PreferenceBuilder] widget.
-///
-/// For sample usage, see the example project and README.
+/// exceptions when in debug mode. It is recommended to initialize your [Preference]
+/// objects outside the build method and connect them to your widgets by using
+/// a [PreferenceBuilder] widget.
 class StreamingSharedPreferences {
   static Completer<StreamingSharedPreferences> _instanceCompleter;
 
