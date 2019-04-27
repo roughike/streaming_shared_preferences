@@ -49,7 +49,7 @@ Assuming that there's no previously stored value for `counter`, the above exampl
 The recommended way to react to value changes is to use the `PreferenceBuilder` widget.
 
 You can use a `StreamBuilder` if you want, but that requires you to pass in the `initialData` argument that already exists as `defaultValue` on a `Preference`.
-PreferenceBuilder will also nag at you if you accidentally create `Preference` objects in the build method (which is not good for performance).
+One other benefit of PreferenceBuilder is that it will also nag at you if you accidentally create `Preference` objects in the build method (which is not good for performance).
 
 If you have only one `Preference` in your app, it might make sense to create and listen to a `Preference` inline:
 
@@ -74,6 +74,9 @@ class _MyCounterWidgetState extends State<MyCounterWidget> {
   
   @override
   Widget build(BuildContext context) {
+    /// We use PreferenceBuilder to rebuild our Text widget whenever "counter"
+    /// gets updated. PreferenceBuilder is like a StreamBuilder but we don't 
+    /// have to provide the "initialData" parameter.
     return PreferenceBuilder<int>(
       _counter,
       builder: (context, int value) => Text('Button pressed $value times!'),
@@ -82,7 +85,10 @@ class _MyCounterWidgetState extends State<MyCounterWidget> {
 }
 ```
 
-The recommended approach is to create a class that holds all your `Preference` objects in a single place:
+However, if you have more than one setting in your app, that becomes a little annoying.
+It would be much nicer if you didn't have all your preferences scattered around widgets as that becomes quite hard to manage over time.
+
+If you have multiple preferences, the recommended approach is to create a class that holds all your `Preference` objects in a single place:
 
 ```dart
 /// A class that holds [Preference] objects for the common values that you want
@@ -123,9 +129,6 @@ class MyCounterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        /// We use PreferenceBuilder to rebuild our Text widget whenever "nickname"
-        /// gets updated. PreferenceBuilder is like a StreamBuilder but we don't 
-        /// have to provide the "initialData" parameter.
         PreferenceBuilder<String>(
           settings.nickname,
           builder: (context, nickname) => Text('Hey $nickname!'),
@@ -199,5 +202,5 @@ class MyStreamingSharedPreferencesSettings implements MyAppSettings {
 }
 ```
 
-Not so bad, is it?
+Not too bad, is it?
 It's a good thing `Preference<int>` is also a `Stream<int>` and that there's a handy setter function for every preference.
