@@ -6,7 +6,7 @@
 
 A reactive key-value store for Flutter projects.
 
-It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer, allowing you to **listen to changes** in the underlying values. <sub><sup>(and it's pure Streams **without rxdart**)</sup></sub>
+It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer, allowing you to **listen and react to changes** in the underlying values. <sub><sup>(and it's pure Streams **without rxdart**)</sup></sub>
 
 **For the tl;dr;** look into the [example](example/lib/main.dart) or [read this](#a-real-world-example).
 
@@ -22,7 +22,7 @@ final preferences = await StreamingSharedPreferences.instance;
 ```
 
 The public API follows the same naming convention as `shared_preferences` does, but with a little
-twist - every getter returns a `Preference` object, which is a `Stream`!
+twist - every getter returns a `Preference` object, which is a special type of `Stream`.
 
 ```dart
 // Provide a default value of 0 in case "counter" is null.
@@ -46,95 +46,11 @@ final currentValue = counter.value();
 Assuming that there's no previously stored value for `counter`, the above example will print `0`,
 `1`, `2` and `3` to the console.
 
-## Naive (and boilerplatey) example #1: simple usage with StreamBuilder
+## Usage with Flutter widgets
 
-It's recommended to obtain the instance once in the `main()` method and then pass it down:
+Although _you could_ connect `Preference` objects to the UI by calling `preferences.get(..)` and passing that to a `StreamBuilder` widget, that has drawbacks <sub><sup>(more on that below)</sup></sub>.
 
-```dart
-Future<void> main() async {
-  final preferences = await StreamingSharedPreferences.instance;
-
-  runApp(MyApp(preferences));
-}
-```
-
-Since `Preference<int>` is actually a `Stream<int>`, you can pass the `counter` variable to the `StreamBuilder` widget as-is:
-
-```dart
-class MyCounterWidget extends StatefulWidget {
-  MyCounterWidget(this.preferences);
-  final StreamingSharedPreferences preferences;
-
-  @override
-  _MyCounterWidgetState createState() => _MyCounterWidgetState();
-}
-
-class _MyCounterWidgetState extends State<MyCounterWidget> {
-  Preference<int> _counter;
-
-  @override
-  void initState() {
-    super.initState();
-    _counter = widget.preferences.getInt('counter', defaultValue: 0);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<int>(
-      initialValue: 0,
-      stream: _counter,
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        return Text('You have pushed the button ${snapshot.data} times!');
-      },
-    );
-  }
-}
-```
-
-Upon closer inspection, you might notice that it's a little boilerplatey.
-
-We had to provide the fallback value twice - once in `defaultValue` for `Preference` and once in `initialValue` for `StreamBuilder`. On top of that, we had to use a stateful widget in order to avoid creating a stream in the build method.
-
-_"Boilerplate is awesome!"_ - said no one ever.
-
-## Naive example #2: simple usage with PreferenceBuilder
-
-To combat the previous boilerplate, there's a `PreferenceBuilder` widget:
-
-```dart
-class MyCounterWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return PreferenceBuilder<int>(
-      preferences.getInt('counter', defaultValue: 0),
-      builder: (BuildContext context, int value) {
-        return Text('You have pushed the button $value times!');
-      },
-    );
-  }
-}
-```
-
-The `PreferenceBuilder` widget has a couple benefits:
-
-* no need to provide `initialValue` like with `StreamBuilder`
-* instead of `AsyncSnapshot<int>`, you get the `int` directly
-* you can't shoot yourself on the foot by accidentally recreating and listening to a `Stream` on every rebuild
-
-To be clear, you **don't have to use** `PreferenceBuilder` if you don't want to. 
-
-`StreamBuilder` is completely fine, with one little caveat: do not create `Preference` objects inside the build method by calling `StreamBuilder(stream: preferences.getXYZ(..))`. Doing so will recreate and subscribe to a new `Stream` every time your widget rebuilds. 
-
-If you end up doing so anyway, [you will get nagged a lot](https://github.com/roughike/streaming_shared_preferences/blob/master/lib/src/preference.dart#L164-L223) in debug mode.
-
-## A real world™ example
-
-Everything is so simple in theoretical code samples.
-
-It's highly likely that in a real app you have more values to store, unless your use case actually is clicking on a button that increments a value.
-And you'll probably end up with a bunch of other code too, which in turn makes for a lot of vertical code clutter.
-
-Once you start having multiple different settings, it makes sense to wrap them in a custom class:
+The recommended approach is to create a class that holds all your `Preference` objects in a single place:
 
 ```dart
 class MyAppSettings {
@@ -149,10 +65,21 @@ class MyAppSettings {
 }
 ```
 
-Now you can create an instance of `MyAppSettings` once, pass it down to the widgets that use it, and the calling code becomes quite neat:
+In your app entrypoint, you obtain an instance to `StreamingSharedPreferences` once and pass that to your settings class.
+Now you can create an instance of `MyAppSettings` once and pass it down to the widgets that use it:
 
 ```dart
+Future<void> main() async {
+  final preferences = await StreamingSharedPreferences.instance;
+  final settings = MyAppSettings(preferences);
+  
+  runApp(MyApp(settings));
+}
+```
 
+This makes the calling code become quite neat:
+
+```dart
 class MyCounterWidget extends StatelessWidget {
   MyCounterWidget(this.settings);
   final MyAppSettings settings;
