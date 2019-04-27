@@ -56,11 +56,9 @@ The recommended approach is to create a class that holds all your `Preference` o
 class MyAppSettings {
   MyAppSettings(StreamingSharedPreferences preferences)
       : counter = preferences.getInt('counter', defaultValue: 0),
-        darkMode = preferences.getBool('darkMode', defaultValue: false),
         nickname = preferences.getString('nickname', defaultValue: '');
 
   final Preference<int> counter;
-  final Preference<bool> darkMode;
   final Preference<String> nickname;
 }
 ```
