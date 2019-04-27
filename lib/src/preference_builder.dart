@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import 'preference.dart';
 
-/// A function that returns a rebuilt [Widget] whenever there's a new [value].
+/// A function that builds a [Widget] whenever a [Preference] has a new [value].
 typedef PreferenceWidgetBuilder<T> = Widget Function(
   BuildContext context,
   T value,
@@ -35,12 +35,12 @@ class PreferenceBuilder<T> extends StatefulWidget {
 }
 
 class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
-  Preference<T> _stream;
+  Preference<T> _preference;
 
   @override
   void initState() {
     super.initState();
-    _stream = widget.preference;
+    _preference = widget.preference;
   }
 
   @override
@@ -48,6 +48,8 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
     super.didUpdateWidget(oldWidget);
 
     if (kReleaseMode == false) {
+      /// If we're not in release mode, make sure that the `widget.preference`
+      /// does not change across rebuilds. If it does, throw an error.
       _ensureNotHotSwappingPreferenceObjects(oldWidget, widget);
     }
   }
@@ -55,8 +57,8 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<T>(
-      initialData: _stream.defaultValue,
-      stream: _stream,
+      stream: _preference,
+      initialData: _preference.defaultValue,
       builder: (context, snapshot) {
         return widget.builder(context, snapshot.data);
       },

@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
     ///
     /// However, we're using a PreferenceBuilder for convenience. It means that
     /// we don't have to specify the exact same value twice for both `defaultValue`
-    /// on Preference and `initialValue` on the StreamBuilder widget.
+    /// on Preference and `initialData` on the StreamBuilder widget.
     ///
     /// PreferenceBuilder will rebuild its `builder` method with the latest value
     /// whenever the value has updates.

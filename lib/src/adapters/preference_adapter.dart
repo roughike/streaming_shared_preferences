@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// with a key by using a [SharedPreferences].
 ///
 /// For examples, see:
-/// * [BoolAdapter], [IntAdapter], [StringAdapter] for simple value adapters
-/// * [DateTimeAdapter] and [JsonAdapter] for more involved value adapters
+/// * [BoolAdapter], [IntAdapter], [StringAdapter] for simple preference adapters
+/// * [DateTimeAdapter] and [JsonAdapter] for more involved preference adapters
 abstract class PreferenceAdapter<T> {
   const PreferenceAdapter();
 

@@ -6,21 +6,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'adapters/preference_adapter.dart';
 
-/// A [Preference] is a [Stream] that emits a value whenever the value associated
-/// with [key] changes.
+/// A [Preference] is a single key-value pair persisted using [SharedPreferences].
+///
+/// It is also a special type of [Stream] that emits a new value whenever the
+/// value associated with [key] changes. You can use a [Preference] like you would
+/// use any regular [Stream].
 ///
 /// Whenever the backing value associated with [key] transitions from non-null to
-/// null, emits [defaultValue]. The [defaultValue] is also emitted initially if
-/// the value is null when initially listening to the stream.
-///
-/// Instead of calling `setXYZ(key, value)` methods on [SharedPreferences], you
-/// can store a reference to [Preference] and call [set] directly:
-///
-/// ```dart
-/// final myString = preferences.getString('myString', defaultValue: '');
-///
-/// myString.set('hello world!');
-/// ```
+/// null, it emits [defaultValue]. The [defaultValue] is also emitted if the value
+/// is null when initially listening to the stream.
 class Preference<T> extends StreamView<T> {
   /// Only exposed for internal purposes. Do not call directly.
   @visibleForTesting
@@ -49,7 +43,7 @@ class Preference<T> extends StreamView<T> {
     return _updateAndNotify(_adapter.set(_preferences, _key, value));
   }
 
-  /// Clear (or in other words, remove) the value. Effectively sets the [_key]
+  /// Clear, or in other words, remove, the value. Effectively sets the [_key]
   /// to a null value.
   ///
   /// After removing a value, this [Preference] will emit the default value once.
@@ -72,7 +66,7 @@ class Preference<T> extends StreamView<T> {
     return isSuccessful;
   }
 
-  /// The fallback value to default to when there's no stored value associated
+  /// The fallback value to emit when there's no stored value associated
   /// with the [key].
   final T defaultValue;
 

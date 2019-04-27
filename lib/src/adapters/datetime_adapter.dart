@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'preference_adapter.dart';
 
 /// A [PreferenceAdapter] implementation for storing and retrieving a [DateTime].
+///
+/// Stores values as timezone independent milliseconds from the standard Unix epoch.
 class DateTimeAdapter extends PreferenceAdapter<DateTime> {
   @override
   DateTime get(SharedPreferences preferences, String key) {
