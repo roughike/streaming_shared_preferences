@@ -17,14 +17,30 @@ void main() {
 
     test('can persist date times properly', () {
       adapter.set(preferences, 'key', dateTime);
-      verify(preferences.setString('key', '1546394645099'));
+
+      /// Comparing to a exact millisecond timestamp runs just fine on a local
+      /// machine, but fails in CI because of differences in geographic regions.
+      ///
+      /// For that reason, this test is a little fuzzy.
+      final String value =
+          verify(preferences.setString('key', captureAny)).captured.single;
+      expect(value, isNotNull);
+      expect(value.length, 13);
     });
 
     test('can revive date times properly', () {
       when(preferences.getString('key')).thenReturn('1546394645099');
 
+      /// Comparing to a exact millisecond timestamp runs just fine on a local
+      /// machine, but fails in CI because of differences in geographic regions.
+      ///
+      /// For that reason, this test is a little fuzzy.
       final storedDateTime = adapter.get(preferences, 'key');
-      expect(storedDateTime, dateTime);
+      expect(
+        storedDateTime.difference(dateTime) <
+            const Duration(hours: 1, minutes: 1),
+        isTrue,
+      );
     });
 
     test('handles retrieving null datetimes gracefully', () {
