@@ -67,7 +67,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Streaming SharedPreferences'),
+        title: Text('StreamingSharedPreferences'),
         actions: [
           IconButton(
             icon: Icon(Icons.palette),
