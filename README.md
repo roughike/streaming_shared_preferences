@@ -51,6 +51,8 @@ The recommended way to react to value changes is to use the `PreferenceBuilder` 
 You can use a `StreamBuilder` if you want, but that requires you to pass in the `initialData` argument that already exists as `defaultValue` on a `Preference`.
 One other benefit of PreferenceBuilder is that it will also nag at you if you accidentally create `Preference` objects in the build method (which is not good for performance).
 
+### Go simple if you don't have a lot of preferences
+
 If you have only one `Preference` in your app, it might make sense to create and listen to a `Preference` inline:
 
 ```dart
@@ -85,8 +87,7 @@ class _MyCounterWidgetState extends State<MyCounterWidget> {
 }
 ```
 
-However, if you have more than one setting in your app, that becomes a little annoying.
-It would be much nicer if you didn't have all your preferences scattered around widgets as that becomes quite hard to manage over time.
+### Use a wrapper class when having multiple preferences
 
 If you have multiple preferences, the recommended approach is to create a class that holds all your `Preference` objects in a single place:
 
