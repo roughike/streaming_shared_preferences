@@ -114,7 +114,7 @@ class MyCounterWidget extends StatelessWidget {
           builder: (context, snapshot) => Text('Hey ${snapshot.data}!'),
         ),
         StreamBuilder<int>(
-          initialData: '',
+          initialData: 0,
           stream: settings.counter,
           builder: (context, snapshot) => Text('You have pushed the button ${snapshot.data} times!'),
         ),
