@@ -18,7 +18,6 @@ import 'adapters/preference_adapter.dart';
 class Preference<T> extends StreamView<T> {
   /// Only exposed for internal purposes. Do not call directly.
   @visibleForTesting
-  // ignore: non_constant_identifier_names
   Preference.$$_private(this._preferences, this._key, this.defaultValue,
       this._adapter, this._keyChanges)
       : super(_keyChanges.stream.transform(
@@ -158,3 +157,5 @@ class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
     return stream;
   }
 }
+
+// ignore_for_file: non_constant_identifier_names
