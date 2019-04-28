@@ -46,14 +46,7 @@ final currentValue = counter.value();
 Assuming that there's no previously stored value for `counter`, the above example will print `0`,
 `1`, `2` and `3` to the console.
 
-## Usage with Flutter widgets
-
-The recommended way to react to value changes is to use the `PreferenceBuilder` widget.
-
-You can use a `StreamBuilder` if you want, but that requires you to pass in the `initialData` argument that already exists as `defaultValue` on a `Preference`.
-One other benefit of PreferenceBuilder is that it will also nag at you if you accidentally create `Preference` objects in the build method (which is not good for performance).
-
-### Go simple if you don't have a lot of preferences
+## Go simple if you don't have a lot of preferences
 
 If you have only one `Preference` in your app, it might make sense to create and listen to a `Preference` inline:
 
@@ -78,18 +71,20 @@ class _MyCounterWidgetState extends State<MyCounterWidget> {
   
   @override
   Widget build(BuildContext context) {
-    /// We use PreferenceBuilder to rebuild our Text widget whenever "counter"
-    /// gets updated. PreferenceBuilder is like a StreamBuilder but we don't 
-    /// have to provide the "initialData" parameter.
-    return PreferenceBuilder<int>(
-      _counter,
-      builder: (context, int value) => Text('Button pressed $value times!'),
+    /// Since a Preference is also a Stream, we can pass it to a
+    /// StreamBuilder widget directly.
+    return StreamBuilder<int>(
+      initialData: 0,
+      stream: _counter,
+      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+       return Text('Button pressed ${snapshot.data} times!');
+      }
     );
   }
 }
 ```
 
-### Use a wrapper class when having multiple preferences
+## Use a wrapper class when having multiple preferences
 
 If you have multiple preferences, the recommended approach is to create a class that holds all your `Preference` objects in a single place:
 
@@ -132,13 +127,15 @@ class MyCounterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        PreferenceBuilder<String>(
-          settings.nickname,
-          builder: (context, nickname) => Text('Hey $nickname!'),
+        StreamBuilder<String>(
+          initialData: '',
+          stream: settings.nickname,
+          builder: (context, snapshot) => Text('Hey ${snapshot.data}!'),
         ),
-        PreferenceBuilder<int>(
-          settings.counter,
-          builder: (context, counter) => Text('You have pushed the button $counter times!'),
+        StreamBuilder<int>(
+          initialData: '',
+          stream: settings.counter,
+          builder: (context, snapshot) => Text('You have pushed the button ${snapshot.data} times!'),
         ),
         FloatingActionButton(
           onPressed: () {
@@ -159,7 +156,7 @@ class MyCounterWidget extends StatelessWidget {
 
 When your widget hierarchy becomes deep enough, you would want to pass `MyAppSettings` around with an [InheritedWidget](https://docs.flutter.io/flutter/widgets/InheritedWidget-class.html) instead.
 
-### "But muh abstraction!"
+## "But muh abstraction!"
 
 If you're all about the clean architecture and don't want to pollute your domain layer with `Preference` objects from a third-party library by some random internet stranger, all the power to you.
 
