@@ -51,31 +51,12 @@ Assuming that there's no previously stored value for `counter`, the above exampl
 If you have only one `Preference` in your app, it might make sense to create and listen to a `Preference` inline:
 
 ```dart
-class MyCounterWidget extends StatefulWidget {
-  @override
-  _MyCounterWidgetState createState() => _MyCounterWidgetState();
-}
-
-class _MyCounterWidgetState extends State<MyCounterWidget> {
-  Preference<int> _counter;
-
-  @override
-  void initState() {
-    super.initState();
-    
-    // Have to use a StatefulWidget and create the Preference here and
-    // not inside the build method - otherwise a new Stream would be 
-    // created and listened to on every rebuild.
-    _counter = preferences.getInt('counter', defaultValue: 0);
-  }
-  
+class MyCounterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    /// Since a Preference is also a Stream, we can pass it to a
-    /// StreamBuilder widget directly.
     return StreamBuilder<int>(
       initialData: 0,
-      stream: _counter,
+      stream: preferences.getInt('counter', defaultValue: 0),
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
        return Text('Button pressed ${snapshot.data} times!');
       }
