@@ -41,10 +41,11 @@ class MyApp extends StatelessWidget {
     ///
     /// PreferenceBuilder will rebuild its `builder` method with the latest value
     /// whenever the value has updates.
-    return PreferenceBuilder<bool>(
-      settings.darkMode,
-      builder: (BuildContext context, bool darkMode) {
-        final brightness = darkMode ? Brightness.dark : Brightness.light;
+    return StreamBuilder<bool>(
+      initialData: false,
+      stream: settings.darkMode,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        final brightness = snapshot.data ? Brightness.dark : Brightness.light;
 
         return MaterialApp(
           title: 'StreamingSharedPreferences Demo',
@@ -92,11 +93,12 @@ class MyHomePage extends StatelessWidget {
 
             /// Rebuild the Text widget with a new value every time "counter"
             /// has a new value.
-            PreferenceBuilder<int>(
-              settings.counter,
-              builder: (BuildContext context, int counter) {
+            StreamBuilder<int>(
+              initialData: 0,
+              stream: settings.counter,
+              builder: (BuildContext context, AsyncSnapshot<int> counter) {
                 return Text(
-                  '$counter',
+                  '${counter.data}',
                   style: Theme.of(context).textTheme.display1,
                 );
               },
