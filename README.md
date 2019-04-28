@@ -24,29 +24,32 @@ final preferences = await StreamingSharedPreferences.instance;
 The public API follows the same naming convention as `shared_preferences` does, but with a little
 twist - every getter returns a `Preference` object, which is a special type of `Stream`.
 
+Here's a plain Dart example how you would listen to changes in an integer and print the value to console every time it changes:
+
 ```dart
 // Provide a default value of 0 in case "counter" is null.
 final counter = preferences.getInt('counter', defaultValue: 0);
 
-// "counter" is a Stream - it can do anything a Stream can!
+// "counter" is a Stream - it can do anything a Stream can.
 counter.listen((value) {
   print(value);
 });
 
+// Somewhere else in your code, update the value.
+//
 // You can also call preferences.setInt('counter', <value>) but this
 // is a little more convenient as there's no need to specify the key.
 counter.set(1);
 counter.set(2);
 counter.set(3);
-
-// Obtain current persisted value synchronously.
-final currentValue = counter.value();
 ```
 
 Assuming that there's no previously stored value for `counter`, the above example will print `0`,
 `1`, `2` and `3` to the console.
 
-## Go simple if you don't have a lot of preferences
+If you need to get the value synchronously, you can call `final currentValue = counter.value()`.
+
+### Go simple if you don't have a lot of preferences
 
 If you have only one `Preference` in your app, it might make sense to create and listen to a `Preference` inline:
 
@@ -54,18 +57,22 @@ If you have only one `Preference` in your app, it might make sense to create and
 class MyCounterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<int>(
-      initialData: 0,
-      stream: preferences.getInt('counter', defaultValue: 0),
+    /// PreferenceBuilder is like StreamBuilder, but we don't have to
+    /// provide `initialData` - that can be fetched synchronously from
+    /// the provided Preference.
+    ///
+    /// If you want, you could use a StreamBuilder too.
+    return PreferenceBuilder<int>(
+      preferences.getInt('counter', defaultValue: 0),
       builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-       return Text('Button pressed ${snapshot.data} times!');
+        return Text('Button pressed ${snapshot.data} times!');
       }
     );
   }
 }
 ```
 
-## Use a wrapper class when having multiple preferences
+### Use a wrapper class when having multiple preferences
 
 If you have multiple preferences, the recommended approach is to create a class that holds all your `Preference` objects in a single place:
 
@@ -108,14 +115,12 @@ class MyCounterWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        StreamBuilder<String>(
-          initialData: '',
-          stream: settings.nickname,
+        PreferenceBuilder<String>(
+          settings.nickname,
           builder: (context, snapshot) => Text('Hey ${snapshot.data}!'),
         ),
-        StreamBuilder<int>(
-          initialData: 0,
-          stream: settings.counter,
+        PreferenceBuilder<int>(
+          settings.counter,
           builder: (context, snapshot) => Text('You have pushed the button ${snapshot.data} times!'),
         ),
         FloatingActionButton(

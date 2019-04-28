@@ -33,13 +33,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// Preference is a Stream - it can be used directly with a StreamBuilder widget.
+    /// Preference is a Stream - it can be used directly with a StreamBuilder 
+    /// widget. We're using a PreferenceBuilder which removes the need to provide
+    /// the `initialData` parameter.
     ///
-    /// StreamBuilder will rebuild its `builder` method with the latest value
+    /// PreferenceBuilder will call its `builder` method with the latest value
     /// whenever the value has updates.
-    return StreamBuilder<bool>(
-      initialData: false,
-      stream: settings.darkMode,
+    return PreferenceBuilder<bool>(
+      settings.darkMode,
       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
         final brightness = snapshot.data ? Brightness.dark : Brightness.light;
 
@@ -89,9 +90,8 @@ class MyHomePage extends StatelessWidget {
 
             /// Rebuild the Text widget with a new value every time "counter"
             /// has a new value.
-            StreamBuilder<int>(
-              initialData: 0,
-              stream: settings.counter,
+            PreferenceBuilder<int>(
+              settings.counter,
               builder: (BuildContext context, AsyncSnapshot<int> counter) {
                 return Text(
                   '${counter.data}',
