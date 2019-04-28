@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:mockito/mockito.dart';
 import 'package:streaming_shared_preferences/src/preference.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
@@ -20,11 +19,6 @@ void main() {
       adapter = _TestValueAdapter();
       keyChanges = StreamController<String>.broadcast();
 
-      // Disable throwing errors for tests when Preference is listened suspiciously
-      // many times in a short time period.
-      expect(debugTrackOnListenEvents, true);
-      debugTrackOnListenEvents = false;
-
       // ignore: deprecated_member_use_from_same_package
       preference = Preference.$$_private(
         preferences,
@@ -33,10 +27,6 @@ void main() {
         adapter,
         keyChanges,
       );
-    });
-
-    tearDown(() {
-      debugTrackOnListenEvents = true;
     });
 
     test('calling set() calls the correct key and emits key updates', () {
@@ -81,70 +71,6 @@ void main() {
 
       when(preferences.getString('key')).thenReturn('3');
       expect(preference, emits('3'));
-    });
-
-    test('throws when listened to 4 times in one second', () async {
-      debugTrackOnListenEvents = true;
-
-      Error emittedError;
-      Error reportedError;
-
-      FlutterError.onError = (details) {
-        reportedError = details.exception;
-      };
-
-      try {
-        debugResetOnListenLog();
-        var time = DateTime.now();
-
-        debugObtainCurrentTime = () => time;
-        preference.listen(null);
-
-        time = time.add(Duration(milliseconds: 250));
-        preference.listen(null);
-
-        time = time.add(Duration(milliseconds: 250));
-        preference.listen(null);
-
-        // Listened to 4 times in a 999 millisecond time period
-        time = time.add(Duration(milliseconds: 249));
-        await preference.listen(null).asFuture();
-      } catch (e) {
-        emittedError = e;
-      }
-
-      expect(emittedError, isNotNull);
-      expect(emittedError, const TypeMatcher<TooManyListenEventsError>());
-
-      expect(reportedError, isNotNull);
-      expect(reportedError, const TypeMatcher<TooManyListenEventsError>());
-    });
-
-    test(
-        'does not throw if listened to multiple times in a reasonable time period',
-        () async {
-      debugTrackOnListenEvents = true;
-      debugResetOnListenLog();
-
-      var time = DateTime.now();
-
-      debugObtainCurrentTime = () => time;
-      preference.listen(null);
-
-      time = time.add(Duration(milliseconds: 250));
-      preference.listen(null);
-
-      time = time.add(Duration(milliseconds: 250));
-      preference.listen(null);
-
-      time = time.add(Duration(milliseconds: 250));
-      preference.listen(null);
-
-      time = time.add(Duration(milliseconds: 250));
-      preference.listen(null);
-
-      time = time.add(Duration(milliseconds: 250));
-      preference.listen(null);
     });
   });
 }

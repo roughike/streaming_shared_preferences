@@ -36,10 +36,6 @@ void main() {
     setUp(() async {
       delegate = MockSharedPreferences();
 
-      // Disable throwing errors for tests when Preference is listened suspiciously
-      // many times in a short time period.
-      debugTrackOnListenEvents = false;
-
       // Swap the instance obtainer with one that always returns a mocked verison
       // of shared preferences.
       debugObtainSharedPreferencesInstance = Future.value(delegate);
@@ -48,7 +44,6 @@ void main() {
 
     tearDown(() {
       debugResetStreamingSharedPreferencesInstance();
-      debugTrackOnListenEvents = true;
     });
 
     test('obtaining instance calls delegate only once', () async {

@@ -35,11 +35,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     /// Preference is a Stream - it can be used directly with a StreamBuilder widget.
     ///
-    /// However, we're using a PreferenceBuilder for convenience. It means that
-    /// we don't have to specify the exact same value twice for both `defaultValue`
-    /// on Preference and `initialData` on the StreamBuilder widget.
-    ///
-    /// PreferenceBuilder will rebuild its `builder` method with the latest value
+    /// StreamBuilder will rebuild its `builder` method with the latest value
     /// whenever the value has updates.
     return StreamBuilder<bool>(
       initialData: false,
