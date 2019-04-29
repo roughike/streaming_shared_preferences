@@ -84,7 +84,7 @@ void main() {
 
       // Value does not matter in a test case as the preferences are mocked.
       // This just tells the preference that something was updated.
-      preference.set(null);
+      preference.setValue(null);
 
       await tester.pump();
 

@@ -27,19 +27,19 @@ class Preference<T> extends StreamView<T> {
   /// Get the latest value from the persistent storage synchronously.
   ///
   /// If the returned value doesn't exist (=is null), returns [defaultValue].
-  T value() => _adapter.get(_preferences, _key) ?? defaultValue;
+  T getValue() => _adapter.getValue(_preferences, _key) ?? defaultValue;
 
   /// Update the value and notify all listeners about the new value.
   ///
   /// Returns true if the [value] was successfully set, otherwise returns false.
-  Future<bool> set(T value) async {
+  Future<bool> setValue(T value) async {
     if (_key == null) {
       throw UnsupportedError(
-        'set() not supported for Preference with a null key.',
+        'setValue() not supported for Preference with a null key.',
       );
     }
 
-    return _updateAndNotify(_adapter.set(_preferences, _key, value));
+    return _updateAndNotify(_adapter.setValue(_preferences, _key, value));
   }
 
   /// Clear, or in other words, remove, the value. Effectively sets the [_key]
@@ -104,7 +104,7 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   T _getValueFromPersistentStorage() {
     // Return the latest value from preferences,
     // If null, returns the default value.
-    return valueAdapter.get(preferences, key) ?? defaultValue;
+    return valueAdapter.getValue(preferences, key) ?? defaultValue;
   }
 
   @override

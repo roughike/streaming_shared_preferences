@@ -17,7 +17,7 @@ void main() {
         when(preferences.getString('key')).thenReturn(null);
 
         final adapter = JsonAdapter();
-        final json = adapter.get(preferences, 'key');
+        final json = adapter.getValue(preferences, 'key');
 
         expect(json, isNull);
       });
@@ -26,7 +26,7 @@ void main() {
         when(preferences.getString('key')).thenReturn('{"hello":"world"}');
 
         final adapter = JsonAdapter();
-        final json = adapter.get(preferences, 'key');
+        final json = adapter.getValue(preferences, 'key');
 
         expect(json, {'hello': 'world'});
       });
@@ -35,14 +35,14 @@ void main() {
         when(preferences.getString('key')).thenReturn('["hello","world"]');
 
         final adapter = JsonAdapter();
-        final json = adapter.get(preferences, 'key');
+        final json = adapter.getValue(preferences, 'key');
 
         expect(json, ['hello', 'world']);
       });
 
       test('stores an object that implements a toJson() method', () {
         final adapter = JsonAdapter<TestObject>();
-        adapter.set(preferences, 'key', TestObject('world'));
+        adapter.setValue(preferences, 'key', TestObject('world'));
 
         verify(preferences.setString('key', '{"hello":"world"}'));
       });
@@ -54,7 +54,7 @@ void main() {
           deserializer: (v) => TestObject.fromJson(v),
         );
 
-        final testObject = adapter.get(preferences, 'key');
+        final testObject = adapter.getValue(preferences, 'key');
         expect(testObject.hello, 'world');
       });
 
@@ -65,7 +65,7 @@ void main() {
 
         // What value we set here doesn't matter - we're testing that it's replaced
         // by the value returned by serializer.
-        adapter.set(preferences, 'key', null);
+        adapter.setValue(preferences, 'key', null);
         verify(preferences.setString('key', '{"encoded":"value"}'));
       });
     });

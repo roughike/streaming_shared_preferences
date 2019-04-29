@@ -119,19 +119,19 @@ void main() {
     });
 
     test('settable values should be... settable', () {
-      // These invocations make sure that a ".set(..)" method exists and is
+      // These invocations make sure that a ".setValue(..)" method exists and is
       // accessible for all these getters. If the test doesn't crash, it's considered
       // a passing test.
-      preferences.getBool('key', defaultValue: false).set(true);
-      preferences.getInt('key', defaultValue: 0).set(1);
-      preferences.getDouble('key', defaultValue: 0).set(1);
-      preferences.getString('key', defaultValue: '').set('');
-      preferences.getStringList('key', defaultValue: []).set(['a']);
+      preferences.getBool('key', defaultValue: false).setValue(true);
+      preferences.getInt('key', defaultValue: 0).setValue(1);
+      preferences.getDouble('key', defaultValue: 0).setValue(1);
+      preferences.getString('key', defaultValue: '').setValue('');
+      preferences.getStringList('key', defaultValue: []).setValue(['a']);
 
-      // Casting "getKeys()" to dynamic and trying to call ".set(..)" on it should
+      // Casting "getKeys()" to dynamic and trying to call ".setValue(..)" on it should
       // throw an error.
       expect(
-        () => (preferences.getKeys() as dynamic).set(null),
+        () => (preferences.getKeys() as dynamic).setValue(null),
         throwsA(const TypeMatcher<Error>()),
       );
     });
@@ -160,7 +160,7 @@ void main() {
         expect(preferences.getKeys(), emits(Set.from(['first', 'second'])));
       });
 
-      test('getKeys().value() - initial values', () {
+      test('getKeys().getValue() - initial values', () {
         when(delegate.getKeys()).thenReturn(Set.from(['first', 'second']));
         expect(preferences.getKeys(), emits(Set.from(['first', 'second'])));
       });
@@ -225,7 +225,7 @@ void main() {
       });
 
       test(
-        'calling .value() has a different result after setting values',
+        'calling .getValue() has a different result after setting values',
         () async {
           final keys = preferences.getKeys();
           var count = 0;
@@ -253,28 +253,28 @@ void main() {
           });
 
           preferences.setBool('key1', true);
-          expect(keys.value(), Set.from(['key1']));
+          expect(keys.getValue(), Set.from(['key1']));
 
           preferences.setInt('key2', 2);
-          expect(keys.value(), Set.from(['key1', 'key2']));
+          expect(keys.getValue(), Set.from(['key1', 'key2']));
 
           preferences.setDouble('key3', 3.0);
-          expect(keys.value(), Set.from(['key1', 'key2', 'key3']));
+          expect(keys.getValue(), Set.from(['key1', 'key2', 'key3']));
 
           preferences.setString('key4', 'value4');
-          expect(keys.value(), Set.from(['key1', 'key2', 'key3', 'key4']));
+          expect(keys.getValue(), Set.from(['key1', 'key2', 'key3', 'key4']));
 
           preferences.setStringList('key5', ['value5']);
           expect(
-            keys.value(),
+            keys.getValue(),
             Set.from(['key1', 'key2', 'key3', 'key4', 'key5']),
           );
         },
       );
 
-      test('trying to call set() on getKeys() throws an error', () {
+      test('trying to call setValue() on getKeys() throws an error', () {
         expect(
-          () => preferences.getKeys().set(Set()),
+          () => preferences.getKeys().setValue(Set()),
           throwsA(const TypeMatcher<UnsupportedError>()),
         );
       });
@@ -318,49 +318,49 @@ void main() {
         );
       });
 
-      test('getBool().value() - initial values', () {
+      test('getBool().getValue() - initial values', () {
         expect(
-          preferences.getBool('myTrueBool', defaultValue: false).value(),
+          preferences.getBool('myTrueBool', defaultValue: false).getValue(),
           true,
         );
 
         expect(
-          preferences.getBool('myFalseBool', defaultValue: true).value(),
+          preferences.getBool('myFalseBool', defaultValue: true).getValue(),
           false,
         );
 
         expect(
-          preferences.getBool('myNullBool', defaultValue: true).value(),
+          preferences.getBool('myNullBool', defaultValue: true).getValue(),
           true,
         );
 
         expect(
-          preferences.getBool('myNullBool', defaultValue: false).value(),
+          preferences.getBool('myNullBool', defaultValue: false).getValue(),
           false,
         );
       });
 
-      test('getBool().value()', () async {
+      test('getBool().getValue()', () async {
         final storedBool = preferences.getBool('key1', defaultValue: false);
-        expect(storedBool.value(), isFalse);
+        expect(storedBool.getValue(), isFalse);
 
         when(delegate.getBool('key1')).thenReturn(true);
-        expect(storedBool.value(), isTrue);
+        expect(storedBool.getValue(), isTrue);
 
         when(delegate.getBool('key1')).thenReturn(false);
         expect(
-          preferences.getBool('key1', defaultValue: true).value(),
+          preferences.getBool('key1', defaultValue: true).getValue(),
           isFalse,
         );
 
         when(delegate.getBool('key1')).thenReturn(null);
         expect(
-          preferences.getBool('key1', defaultValue: true).value(),
+          preferences.getBool('key1', defaultValue: true).getValue(),
           isTrue,
         );
 
         expect(
-          preferences.getBool('key1', defaultValue: false).value(),
+          preferences.getBool('key1', defaultValue: false).getValue(),
           isFalse,
         );
       });
@@ -405,27 +405,27 @@ void main() {
         );
       });
 
-      test('getInt().value() - initial values', () {
-        expect(preferences.getInt('myInt', defaultValue: 0).value(), 1337);
+      test('getInt().getValue() - initial values', () {
+        expect(preferences.getInt('myInt', defaultValue: 0).getValue(), 1337);
         expect(
-          preferences.getInt('myNullInt', defaultValue: 1337).value(),
+          preferences.getInt('myNullInt', defaultValue: 1337).getValue(),
           1337,
         );
       });
 
-      test('getInt().value()', () async {
+      test('getInt().getValue()', () async {
         final storedInt = preferences.getInt('key1', defaultValue: 0);
-        expect(storedInt.value(), 0);
+        expect(storedInt.getValue(), 0);
 
         when(delegate.getInt('key1')).thenReturn(1);
-        expect(storedInt.value(), 1);
+        expect(storedInt.getValue(), 1);
 
         when(delegate.getInt('key1')).thenReturn(2);
-        expect(preferences.getInt('key1', defaultValue: 0).value(), 2);
+        expect(preferences.getInt('key1', defaultValue: 0).getValue(), 2);
 
         when(delegate.getInt('key1')).thenReturn(null);
         expect(
-          preferences.getInt('key1', defaultValue: 1).value(),
+          preferences.getInt('key1', defaultValue: 1).getValue(),
           1,
         );
       });
@@ -473,31 +473,31 @@ void main() {
         );
       });
 
-      test('getDouble().value() - initial values', () {
+      test('getDouble().getValue() - initial values', () {
         expect(
-          preferences.getDouble('myDouble', defaultValue: 0).value(),
+          preferences.getDouble('myDouble', defaultValue: 0).getValue(),
           13.37,
         );
 
         expect(
-          preferences.getDouble('myNullDouble', defaultValue: 13.37).value(),
+          preferences.getDouble('myNullDouble', defaultValue: 13.37).getValue(),
           13.37,
         );
       });
 
-      test('getDouble().value()', () async {
+      test('getDouble().getValue()', () async {
         final storedDouble = preferences.getDouble('key1', defaultValue: 0);
-        expect(storedDouble.value(), 0);
+        expect(storedDouble.getValue(), 0);
 
         when(delegate.getDouble('key1')).thenReturn(1.1);
-        expect(storedDouble.value(), 1.1);
+        expect(storedDouble.getValue(), 1.1);
 
         when(delegate.getDouble('key1')).thenReturn(2.2);
-        expect(preferences.getDouble('key1', defaultValue: 0).value(), 2.2);
+        expect(preferences.getDouble('key1', defaultValue: 0).getValue(), 2.2);
 
         when(delegate.getDouble('key1')).thenReturn(null);
         expect(
-          preferences.getDouble('key1', defaultValue: 1.1).value(),
+          preferences.getDouble('key1', defaultValue: 1.1).getValue(),
           1.1,
         );
       });
@@ -545,36 +545,38 @@ void main() {
         );
       });
 
-      test('getString().value() - initial values', () {
+      test('getString().getValue() - initial values', () {
         expect(
-          preferences.getString('myString', defaultValue: '').value(),
+          preferences.getString('myString', defaultValue: '').getValue(),
           'myValue',
         );
 
         expect(
           preferences
               .getString('null-defValue', defaultValue: 'defaultValue')
-              .value(),
+              .getValue(),
           'defaultValue',
         );
       });
 
-      test('getString().value()', () async {
+      test('getString().getValue()', () async {
         final storedString = preferences.getString('key1', defaultValue: '');
-        expect(storedString.value(), isEmpty);
+        expect(storedString.getValue(), isEmpty);
 
         when(delegate.getString('key1')).thenReturn('value 1');
-        expect(storedString.value(), 'value 1');
+        expect(storedString.getValue(), 'value 1');
 
         when(delegate.getString('key1')).thenReturn('value 2');
         expect(
-          preferences.getString('key1', defaultValue: '').value(),
+          preferences.getString('key1', defaultValue: '').getValue(),
           'value 2',
         );
 
         when(delegate.getString('key1')).thenReturn(null);
         expect(
-          preferences.getString('key1', defaultValue: 'defaultValue').value(),
+          preferences
+              .getString('key1', defaultValue: 'defaultValue')
+              .getValue(),
           'defaultValue',
         );
       });
@@ -641,9 +643,10 @@ void main() {
         );
       });
 
-      test('getStringList().value() - initial values', () {
+      test('getStringList().getValue() - initial values', () {
         expect(
-          preferences.getStringList('myStringList', defaultValue: []).value(),
+          preferences
+              .getStringList('myStringList', defaultValue: []).getValue(),
           ['a', 'b'],
         );
 
@@ -651,25 +654,25 @@ void main() {
           preferences.getStringList(
             'null-defValue',
             defaultValue: ['default', 'value'],
-          ).value(),
+          ).getValue(),
           ['default', 'value'],
         );
       });
 
-      test('getStringList().value()', () async {
+      test('getStringList().getValue()', () async {
         final storedStringList = preferences.getStringList(
           'key1',
           defaultValue: [],
         );
 
-        expect(storedStringList.value(), isEmpty);
+        expect(storedStringList.getValue(), isEmpty);
 
         when(delegate.getStringList('key1')).thenReturn(['a', 'a']);
-        expect(storedStringList.value(), ['a', 'a']);
+        expect(storedStringList.getValue(), ['a', 'a']);
 
         when(delegate.getStringList('key1')).thenReturn(['b', 'b']);
         expect(
-          preferences.getStringList('key1', defaultValue: []).value(),
+          preferences.getStringList('key1', defaultValue: []).getValue(),
           ['b', 'b'],
         );
 
@@ -678,7 +681,7 @@ void main() {
           preferences.getStringList(
             'key1',
             defaultValue: ['default', 'value'],
-          ).value(),
+          ).getValue(),
           ['default', 'value'],
         );
       });

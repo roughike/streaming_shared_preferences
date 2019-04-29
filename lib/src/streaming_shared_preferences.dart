@@ -13,9 +13,9 @@ import 'preference.dart';
 ///
 /// Every `preferences.get(..)` method returns a [Preference] which is a [Stream]
 /// that emits values whenever the underlying value updates. You can also obtain
-/// the current value synchronously by calling `preferences.get(..).value()`.
-/// To set values, every [Preference] has a convenient `set()` method, but you
-/// can also call `preferences.set(..)` like you would do with [SharedPreferences].
+/// the current value synchronously by calling `preferences.get(..).getValue()`.
+/// To set values, every [Preference] has a convenient `setValue()` method, but you
+/// can also call `preferences.setValue(..)` like you would do with [SharedPreferences].
 ///
 /// You should *not* call `preferences.get(..)` inside a Flutter build method.
 /// Doing so will create and listen to a new [Stream] every time your widget rebuilds.
@@ -228,7 +228,7 @@ class StreamingSharedPreferences {
     assert(key != null, 'key must not be null.');
     assert(adapter != null, 'PreferenceAdapter must not be null.');
 
-    return _updateAndNotify(key, adapter.set(_preferences, key, value));
+    return _updateAndNotify(key, adapter.setValue(_preferences, key, value));
   }
 
   /// Removes the value associated with [key] and notifies all active listeners
@@ -289,10 +289,10 @@ class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
   const _GetKeysAdapter._();
 
   @override
-  Set<String> get(preferences, _) => preferences.getKeys();
+  Set<String> getValue(preferences, _) => preferences.getKeys();
 
   @override
-  Future<bool> set(_, __, ___) =>
+  Future<bool> setValue(_, __, ___) =>
       throw UnsupportedError('SharedPreferences.setKeys() is not supported.');
 }
 

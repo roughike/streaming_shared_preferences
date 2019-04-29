@@ -29,10 +29,10 @@ void main() {
       );
     });
 
-    test('calling set() calls the correct key and emits key updates', () {
-      preference.set('value1');
-      preference.set('value2');
-      preference.set('value3');
+    test('calling setValue() calls the correct key and emits key updates', () {
+      preference.setValue('value1');
+      preference.setValue('value2');
+      preference.setValue('value3');
 
       verifyInOrder([
         preferences.setString('key', 'value1'),
@@ -51,13 +51,14 @@ void main() {
       expect(keyChanges.stream, emits('key'));
     });
 
-    test('calling set() or clear() on a Preference with null key throws', () {
+    test('calling setValue() or clear() on a Preference with null key throws',
+        () {
       final pref =
           Preference.$$_private(preferences, null, '', adapter, keyChanges);
 
       expect(pref.clear, throwsA(const TypeMatcher<UnsupportedError>()));
       expect(
-        () => pref.set(''),
+        () => pref.setValue(''),
         throwsA(const TypeMatcher<UnsupportedError>()),
       );
     });
@@ -77,12 +78,12 @@ void main() {
 
 class _TestValueAdapter extends PreferenceAdapter<String> {
   @override
-  String get(preferences, key) {
+  String getValue(preferences, key) {
     return preferences.getString(key);
   }
 
   @override
-  Future<bool> set(keyValueStore, key, value) {
+  Future<bool> setValue(keyValueStore, key, value) {
     return keyValueStore.setString(key, value);
   }
 }

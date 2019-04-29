@@ -39,15 +39,15 @@ counter.listen((value) {
 //
 // You can also call preferences.setInt('counter', <value>) but this
 // is a little more convenient as there's no need to specify the key.
-counter.set(1);
-counter.set(2);
-counter.set(3);
+counter.setValue(1);
+counter.setValue(2);
+counter.setValue(3);
 ```
 
 Assuming that there's no previously stored value for `counter`, the above example will print `0`,
 `1`, `2` and `3` to the console.
 
-If you need to get the value synchronously, you can call `final currentValue = counter.value()`.
+If you need to get the value synchronously, you can call `final currentValue = counter.getValue()`.
 
 ### Go simple if you don't have a lot of preferences
 
@@ -125,12 +125,12 @@ class MyCounterWidget extends StatelessWidget {
         ),
         FloatingActionButton(
           onPressed: () {
-            /// To obtain the current value synchronously, we can call ".value()".
-            final currentValue = settings.counter.value();
+            /// To obtain the current value synchronously, we can call ".getValue()".
+            final currentValue = settings.counter.getValue();
 
-            /// To update the value, we can call ".set()" - no need to provide a key!
+            /// To update the value, we can call ".setValue()" - no need to provide a key!
             /// Alternatively, we could just call "preferences.setInt('counter', currentValue + 1)".
-            settings.counter.set(currentValue + 1);
+            settings.counter.setValue(currentValue + 1);
           },
           child: Icon(Icons.add),
         ),
@@ -182,9 +182,9 @@ class MyStreamingSharedPreferencesSettings implements MyAppSettings {
   @override
   Stream<int> getCounter() => _counter;
 
-  // Preference exposes a handy "set()" method to update the value
+  // Preference exposes a handy "setValue()" method to update the value
   @override
-  void setCounter(int value) => _counter.set(value);
+  void setCounter(int value) => _counter.setValue(value);
 }
 ```
 

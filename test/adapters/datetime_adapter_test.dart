@@ -16,7 +16,7 @@ void main() {
     final dateTime = DateTime(2019, 01, 02, 03, 04, 05, 99).toUtc();
 
     test('can persist date times properly', () {
-      adapter.set(preferences, 'key', dateTime);
+      adapter.setValue(preferences, 'key', dateTime);
 
       /// Comparing to a exact millisecond timestamp runs just fine on a local
       /// machine, but fails in CI because of differences in geographic regions.
@@ -35,7 +35,7 @@ void main() {
       /// machine, but fails in CI because of differences in geographic regions.
       ///
       /// For that reason, this test is a little fuzzy.
-      final storedDateTime = adapter.get(preferences, 'key');
+      final storedDateTime = adapter.getValue(preferences, 'key');
       expect(
         storedDateTime.difference(dateTime) <
             const Duration(hours: 1, minutes: 1),
@@ -46,12 +46,12 @@ void main() {
     test('handles retrieving null datetimes gracefully', () {
       when(preferences.getString('key')).thenReturn(null);
 
-      final storedDateTime = adapter.get(preferences, 'key');
+      final storedDateTime = adapter.getValue(preferences, 'key');
       expect(storedDateTime, isNull);
     });
 
     test('handles persisting null datetimes gracefully', () {
-      adapter.set(preferences, 'key', null);
+      adapter.setValue(preferences, 'key', null);
       verify(preferences.setString('key', null));
     });
   });

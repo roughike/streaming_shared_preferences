@@ -6,10 +6,11 @@ class BoolAdapter extends PreferenceAdapter<bool> {
   const BoolAdapter._();
 
   @override
-  bool get(preferences, key) => preferences.getBool(key);
+  bool getValue(preferences, key) => preferences.getBool(key);
 
   @override
-  Future<bool> set(preferences, key, value) => preferences.setBool(key, value);
+  Future<bool> setValue(preferences, key, value) =>
+      preferences.setBool(key, value);
 }
 
 /// A [PreferenceAdapter] implementation for storing and retrieving an [int].
@@ -18,10 +19,11 @@ class IntAdapter extends PreferenceAdapter<int> {
   const IntAdapter._();
 
   @override
-  int get(preferences, key) => preferences.getInt(key);
+  int getValue(preferences, key) => preferences.getInt(key);
 
   @override
-  Future<bool> set(preferences, key, value) => preferences.setInt(key, value);
+  Future<bool> setValue(preferences, key, value) =>
+      preferences.setInt(key, value);
 }
 
 /// A [PreferenceAdapter] implementation for storing and retrieving a [double].
@@ -30,10 +32,10 @@ class DoubleAdapter extends PreferenceAdapter<double> {
   const DoubleAdapter._();
 
   @override
-  double get(preferences, key) => preferences.getDouble(key);
+  double getValue(preferences, key) => preferences.getDouble(key);
 
   @override
-  Future<bool> set(preferences, key, value) =>
+  Future<bool> setValue(preferences, key, value) =>
       preferences.setDouble(key, value);
 }
 
@@ -43,10 +45,10 @@ class StringAdapter extends PreferenceAdapter<String> {
   const StringAdapter._();
 
   @override
-  String get(preferences, key) => preferences.getString(key);
+  String getValue(preferences, key) => preferences.getString(key);
 
   @override
-  Future<bool> set(preferences, key, value) =>
+  Future<bool> setValue(preferences, key, value) =>
       preferences.setString(key, value);
 }
 
@@ -57,9 +59,9 @@ class StringListAdapter extends PreferenceAdapter<List<String>> {
   const StringListAdapter._();
 
   @override
-  List<String> get(preferences, key) => preferences.getStringList(key);
+  List<String> getValue(preferences, key) => preferences.getStringList(key);
 
   @override
-  Future<bool> set(preferences, key, values) =>
+  Future<bool> setValue(preferences, key, values) =>
       preferences.setStringList(key, values);
 }

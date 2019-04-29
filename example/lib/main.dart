@@ -70,14 +70,14 @@ class MyHomePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.palette),
             onPressed: () {
-              /// Obtain the current value synchronously by calling value()...
-              bool currentValue = settings.darkMode.value();
+              /// Obtain the current value synchronously by calling getValue()...
+              bool currentValue = settings.darkMode.getValue();
 
               /// ...and update the value by inverting it.
               ///
               /// This is identical to preferences.setBool('darkMode', !currentValue),
               /// but this syntax is more convenient.
-              settings.darkMode.set(!currentValue);
+              settings.darkMode.setValue(!currentValue);
             },
           ),
         ],
@@ -105,10 +105,10 @@ class MyHomePage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Obtain the current counter value synchronously...
-          final currentValue = settings.counter.value();
+          final currentValue = settings.counter.getValue();
 
           // ...and add one to the existing value and update it.
-          settings.counter.set(currentValue + 1);
+          settings.counter.setValue(currentValue + 1);
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),

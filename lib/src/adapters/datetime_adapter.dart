@@ -7,7 +7,7 @@ import 'preference_adapter.dart';
 /// Stores values as timezone independent milliseconds from the standard Unix epoch.
 class DateTimeAdapter extends PreferenceAdapter<DateTime> {
   @override
-  DateTime get(SharedPreferences preferences, String key) {
+  DateTime getValue(SharedPreferences preferences, String key) {
     final value = preferences.getString(key);
     if (value == null) return null;
 
@@ -15,7 +15,8 @@ class DateTimeAdapter extends PreferenceAdapter<DateTime> {
   }
 
   @override
-  Future<bool> set(SharedPreferences preferences, String key, DateTime value) {
+  Future<bool> setValue(
+      SharedPreferences preferences, String key, DateTime value) {
     return preferences.setString(
       key,
       value?.millisecondsSinceEpoch?.toString(),

@@ -62,7 +62,7 @@ class JsonAdapter<T> extends PreferenceAdapter<T> {
   final T Function(Object) deserializer;
 
   @override
-  T get(SharedPreferences preferences, String key) {
+  T getValue(SharedPreferences preferences, String key) {
     final value = preferences.getString(key);
     if (value == null) return null;
 
@@ -71,7 +71,7 @@ class JsonAdapter<T> extends PreferenceAdapter<T> {
   }
 
   @override
-  Future<bool> set(SharedPreferences preferences, String key, T value) {
+  Future<bool> setValue(SharedPreferences preferences, String key, T value) {
     final serializedValue = serializer != null ? serializer(value) : value;
     return preferences.setString(key, jsonEncode(serializedValue));
   }

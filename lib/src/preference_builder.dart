@@ -34,7 +34,7 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
   @override
   void initState() {
     super.initState();
-    _initialData = widget.preference.value();
+    _initialData = widget.preference.getValue();
     _preference = widget.preference;
   }
 
