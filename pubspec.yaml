@@ -1,6 +1,6 @@
 name: streaming_shared_preferences
 description: A reactive key-value store for Flutter projects, built on top of shared_preferences.
-version: 1.0.0-dev-4
+version: 1.0.0-dev-5
 author: Iiro Krankka <iiro.krankka@gmail.com>
 homepage: https://github.com/roughike/streaming_shared_preferences
 
