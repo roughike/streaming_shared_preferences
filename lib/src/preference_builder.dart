@@ -68,12 +68,17 @@ class _EmitOnlyChangedValues<T> extends StreamTransformerBase<T, T> {
       controller = StreamController<T>(
         sync: true,
         onListen: () {
-          subscription = input.listen((value) {
-            if (value != lastValue) {
-              controller.add(value);
-              lastValue = value;
-            }
-          });
+          subscription = input.listen(
+            (value) {
+              if (value != lastValue) {
+                controller.add(value);
+                lastValue = value;
+              }
+            },
+            onError: controller.addError,
+            onDone: controller.close,
+            cancelOnError: cancelOnError,
+          );
         },
         onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
