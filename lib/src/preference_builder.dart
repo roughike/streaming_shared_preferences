@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -35,7 +37,8 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
   void initState() {
     super.initState();
     _initialData = widget.preference.getValue();
-    _preference = widget.preference;
+    _preference =
+        widget.preference.transform(_EmitOnlyChangedValues(_initialData));
   }
 
   @override
@@ -45,5 +48,42 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
       stream: _preference,
       builder: widget.builder,
     );
+  }
+}
+
+/// Makes sure that [PreferenceBuilder] does not run its builder function if
+/// there's a new value, but it's identical to the last one.
+class _EmitOnlyChangedValues<T> extends StreamTransformerBase<T, T> {
+  _EmitOnlyChangedValues(this.startValue);
+  final T startValue;
+
+  @override
+  Stream<T> bind(Stream<T> stream) {
+    return StreamTransformer<T, T>((input, cancelOnError) {
+      T lastValue = startValue;
+
+      StreamController<T> controller;
+      StreamSubscription<T> subscription;
+
+      controller = StreamController<T>(
+        sync: true,
+        onListen: () {
+          subscription = input.listen((value) {
+            if (value != lastValue) {
+              controller.add(value);
+              lastValue = value;
+            }
+          });
+        },
+        onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
+        onResume: () => subscription.resume(),
+        onCancel: () {
+          lastValue = null;
+          return subscription.cancel();
+        },
+      );
+
+      return controller.stream.listen(null);
+    }).bind(stream);
   }
 }

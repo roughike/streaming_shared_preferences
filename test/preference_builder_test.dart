@@ -53,8 +53,6 @@ void main() {
     testWidgets(
         'if current value is null, uses default value for initial build',
         (tester) async {
-      when(preferences.getString('test')).thenReturn(null);
-
       await tester.pumpWidget(
         PreferenceBuilder<String>(
           preference,
@@ -78,6 +76,8 @@ void main() {
         ),
       );
 
+      expect(find.text('default value'), findsOneWidget);
+
       // Whenever a String with key "test" is retrieved the next time, return
       // the text "updated value".
       when(preferences.getString('test')).thenReturn('updated value');
@@ -85,10 +85,54 @@ void main() {
       // Value does not matter in a test case as the preferences are mocked.
       // This just tells the preference that something was updated.
       preference.setValue(null);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('updated value'), findsOneWidget);
 
+      when(preferences.getString('test')).thenReturn('another value');
+      preference.setValue(null);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('another value'), findsOneWidget);
+    });
+
+    testWidgets(
+        'does not rebuild if latest value used for build is identical to new one',
+        (tester) async {
+      int buildCount = 0;
+
+      await tester.pumpWidget(
+        PreferenceBuilder<String>(
+          preference,
+          builder: (context, snapshot) {
+            buildCount++;
+            return Text(snapshot.data, textDirection: TextDirection.ltr);
+          },
+        ),
+      );
+
+      preference.setValue(null);
+      await tester.pump();
       await tester.pump();
 
-      expect(find.text('updated value'), findsOneWidget);
+      preference.setValue(null);
+      await tester.pump();
+      await tester.pump();
+
+      preference.setValue(null);
+      await tester.pump();
+      await tester.pump();
+
+      expect(buildCount, 1);
+
+      // So that there's no accidental lockdown because of duplicate values
+      when(preferences.getString('test')).thenReturn('new value');
+      preference.setValue(null);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('new value'), findsOneWidget);
+
+      expect(buildCount, 2);
     });
   });
 }
