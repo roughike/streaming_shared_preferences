@@ -73,6 +73,35 @@ void main() {
       when(preferences.getString('key')).thenReturn('3');
       expect(preference, emits('3'));
     });
+
+    test('does not emit same value more than once in a row', () async {
+      int updateCount = 0;
+      preference.listen((_) => updateCount++);
+
+      when(preferences.getString('key')).thenReturn('new value');
+      await preference.setValue(null);
+
+      when(preferences.getString('key')).thenReturn('new value');
+      await preference.setValue(null);
+
+      when(preferences.getString('key')).thenReturn('new value');
+      await preference.setValue(null);
+
+      // Changed from "default value" to "new value"
+      expect(updateCount, 2);
+
+      when(preferences.getString('key')).thenReturn('another value 1');
+      await preference.setValue(null);
+
+      when(preferences.getString('key')).thenReturn('another value 2');
+      await preference.setValue(null);
+
+      when(preferences.getString('key')).thenReturn('another value 3');
+      await preference.setValue(null);
+
+      // Changed from "new value" to "another value" 3 times
+      expect(updateCount, 5);
+    });
   });
 }
 

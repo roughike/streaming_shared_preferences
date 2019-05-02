@@ -101,6 +101,17 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   final PreferenceAdapter<T> valueAdapter;
   final SharedPreferences preferences;
 
+  T _lastValue;
+
+  void _addIfChanged(StreamController<T> controller, T value) {
+    // If the value changed from the last one, emit
+    // it and update "lastValue" with the newest one.
+    if (value != _lastValue) {
+      controller.add(value);
+      _lastValue = value;
+    }
+  }
+
   T _getValueFromPersistentStorage() {
     // Return the latest value from preferences,
     // If null, returns the default value.
@@ -118,14 +129,17 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
         onListen: () {
           // When the stream is listened to, start with the current persisted
           // value.
-          controller.add(_getValueFromPersistentStorage());
+          _addIfChanged(controller, _getValueFromPersistentStorage());
 
           // Whenever a key has been updated, fetch the current persisted value
           // and emit it.
           subscription = input
               .transform(_EmitOnlyMatchingKeys(key))
               .map((_) => _getValueFromPersistentStorage())
-              .listen(controller.add, onDone: controller.close);
+              .listen(
+                (value) => _addIfChanged(controller, value),
+                onDone: controller.close,
+              );
         },
         onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
