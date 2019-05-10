@@ -29,7 +29,8 @@ twist - every getter returns a `Preference` object, which is a special type of `
 Here's **plain Dart example** on how you would listen to changes in an integer and print the value to console every time it changes:
 
 ```dart
-// Provide a default value of 0 in case "counter" is null.
+// Get a reference to the counter value and provide a default value 
+// of 0 in case it is null.
 final Preference<int> counter = preferences.getInt('counter', defaultValue: 0);
 
 // "counter" is a Stream - it can do anything a Stream can.
@@ -38,10 +39,10 @@ counter.listen((value) {
 });
 
 // Somewhere else in your code, update the value.
-//
+counter.setValue(1);
+
 // You can also call preferences.setInt('counter', <value>) but this
 // is a little more convenient as there's no need to specify the key.
-counter.setValue(1);
 counter.setValue(2);
 counter.setValue(3);
 ```
