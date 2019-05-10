@@ -45,7 +45,7 @@ class Preference<T> extends StreamView<T> {
   /// Clear, or in other words, remove, the value. Effectively sets the [_key]
   /// to a null value.
   ///
-  /// After removing a value, this [Preference] will emit the default value once.
+  /// After removing a value, this [Preference] will emit [defaultValue] once.
   Future<bool> clear() async {
     if (_key == null) {
       throw UnsupportedError(
@@ -143,7 +143,10 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
         },
         onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
-        onCancel: () => subscription.cancel(),
+        onCancel: () {
+          _lastValue = null;
+          return subscription.cancel();
+        },
       );
 
       return controller.stream.listen(null);

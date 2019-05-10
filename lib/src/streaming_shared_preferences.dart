@@ -14,15 +14,12 @@ import 'preference.dart';
 /// Every `preferences.get(..)` method returns a [Preference] which is a [Stream]
 /// that emits values whenever the underlying value updates. You can also obtain
 /// the current value synchronously by calling `preferences.get(..).getValue()`.
-/// To set values, every [Preference] has a convenient `setValue()` method, but you
-/// can also call `preferences.setValue(..)` like you would do with [SharedPreferences].
 ///
-/// You should *not* call `preferences.get(..)` inside a Flutter build method.
-/// Doing so will create and listen to a new [Stream] every time your widget rebuilds.
-/// If you accidentally end up doing that, the library will nag at you by throwing
-/// exceptions when in debug mode. It is recommended to initialize your [Preference]
-/// objects outside the build method and connect them to your widgets by using
-/// a [PreferenceBuilder] widget.
+/// To set values, every [Preference] has a convenient `setValue()` method. You
+/// can also call `preferences.set(..)` like you would do with normal [SharedPreferences].
+///
+/// While you can connect a [Preference] to your UI with a [StreamBuilder] widget,
+/// it is recommended to use a [PreferenceBuilder].
 class StreamingSharedPreferences {
   static Completer<StreamingSharedPreferences> _instanceCompleter;
 
@@ -58,7 +55,7 @@ class StreamingSharedPreferences {
   ///
   /// If there are no keys, emits an empty [Set].
   Preference<Set<String>> getKeys() {
-    return _getValueAllowingNullKey(
+    return _getValue(
       null,
       defaultValue: Set(),
       adapter: _GetKeysAdapter.instance,
@@ -159,7 +156,7 @@ class StreamingSharedPreferences {
   }) {
     assert(key != null, 'Preference key must not be null.');
 
-    return _getValueAllowingNullKey(
+    return _getValue(
       key,
       defaultValue: defaultValue,
       adapter: adapter,
@@ -261,9 +258,7 @@ class StreamingSharedPreferences {
     return isSuccessful;
   }
 
-  /// Bypasses the key != null assertion but makes sure [defaultValue] and [adapter]
-  /// are non-null.
-  Preference<T> _getValueAllowingNullKey<T>(
+  Preference<T> _getValue<T>(
     String key, {
     @required T defaultValue,
     @required PreferenceAdapter<T> adapter,

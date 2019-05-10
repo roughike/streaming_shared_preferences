@@ -5,15 +5,20 @@ import 'package:flutter/widgets.dart';
 
 import 'package:streaming_shared_preferences/src/preference.dart';
 
-/// A function that rebuilds a widget whenever [preference] has a new value.
+/// A function that builds a widget whenever a [Preference] has a new value.
 typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
 
 /// PreferenceBuilder is exactly like a [StreamBuilder] but without the need to
-/// provide `initialData`.
+/// provide `initialData`. It also solves the initial flicker problem that happens
+/// when a [StreamBuilder] transitions from its `initialData` to the values in
+/// it `stream`.
 ///
 /// If the preference has a persisted non-null value, the initial build will be
 /// done with that value. Otherwise the initial build will be done with the
 /// `defaultValue` of the [preference].
+///
+/// If a [preference] emits a value identical to the last emitted value, [builder]
+/// will not be called as it would be unnecessary to do so.
 class PreferenceBuilder<T> extends StatefulWidget {
   PreferenceBuilder(
     this.preference, {
@@ -21,9 +26,10 @@ class PreferenceBuilder<T> extends StatefulWidget {
   })  : assert(preference != null, 'Preference must not be null.'),
         assert(builder != null, 'PreferenceWidgetBuilder must not be null.');
 
-  /// The preference on which data you want to react and rebuild your widgets
-  /// based on.
+  /// The preference on which you want to react and rebuild your widgets based on.
   final Preference<T> preference;
+
+  /// The function that builds a widget when a [preference] has new data.
   final PreferenceWidgetBuilder<T> builder;
 
   @override
@@ -52,8 +58,8 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
   }
 }
 
-/// Makes sure that [PreferenceBuilder] does not run its builder function if
-/// there's a new value, but it's identical to the last one.
+/// Makes sure that [PreferenceBuilder] does not run its builder function if the
+/// new value is identical to the last one.
 class _EmitOnlyChangedValues<T> extends StreamTransformerBase<T, T> {
   _EmitOnlyChangedValues(this.startValue);
   final T startValue;
