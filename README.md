@@ -186,8 +186,8 @@ Depending on your use case, you need to provided a non-null `SampleObject.empty(
 
 ### Using JsonAdapter with built_value
 
-You can do custom serialization logic before JSON encoding the object by providing a [serializer]. 
-Similarly, you can use [deserializer] to map the decoded JSON map into any object you want.
+You can do custom serialization logic before JSON encoding the object by providing a serializer. 
+Similarly, you can use deserializer to map the decoded JSON map into any object you want.
 
 For example, if the previous `SampleObject` didn't have `toJson` and `fromJson` methods, but was a built_value model instead:
 
