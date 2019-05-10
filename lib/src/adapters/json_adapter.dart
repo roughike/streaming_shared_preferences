@@ -8,7 +8,7 @@ import 'preference_adapter.dart';
 /// JSON values.
 ///
 /// [JsonAdapter] eliminates the need for a custom [PreferenceAdapter]. It also
-/// saves you from duplicating `if (value == null) return null` custom adapters.
+/// saves you from duplicating `if (value == null) return null` for custom adapters.
 ///
 /// For example, if we have a class called `SampleObject`:
 ///
