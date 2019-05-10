@@ -67,7 +67,7 @@ class MyCounterWidget extends StatelessWidget {
     return PreferenceBuilder<int>(
       preferences.getInt('counter', defaultValue: 0),
       builder: (BuildContext context, int counter) {
-        return Text('Button pressed ${counter} times!');
+        return Text('Button pressed $counter times!');
       }
     );
   }
