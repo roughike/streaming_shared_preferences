@@ -10,6 +10,8 @@ A reactive key-value store for Flutter projects.
 
 It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer, allowing you to **listen and react to changes** in the underlying values.
 
+For a quick demo, look at [the sample app](https://github.com/roughike/streaming_shared_preferences/tree/master/example).
+
 ## Getting started
 
 To get a hold of `StreamingSharedPreferences`, _await_ on `instance`:
