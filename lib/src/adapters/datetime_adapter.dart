@@ -6,6 +6,9 @@ import 'preference_adapter.dart';
 ///
 /// Stores values as timezone independent milliseconds from the standard Unix epoch.
 class DateTimeAdapter extends PreferenceAdapter<DateTime> {
+  static const instance = DateTimeAdapter._();
+  const DateTimeAdapter._();
+
   @override
   DateTime getValue(SharedPreferences preferences, String key) {
     final value = preferences.getString(key);

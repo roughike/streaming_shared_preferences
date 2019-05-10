@@ -12,7 +12,7 @@ void main() {
       preferences = MockSharedPreferences();
     });
 
-    final adapter = DateTimeAdapter();
+    final adapter = DateTimeAdapter.instance;
     final dateTime = DateTime(2019, 01, 02, 03, 04, 05, 99).toUtc();
 
     test('can persist date times properly', () {
