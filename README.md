@@ -29,7 +29,7 @@ twist - every getter returns a `Preference` object, which is a special type of `
 Here's **plain Dart example** on how you would listen to changes in an integer and print the value to console every time it changes:
 
 ```dart
-// Get a reference to the counter value and provide a default value 
+// Get a reference to the counter Preference, and provide a default value 
 // of 0 in case it is null.
 final Preference<int> counter = preferences.getInt('counter', defaultValue: 0);
 
