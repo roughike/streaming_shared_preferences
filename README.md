@@ -26,7 +26,7 @@ twist - every getter returns a `Preference` object, which is a special type of `
 
 ### Quick overview of the API surface
 
-Here's **plain Dart example** on how you would listen to changes in an integer and print the value to console every time it changes:
+Here's **plain Dart example** on how you would print a value to console every time a `counter` integer changes:
 
 ```dart
 // Get a reference to the counter Preference, and provide a default value 
@@ -41,27 +41,26 @@ counter.listen((value) {
 
 // Somewhere else in your code, update the value.
 counter.setValue(1);
-
-// You can also call preferences.setInt('counter', <value>) but this
-// is a little more convenient as there's no need to specify the key.
-counter.setValue(2);
-counter.setValue(3);
 ```
 
+We could also call `preferences.setInt('counter', 1)`, but this is more convenient.
+Since a `Preference` knows how to set its own value, there's no need to provide a key.
+
 Assuming that there's no previously stored value for `counter`, the above example will print `0`,
-`1`, `2` and `3` to the console. If you need to get the value synchronously, you can call `final currentValue = counter.getValue()`.
+`1`, `2` and `3` to the console.
 
 ### Connecting it to Flutter widgets
 
+The recommended way is to use the `PreferenceBuilder` widget.
 If you have only one `Preference` in your app, it might make sense to create and listen to a `Preference` inline:
 
 ```dart
 class MyCounterWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    /// PreferenceBuilder is like StreamBuilder, but we don't have to
-    /// provide `initialData` - that can be fetched synchronously from
-    /// the provided Preference.
+    /// PreferenceBuilder is like StreamBuilder, but with less boilerplate.
+    /// We don't have to provide `initialData` as it can be fetched synchronously
+    /// from the provided Preference. There's also no initial flicker or needless rebuilds.
     ///
     /// If you want, you could use a StreamBuilder too.
     return PreferenceBuilder<int>(
@@ -142,9 +141,68 @@ class MyCounterWidget extends StatelessWidget {
 }
 ```
 
+You can see a full working example of this [in the example project](https://github.com/roughike/streaming_shared_preferences/blob/master/example/lib/main.dart).
+
 When your widget hierarchy becomes deep enough, you would want to pass `MyAppSettings` around with an [InheritedWidget](https://docs.flutter.io/flutter/widgets/InheritedWidget-class.html) instead.
 
-## "But muh abstraction!"
+## Storing custom types with JsonAdapter
+
+The entire library is built to support storing custom data types easily with a `PreferenceAdapter`.
+In fact, every built-in type has its own `PreferenceAdapter` - so technically, every type is actually a custom value!
+
+For most cases, there's a convenience adapter that handles common pitfalls when storing and retrieving custom values called `JsonAdapter`.
+It helps you to store your values in JSON and it also saves you from duplicating `if (value == null) return null` for your custom adapters.
+
+For example, if we have a class called `SampleObject`:
+
+```dart
+class SampleObject {
+  SampleObject(this.isAwesome);
+  final bool isAwesome;
+
+  SampleObject.fromJson(Map<String, dynamic> json) :
+    isAwesome = json['isAwesome'];
+
+  Map<String, dynamic> toJson() => { 'isAwesome': isAwesome };
+}
+```
+
+As seen from the above example, SampleObject implements both `fromJson` and `toJson`.
+
+When the `toJson` method is present, JsonAdapter will call `toJson` automatically. 
+For reviving, you need to provide a deserializer that calls `fromJson` manually:
+
+```dart
+final sampleObject = preferences.getCustomValue<SampleObject>(
+  'my-key',
+  defaultValue: SampleObject.empty(),
+  adapter: JsonAdapter(
+    deserializer: (value) => SampleObject.fromJson(value),
+  ),
+);
+```
+
+Depending on your use case, you need to provided a non-null `SampleObject.empty()` that represents a sane default for your custom type when it's not there just yet.
+
+### Using JsonAdapter with built_value
+
+You can do custom serialization logic before JSON encoding the object by providing a [serializer]. 
+Similarly, you can use [deserializer] to map the decoded JSON map into any object you want.
+
+For example, if the previous `SampleObject` didn't have `toJson` and `fromJson` methods, but was a built_value model instead:
+
+```dart
+final sampleObject = preferences.getCustomValue<SampleObject>(
+  'my-key',
+  defaultValue: SampleObject.empty(),
+  adapter: JsonAdapter(
+    serializer: (value) => serializers.serialize(value),
+    deserializer: (value) => serializers.deserialize(value),
+  ),
+);
+```
+ 
+## "But what about muh abstraction!"
 
 If you're all about the clean architecture and don't want to pollute your domain layer with `Preference` objects from a third-party library by some random internet stranger, all the power to you.
 
