@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 /// A class that holds [Preference] objects for the common values that you want
@@ -33,7 +32,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /// Preference is a Stream - it can be used directly with a StreamBuilder 
+    /// Preference is a Stream - it can be used directly with a StreamBuilder
     /// widget. We're using a PreferenceBuilder which removes the need to provide
     /// the `initialData` parameter.
     ///
@@ -41,8 +40,8 @@ class MyApp extends StatelessWidget {
     /// whenever the value has updates.
     return PreferenceBuilder<bool>(
       settings.darkMode,
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-        final brightness = snapshot.data ? Brightness.dark : Brightness.light;
+      builder: (BuildContext context, bool darkMode) {
+        final brightness = darkMode ? Brightness.dark : Brightness.light;
 
         return MaterialApp(
           title: 'StreamingSharedPreferences Demo',
@@ -92,9 +91,9 @@ class MyHomePage extends StatelessWidget {
             /// has a new value.
             PreferenceBuilder<int>(
               settings.counter,
-              builder: (BuildContext context, AsyncSnapshot<int> counter) {
+              builder: (BuildContext context, int counter) {
                 return Text(
-                  '${counter.data}',
+                  '$counter',
                   style: Theme.of(context).textTheme.display1,
                 );
               },

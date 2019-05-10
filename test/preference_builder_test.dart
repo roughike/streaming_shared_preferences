@@ -41,8 +41,8 @@ void main() {
       await tester.pumpWidget(
         PreferenceBuilder<String>(
           preference,
-          builder: (context, snapshot) {
-            return Text(snapshot.data, textDirection: TextDirection.ltr);
+          builder: (context, value) {
+            return Text(value, textDirection: TextDirection.ltr);
           },
         ),
       );
@@ -56,8 +56,8 @@ void main() {
       await tester.pumpWidget(
         PreferenceBuilder<String>(
           preference,
-          builder: (context, snapshot) {
-            return Text(snapshot.data, textDirection: TextDirection.ltr);
+          builder: (context, value) {
+            return Text(value, textDirection: TextDirection.ltr);
           },
         ),
       );
@@ -70,8 +70,8 @@ void main() {
       await tester.pumpWidget(
         PreferenceBuilder<String>(
           preference,
-          builder: (context, snapshot) {
-            return Text(snapshot.data, textDirection: TextDirection.ltr);
+          builder: (context, value) {
+            return Text(value, textDirection: TextDirection.ltr);
           },
         ),
       );
@@ -104,9 +104,9 @@ void main() {
       await tester.pumpWidget(
         PreferenceBuilder<String>(
           preference,
-          builder: (context, snapshot) {
+          builder: (context, value) {
             buildCount++;
-            return Text(snapshot.data, textDirection: TextDirection.ltr);
+            return Text(value, textDirection: TextDirection.ltr);
           },
         ),
       );

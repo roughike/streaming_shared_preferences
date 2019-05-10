@@ -5,6 +5,9 @@ import 'package:flutter/widgets.dart';
 
 import 'package:streaming_shared_preferences/src/preference.dart';
 
+/// A function that rebuilds a widget whenever [preference] has a new value.
+typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
+
 /// PreferenceBuilder is exactly like a [StreamBuilder] but without the need to
 /// provide `initialData`.
 ///
@@ -21,9 +24,7 @@ class PreferenceBuilder<T> extends StatefulWidget {
   /// The preference on which data you want to react and rebuild your widgets
   /// based on.
   final Preference<T> preference;
-
-  /// A function that rebuilds a widget whenever [preference] has a new value.
-  final AsyncWidgetBuilder<T> builder;
+  final PreferenceWidgetBuilder<T> builder;
 
   @override
   _PreferenceBuilderState<T> createState() => _PreferenceBuilderState<T>();
@@ -46,7 +47,7 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
     return StreamBuilder<T>(
       initialData: _initialData,
       stream: _preference,
-      builder: widget.builder,
+      builder: (context, snapshot) => widget.builder(context, snapshot.data),
     );
   }
 }

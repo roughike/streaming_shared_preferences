@@ -64,8 +64,8 @@ class MyCounterWidget extends StatelessWidget {
     /// If you want, you could use a StreamBuilder too.
     return PreferenceBuilder<int>(
       preferences.getInt('counter', defaultValue: 0),
-      builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-        return Text('Button pressed ${snapshot.data} times!');
+      builder: (BuildContext context, int counter) {
+        return Text('Button pressed ${counter} times!');
       }
     );
   }
@@ -117,11 +117,11 @@ class MyCounterWidget extends StatelessWidget {
       children: [
         PreferenceBuilder<String>(
           settings.nickname,
-          builder: (context, snapshot) => Text('Hey ${snapshot.data}!'),
+          builder: (context, nickname) => Text('Hey $nickname!'),
         ),
         PreferenceBuilder<int>(
           settings.counter,
-          builder: (context, snapshot) => Text('You have pushed the button ${snapshot.data} times!'),
+          builder: (context, counter) => Text('You have pushed the button $counter times!'),
         ),
         FloatingActionButton(
           onPressed: () {
