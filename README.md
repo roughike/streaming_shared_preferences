@@ -30,7 +30,7 @@ Here's **plain Dart example** on how you would listen to changes in an integer a
 
 ```dart
 // Provide a default value of 0 in case "counter" is null.
-final counter = preferences.getInt('counter', defaultValue: 0);
+final Preference<int> counter = preferences.getInt('counter', defaultValue: 0);
 
 // "counter" is a Stream - it can do anything a Stream can.
 counter.listen((value) {
