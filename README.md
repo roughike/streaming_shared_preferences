@@ -10,7 +10,7 @@ A reactive key-value store for Flutter projects.
 
 It wraps [shared_preferences](https://pub.dartlang.org/packages/shared_preferences) with a reactive `Stream` based layer, allowing you to **listen and react to changes** in the underlying values.
 
-## Simple usage example
+## Getting started
 
 To get a hold of `StreamingSharedPreferences`, _await_ on `instance`:
 
@@ -24,7 +24,9 @@ final preferences = await StreamingSharedPreferences.instance;
 The public API follows the same naming convention as `shared_preferences` does, but with a little
 twist - every getter returns a `Preference` object, which is a special type of `Stream`.
 
-Here's a plain Dart example how you would listen to changes in an integer and print the value to console every time it changes:
+### Quick overview of the API surface
+
+Here's **plain Dart example** on how you would listen to changes in an integer and print the value to console every time it changes:
 
 ```dart
 // Provide a default value of 0 in case "counter" is null.
@@ -45,11 +47,9 @@ counter.setValue(3);
 ```
 
 Assuming that there's no previously stored value for `counter`, the above example will print `0`,
-`1`, `2` and `3` to the console.
+`1`, `2` and `3` to the console. If you need to get the value synchronously, you can call `final currentValue = counter.getValue()`.
 
-If you need to get the value synchronously, you can call `final currentValue = counter.getValue()`.
-
-### Go simple if you don't have a lot of preferences
+### Connecting it to Flutter widgets
 
 If you have only one `Preference` in your app, it might make sense to create and listen to a `Preference` inline:
 
