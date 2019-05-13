@@ -1,6 +1,6 @@
 # streaming_shared_preferences
 
-**(collecting feedback to get this to a 1.0 release)**
+**(collecting feedback to get this to a 1.0 release - no backwards-compatibility guarantees until stable)**
 
 [![pub package](https://img.shields.io/pub/v/streaming_shared_preferences.svg)](https://pub.dartlang.org/packages/streaming_shared_preferences)
  [![Build Status](https://travis-ci.org/roughike/streaming_shared_preferences.svg?branch=master)](https://travis-ci.org/roughike/streaming_shared_preferences) 
