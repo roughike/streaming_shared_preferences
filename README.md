@@ -216,7 +216,7 @@ final sampleObject = preferences.getCustomValue<SampleObject>(
 ```
 
 The `serializers` here is your global serializer that comes from `built_value`.
- 
+
 ## "But what about muh abstraction!"
 
 If you're all about the clean architecture and don't want to pollute your domain layer with `Preference` objects from a third-party library by some random internet stranger, all the power to you.
