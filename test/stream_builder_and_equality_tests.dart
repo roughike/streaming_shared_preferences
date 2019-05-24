@@ -6,8 +6,24 @@ import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-import 'mocks.dart';
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
+/// These tests make sure that that an identical Preference doesn't accidentally
+/// cause refetching an unchanged value from persistent storage when using a
+/// StreamBuilder widget and when the state of the parent widget is rebuilt.
+///
+/// Whenever the parent of a StreamBuilder widget is rebuilt, it causes the StreamBuilder
+/// widget to check if the previous Stream and the new Stream are equal. If they
+/// are not, StreamBuilder will unsubscribe from the previous Stream and subscribe
+/// to a new one.
+///
+/// The problem is that if a Preference does not implement equals and hashCode, a
+/// seemingly equal Preference will be considered as a completely new one by the
+/// StreamBuilder widget. And since a Preference will fetch the latest value from
+/// persistent storage once every time it's listened to, and a StreamBuilder will
+/// always unsubscribe and listen on not equal Streams, every rebuild of the parent
+/// widget would result in fetching a value from persistent storage. And that's not
+/// good.
 void main() {
   group('StreamBuilder and equality tests', () {
     MockSharedPreferences preferences;

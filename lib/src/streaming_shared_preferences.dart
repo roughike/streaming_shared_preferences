@@ -4,22 +4,23 @@ import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'adapters/adapters.dart';
-import 'preference.dart';
+import 'package:streaming_shared_preferences/src/preference/preference.dart';
 
-/// StreamingSharedPreferences is a reactive version of [SharedPreferences].
+/// StreamingSharedPreferences is like [SharedPreferences], but reactive.
 ///
-/// It wraps [SharedPreferences] with a [Stream] based layer, allowing you to
-/// listen to changes in the underlying values.
+/// It wraps [SharedPreferences] with a Stream-based layer, allowing you to listen
+/// to changes in the underlying values.
 ///
-/// Every `preferences.get(..)` method returns a [Preference] which is a [Stream]
-/// that emits values whenever the underlying value updates. You can also obtain
-/// the current value synchronously by calling `preferences.get(..).getValue()`.
+/// Every `preferences.get(..)` method returns a [Preference] which is a [Stream].
+/// A [Preference] emits values whenever the underlying value updates. You can also
+/// obtain the current value synchronously by calling `preferences.get(..).getValue()`.
 ///
 /// To set values, every [Preference] has a convenient `setValue()` method. You
 /// can also call `preferences.set(..)` like you would do with normal [SharedPreferences].
 ///
 /// While you can connect a [Preference] to your UI with a [StreamBuilder] widget,
-/// it is recommended to use a [PreferenceBuilder].
+/// it is recommended to use a [PreferenceBuilder], as that gets rid of the initial
+/// flicker and you don't need to provide `initialData` parameter for it.
 class StreamingSharedPreferences {
   static Completer<StreamingSharedPreferences> _instanceCompleter;
 
@@ -301,7 +302,7 @@ Future<SharedPreferences> debugObtainSharedPreferencesInstance =
 /// Resets the singleton instance of [StreamingSharedPreferences] so that it can
 /// be always tested from a clean slate. Only for testing purposes.
 ///
-/// Should not be called outside of tests.
+/// Should not be used outside of tests.
 @visibleForTesting
 void debugResetStreamingSharedPreferencesInstance() {
   StreamingSharedPreferences._instanceCompleter = null;

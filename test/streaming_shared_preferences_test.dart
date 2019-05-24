@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   group('StreamingKeyValueStore', () {
@@ -15,9 +15,10 @@ void main() {
 
     setUpAll(() async {
       // SharedPreferences calls "getAll" through a method channel initially when
-      // creating an instance of it. This will crash in tests by default, so this
-      // is a minimal glue code to make sure that we can run the test below without
-      // crashes.
+      // creating an instance of it.
+      //
+      // This will crash in tests by default, so this is a minimal glue code to
+      // make sure that we can run the test below without crashes.
       const channel = MethodChannel('plugins.flutter.io/shared_preferences');
       channel.setMockMethodCallHandler((call) async {
         return call.method == 'getAll' ? {} : null;
@@ -36,7 +37,7 @@ void main() {
     setUp(() async {
       delegate = MockSharedPreferences();
 
-      // Swap the instance obtainer with one that always returns a mocked verison
+      // Swap the instance obtainer with one that always returns a mocked version
       // of shared preferences.
       debugObtainSharedPreferencesInstance = Future.value(delegate);
       preferences = await StreamingSharedPreferences.instance;
@@ -645,8 +646,10 @@ void main() {
 
       test('getStringList().getValue() - initial values', () {
         expect(
-          preferences
-              .getStringList('myStringList', defaultValue: []).getValue(),
+          preferences.getStringList(
+            'myStringList',
+            defaultValue: [],
+          ).getValue(),
           ['a', 'b'],
         );
 
@@ -779,12 +782,21 @@ void main() {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
       expect(
-          () => preferences.getBool(null, defaultValue: true), assertionError);
+        () => preferences.getBool(null, defaultValue: true),
+        assertionError,
+      );
+
       expect(() => preferences.getInt(null, defaultValue: 0), assertionError);
       expect(
-          () => preferences.getDouble(null, defaultValue: 0), assertionError);
+        () => preferences.getDouble(null, defaultValue: 0),
+        assertionError,
+      );
+
       expect(
-          () => preferences.getString(null, defaultValue: ''), assertionError);
+        () => preferences.getString(null, defaultValue: ''),
+        assertionError,
+      );
+
       expect(
         () => preferences.getStringList(null, defaultValue: []),
         assertionError,
@@ -795,10 +807,16 @@ void main() {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
       expect(
-          () => preferences.getBool('k', defaultValue: null), assertionError);
+        () => preferences.getBool('k', defaultValue: null),
+        assertionError,
+      );
+
       expect(() => preferences.getInt('k', defaultValue: null), assertionError);
       expect(
-          () => preferences.getDouble('', defaultValue: null), assertionError);
+        () => preferences.getDouble('', defaultValue: null),
+        assertionError,
+      );
+
       expect(
         () => preferences.getString('k', defaultValue: null),
         assertionError,

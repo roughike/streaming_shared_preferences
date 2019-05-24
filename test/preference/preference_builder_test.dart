@@ -6,7 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-import 'mocks.dart';
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   group('PreferenceBuilder', () {
@@ -22,14 +22,14 @@ void main() {
 
     test('passing null Preference throws an error', () {
       expect(
-        () => PreferenceBuilder(null, builder: (_, __) => null),
+        () => PreferenceBuilder(preference: null, builder: (_, __) => null),
         throwsA(isInstanceOf<AssertionError>()),
       );
     });
 
     test('passing null PreferenceWidgetBuilder throws an error', () {
       expect(
-        () => PreferenceBuilder(preference, builder: null),
+        () => PreferenceBuilder(preference: preference, builder: null),
         throwsA(isInstanceOf<AssertionError>()),
       );
     });
@@ -40,7 +40,7 @@ void main() {
 
       await tester.pumpWidget(
         PreferenceBuilder<String>(
-          preference,
+          preference: preference,
           builder: (context, value) {
             return Text(value, textDirection: TextDirection.ltr);
           },
@@ -55,7 +55,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         PreferenceBuilder<String>(
-          preference,
+          preference: preference,
           builder: (context, value) {
             return Text(value, textDirection: TextDirection.ltr);
           },
@@ -69,7 +69,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(
         PreferenceBuilder<String>(
-          preference,
+          preference: preference,
           builder: (context, value) {
             return Text(value, textDirection: TextDirection.ltr);
           },
@@ -103,7 +103,7 @@ void main() {
 
       await tester.pumpWidget(
         PreferenceBuilder<String>(
-          preference,
+          preference: preference,
           builder: (context, value) {
             buildCount++;
             return Text(value, textDirection: TextDirection.ltr);

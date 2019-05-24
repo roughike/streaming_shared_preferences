@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:streaming_shared_preferences/src/preference.dart';
+import 'package:streaming_shared_preferences/src/preference/preference.dart';
 
 /// A function that builds a widget whenever a [Preference] has a new value.
 typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
@@ -20,8 +20,8 @@ typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
 /// If a [preference] emits a value identical to the last emitted value, [builder]
 /// will not be called as it would be unnecessary to do so.
 class PreferenceBuilder<T> extends StatefulWidget {
-  PreferenceBuilder(
-    this.preference, {
+  PreferenceBuilder({
+    @required this.preference,
     @required this.builder,
   })  : assert(preference != null, 'Preference must not be null.'),
         assert(builder != null, 'PreferenceWidgetBuilder must not be null.');

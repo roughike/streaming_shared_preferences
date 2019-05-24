@@ -1,8 +1,9 @@
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   group('ValueAdapter tests', () {

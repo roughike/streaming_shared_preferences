@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
     /// PreferenceBuilder will call its `builder` method with the latest value
     /// whenever the value has updates.
     return PreferenceBuilder<bool>(
-      settings.darkMode,
+      preference: settings.darkMode,
       builder: (BuildContext context, bool darkMode) {
         final brightness = darkMode ? Brightness.dark : Brightness.light;
 
@@ -90,7 +90,7 @@ class MyHomePage extends StatelessWidget {
             /// Rebuild the Text widget with a new value every time "counter"
             /// has a new value.
             PreferenceBuilder<int>(
-              settings.counter,
+              preference: settings.counter,
               builder: (BuildContext context, int counter) {
                 return Text(
                   '$counter',
@@ -104,10 +104,10 @@ class MyHomePage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Obtain the current counter value synchronously...
-          final currentValue = settings.counter.getValue();
+          final currentCounter = settings.counter.getValue();
 
           // ...and add one to the existing value and update it.
-          settings.counter.setValue(currentValue + 1);
+          settings.counter.setValue(currentCounter + 1);
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),

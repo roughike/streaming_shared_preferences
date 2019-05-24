@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:mockito/mockito.dart';
-import 'package:streaming_shared_preferences/src/preference.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:streaming_shared_preferences/src/preference/preference.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test/test.dart';
 
-import '../test/mocks.dart';
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
   group('Preference', () {

@@ -4,9 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'adapters/preference_adapter.dart';
+import '../adapters/preference_adapter.dart';
 
-/// A [Preference] is a single key-value pair persisted using [SharedPreferences].
+/// A [Preference] is a single value associated with a key, which is persisted
+/// using [SharedPreferences].
 ///
 /// It is also a special type of [Stream] that emits a new value whenever the
 /// value associated with [key] changes. You can use a [Preference] like you would
@@ -20,9 +21,11 @@ class Preference<T> extends StreamView<T> {
   @visibleForTesting
   Preference.$$_private(this._preferences, this._key, this.defaultValue,
       this._adapter, this._keyChanges)
-      : super(_keyChanges.stream.transform(
-          _EmitValueChanges(_key, defaultValue, _adapter, _preferences),
-        ));
+      : super(
+          _keyChanges.stream.transform(
+            _EmitValueChanges(_key, defaultValue, _adapter, _preferences),
+          ),
+        );
 
   /// Get the latest value from the persistent storage synchronously.
   ///
@@ -34,6 +37,12 @@ class Preference<T> extends StreamView<T> {
   /// Returns true if the [value] was successfully set, otherwise returns false.
   Future<bool> setValue(T value) async {
     if (_key == null) {
+      /// This would not normally happen - it's a special case just for `getKeys()`.
+      ///
+      /// As `getKeys()` returns a Set<String> which represents the keys for
+      /// currently stored values, its Preference will not have a key - therefore
+      /// the key will be null. This is "a bug, not a feature" - setting a value
+      /// for `getKeys()` would not make sense.
       throw UnsupportedError(
         'setValue() not supported for Preference with a null key.',
       );
@@ -43,9 +52,10 @@ class Preference<T> extends StreamView<T> {
   }
 
   /// Clear, or in other words, remove, the value. Effectively sets the [_key]
-  /// to a null value.
+  /// to a null value. After removing a value, the [Preference] will emit [defaultValue]
+  /// once.
   ///
-  /// After removing a value, this [Preference] will emit [defaultValue] once.
+  /// Returns true if the clear operation was successful, otherwise returns false.
   Future<bool> clear() async {
     if (_key == null) {
       throw UnsupportedError(

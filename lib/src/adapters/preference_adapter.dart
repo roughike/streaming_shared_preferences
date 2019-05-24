@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A [PreferenceAdapter] knows how to retrieve and store a value associated
-/// with a key by using a [SharedPreferences].
+/// with a key by using [SharedPreferences].
 ///
 /// For examples, see:
 /// * [BoolAdapter], [IntAdapter], [StringAdapter] for simple preference adapters
