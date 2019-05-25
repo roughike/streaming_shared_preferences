@@ -4,10 +4,9 @@
  [![Build Status](https://travis-ci.org/roughike/streaming_shared_preferences.svg?branch=master)](https://travis-ci.org/roughike/streaming_shared_preferences) 
  [![Coverage Status](https://coveralls.io/repos/github/roughike/streaming_shared_preferences/badge.svg?branch=master)](https://coveralls.io/github/roughike/streaming_shared_preferences?branch=master)
 
-**streaming_shared_preferences** is a drop-in replacement for [shared_preferences](https://pub.dartlang.org/packages/shared_preferences). It does everything that regular `SharedPreferences` does, but it also comes with a `Stream` based layer -
-which makes it super easy to keep your widgets in sync with persisted values.
+A reactive key-value store for Flutter projects.
 
-It's just like any other key-value store, but reactive.
+**streaming_shared_preferences** is intended to be used as a drop-in replacement for [shared_preferences](https://pub.dartlang.org/packages/shared_preferences). It does everything that regular `SharedPreferences` does, but it  also allows _listening to changes in keys_. This makes it super easy to keep your widgets in sync with persisted values.
 
 ## Getting started
 
