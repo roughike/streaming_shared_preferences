@@ -11,14 +11,14 @@ It's just like any other key-value store, but reactive.
 
 ## Getting started
 
-First, add streaming_shared_preferences into your pubspec.yaml:
+First, add streaming_shared_preferences into your pubspec.yaml.
+
+If you're already using `shared_preferences`, **you should replace the dependency** with `streaming_shared_preferences`.
 
 ```yaml
 dependencies:
   streaming_shared_preferences: ^1.0.0
 ```
-
-**If you're already using** `shared_preferences`, **you should replace the dependency** with `streaming_shared_preferences`.
 
 To get a hold of `StreamingSharedPreferences`, _await_ on `instance`:
 
@@ -32,12 +32,12 @@ final preferences = await StreamingSharedPreferences.instance;
 **Caveat**: The change detection works only in Dart side.
 This means that if you want to react to changes in values, you should always use `StreamingSharedPreferences` (**not** `SharedPreferences`) to store your values.
 
-### Baby's first streaming preference
+## Baby's first streaming preference
 
-Here's the simplest **plain Dart example** on how you would print a value to console every time a `counter` integer changes:
+Here's the _simplest possible plain Dart example_ on how you would print a value to console every time a `counter` integer changes:
 
 ```dart
-// Get a reference to the counter value, and provide a default value 
+// Get a reference to the counter value and provide a default value 
 // of 0 in case it is null.
 Preference<int> counter = preferences.getInt('counter', defaultValue: 0);
 
@@ -58,11 +58,11 @@ The public API follows the same convention as regular `SharedPreferences`, but e
 
 Assuming that there's no previously stored value (=it's null), the above example will print `0`, `1` and `2` to the console.
 
-#### Getting a value synchronously
+### Getting a value synchronously
 
 No problem! Just call `getValue()` on whatever the `preferences.getInt(..)` (or `getString()`, `getBool()`, etc.) returns you.
 
-### Connecting values to Flutter widgets
+## Connecting values to Flutter widgets
 
 Althought it works perfectly fine with a `StreamBuilder`, the recommended way is to use the `PreferenceBuilder` widget.
 
@@ -161,7 +161,7 @@ You can see a full working example of this [in the example project](https://gith
 
 When your widget hierarchy becomes deep enough, you would want to pass `MyAppSettings` around with an [InheritedWidget](https://docs.flutter.io/flutter/widgets/InheritedWidget-class.html) or [provider](https://github.com/rrousselGit/provider) instead.
 
-## "But what about muh abstraction!"
+### "But what about muh abstraction!"
 
 If you're all about the clean architecture and don't want to pollute your domain layer with `Preference` objects from a third-party library by some random internet stranger, all the power to you.
 
