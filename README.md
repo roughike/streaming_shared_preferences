@@ -6,7 +6,7 @@
 
 A reactive key-value store for Flutter projects.
 
-**streaming_shared_preferences** is intended to be used as a drop-in replacement for [shared_preferences](https://pub.dartlang.org/packages/shared_preferences). It does everything that regular `SharedPreferences` does, but it  also allows _listening to changes in keys_. This makes it super easy to keep your widgets in sync with persisted values.
+**streaming_shared_preferences** adds reactive functionality on top of [shared_preferences](https://pub.dartlang.org/packages/shared_preferences). It does everything that regular `SharedPreferences` does, but it also allows _listening to changes in keys_. This makes it super easy to keep your widgets in sync with persisted values.
 
 ## Getting started
 
