@@ -30,6 +30,14 @@ void main() {
       );
     });
 
+    Future<void> _updateValue(String newValue) async {
+      when(preferences.getString('key')).thenReturn(newValue);
+
+      // The value passed to setValue does not matter in tests - it just merely
+      // tells the preference that something just changed.
+      await preference.setValue(null);
+    }
+
     test('calling setValue() calls the correct key and emits key updates', () {
       preference.setValue('value1');
       preference.setValue('value2');
@@ -75,33 +83,56 @@ void main() {
       expect(preference, emits('3'));
     });
 
-    test('does not emit same value more than once in a row', () async {
+    test('does not emit same value more than once in a row for one listener',
+        () async {
       int updateCount = 0;
       preference.listen((_) => updateCount++);
 
-      when(preferences.getString('key')).thenReturn('new value');
-      await preference.setValue(null);
-
-      when(preferences.getString('key')).thenReturn('new value');
-      await preference.setValue(null);
-
-      when(preferences.getString('key')).thenReturn('new value');
-      await preference.setValue(null);
+      await _updateValue('new value');
+      await _updateValue('new value');
+      await _updateValue('new value');
 
       // Changed from "default value" to "new value"
       expect(updateCount, 2);
 
-      when(preferences.getString('key')).thenReturn('another value 1');
-      await preference.setValue(null);
-
-      when(preferences.getString('key')).thenReturn('another value 2');
-      await preference.setValue(null);
-
-      when(preferences.getString('key')).thenReturn('another value 3');
-      await preference.setValue(null);
+      await _updateValue('another value 1');
+      await _updateValue('another value 2');
+      await _updateValue('another value 3');
 
       // Changed from "new value" to "another value" 3 times
       expect(updateCount, 5);
+    });
+
+    test('emits each value change to all listeners', () async {
+      String value1;
+      String value2;
+      String value3;
+
+      preference.listen((value) => value1 = value);
+      preference.listen((value) => value2 = value);
+      preference.listen((value) => value3 = value);
+
+      await _updateValue(null);
+
+      expect(value1, 'default value');
+      expect(value2, 'default value');
+      expect(value3, 'default value');
+
+      // The value passed to setValue does not matter in tests - it just merely
+      // triggers the preference that something just changed.
+      await _updateValue('first change');
+
+      expect(value1, 'first change');
+      expect(value2, 'first change');
+      expect(value3, 'first change');
+
+      // The value passed to setValue does not matter in tests - it just merely
+      // triggers the preference that something just changed.
+      await _updateValue('second change');
+
+      expect(value1, 'second change');
+      expect(value2, 'second change');
+      expect(value3, 'second change');
     });
   });
 }
