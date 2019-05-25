@@ -118,16 +118,12 @@ void main() {
       expect(value2, 'default value');
       expect(value3, 'default value');
 
-      // The value passed to setValue does not matter in tests - it just merely
-      // triggers the preference that something just changed.
       await _updateValue('first change');
 
       expect(value1, 'first change');
       expect(value2, 'first change');
       expect(value3, 'first change');
 
-      // The value passed to setValue does not matter in tests - it just merely
-      // triggers the preference that something just changed.
       await _updateValue('second change');
 
       expect(value1, 'second change');
