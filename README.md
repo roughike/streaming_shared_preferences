@@ -192,7 +192,7 @@ Here's how the implementation based on `StreamingSharedPreferences` would look l
 ```dart
 /// One implementation of SettingsContract backed by StreamingSharedPreferences
 class MyAppSettings implements SettingsContract {
-  SettingsImplementation(StreamingSharedPreferences preferences)
+  MyAppSettings(StreamingSharedPreferences preferences)
       : counter = preferences.getInt('counter', defaultValue: 0);
 
   final Preference<int> _counter;
