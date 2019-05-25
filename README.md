@@ -54,8 +54,7 @@ counter.listen((value) {
 counter.setValue(1);
 ```
 
-Assuming that there's no previously stored value for `counter`, the above example will print `0`,
-`1`, `2` and `3` to the console.
+Assuming that there's no previously stored value for `counter`, the above example will print `0` and `1` to the console.
 
 We could also call `preferences.setInt('counter', 1)`, but this is more convenient.
 Since a `Preference` knows how to set its own value, there's no need to provide a key.
