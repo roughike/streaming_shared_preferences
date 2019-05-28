@@ -31,7 +31,7 @@ final preferences = await StreamingSharedPreferences.instance;
 **Caveat**: The change detection works only in Dart side.
 This means that if you want to react to changes in values, you should always use `StreamingSharedPreferences` (**not** `SharedPreferences`) to store your values.
 
-## Baby's first streaming preference
+## Your first streaming preference
 
 Here's the _simplest possible plain Dart example_ on how you would print a value to console every time a `counter` integer changes:
 
