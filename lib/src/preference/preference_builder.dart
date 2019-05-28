@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:streaming_shared_preferences/src/preference/preference.dart';
+import '../preference/preference.dart';
 
 /// A function that builds a widget whenever a [Preference] has a new value.
 typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);

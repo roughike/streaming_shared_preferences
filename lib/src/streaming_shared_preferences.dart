@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'adapters/adapters.dart';
-import 'package:streaming_shared_preferences/src/preference/preference.dart';
+import 'preference/preference.dart';
 
 /// StreamingSharedPreferences is like [SharedPreferences], but reactive.
 ///
