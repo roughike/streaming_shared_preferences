@@ -18,6 +18,8 @@ class MyAppSettings {
 }
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   /// Obtain instance to streaming shared preferences, create MyAppSettings, and
   /// once that's done, run the app.
   final preferences = await StreamingSharedPreferences.instance;
