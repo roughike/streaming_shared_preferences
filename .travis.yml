@@ -1,25 +1,21 @@
-os:
-- linux
-sudo: false
+language: dart
+dist: xenial
 addons:
   apt:
-    sources:
-    - ubuntu-toolchain-r-test
     packages:
-    - libstdc++6
-    - fonts-droid
+      - lib32stdc++6
 
-before_script:
-- git clone https://github.com/flutter/flutter.git -b stable --depth 1
-- ./flutter/bin/flutter doctor
-- gem install coveralls-lcov
+install:
+  - git clone https://github.com/flutter/flutter.git -b stable
+  - ./flutter/bin/flutter doctor
+  - gem install coveralls-lcov
 
 script:
-- ./flutter/bin/flutter test --coverage
+  - ./flutter/bin/flutter test --coverage
 
 after_success:
-- coveralls-lcov coverage/lcov.info
+  - coveralls-lcov coverage/lcov.info
 
 cache:
   directories:
-  - $HOME/.pub-cache
+    - $HOME/.pub-cache

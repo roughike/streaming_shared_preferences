@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart' as flutter_test;
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
@@ -9,6 +10,8 @@ import 'package:test/test.dart';
 class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
+  flutter_test.TestWidgetsFlutterBinding.ensureInitialized();
+
   group('StreamingKeyValueStore', () {
     MockSharedPreferences delegate;
     StreamingSharedPreferences preferences;
