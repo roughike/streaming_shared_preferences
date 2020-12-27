@@ -25,6 +25,7 @@ To get a hold of `StreamingSharedPreferences`, _await_ on `instance`:
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 ...
+WidgetsFlutterBinding.ensureInitialized();
 final preferences = await StreamingSharedPreferences.instance;
 ```
 
@@ -111,6 +112,7 @@ Now we can pass `MyAppSettings` down to the widgets that use it:
 
 ```dart
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   /// Obtain instance to streaming shared preferences, create MyAppSettings, and
   /// once that's done, run the app.
   final preferences = await StreamingSharedPreferences.instance;
