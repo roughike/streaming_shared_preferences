@@ -5,7 +5,7 @@ author: Iiro Krankka <iiro.krankka@gmail.com>
 homepage: https://github.com/roughike/streaming_shared_preferences
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.1.0 <3.0.0'
 
 dependencies:
   flutter:
