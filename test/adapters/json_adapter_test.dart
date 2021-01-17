@@ -17,7 +17,7 @@ void main() {
       test('fails gracefully when getting a null value', () {
         when(preferences.getString('key')).thenReturn(null);
 
-        final adapter = JsonAdapter();
+        const adapter = JsonAdapter();
         final json = adapter.getValue(preferences, 'key');
 
         expect(json, isNull);
@@ -26,7 +26,7 @@ void main() {
       test('decodes a stored JSON value into a Map', () {
         when(preferences.getString('key')).thenReturn('{"hello":"world"}');
 
-        final adapter = JsonAdapter();
+        const adapter = JsonAdapter();
         final json = adapter.getValue(preferences, 'key');
 
         expect(json, {'hello': 'world'});
@@ -35,14 +35,14 @@ void main() {
       test('decodes a stored JSON value into a List', () {
         when(preferences.getString('key')).thenReturn('["hello","world"]');
 
-        final adapter = JsonAdapter();
+        const adapter = JsonAdapter();
         final json = adapter.getValue(preferences, 'key');
 
         expect(json, ['hello', 'world']);
       });
 
       test('stores an object that implements a toJson() method', () {
-        final adapter = JsonAdapter<TestObject>();
+        const adapter = JsonAdapter<TestObject>();
         adapter.setValue(preferences, 'key', TestObject('world'));
 
         verify(preferences.setString('key', '{"hello":"world"}'));
@@ -52,7 +52,7 @@ void main() {
         when(preferences.getString('key')).thenReturn('{"hello":"world"}');
 
         final adapter = JsonAdapter<TestObject>(
-          deserializer: (v) => TestObject.fromJson(v),
+          deserializer: (v) => TestObject.fromJson(v as Map<String, dynamic>),
         );
 
         final testObject = adapter.getValue(preferences, 'key');
@@ -77,7 +77,8 @@ class TestObject {
   TestObject(this.hello);
   final String hello;
 
-  TestObject.fromJson(Map<String, dynamic> json) : hello = json['hello'];
+  TestObject.fromJson(Map<String, dynamic> json)
+      : hello = json['hello'] as String;
 
   Map<String, dynamic> toJson() {
     return {

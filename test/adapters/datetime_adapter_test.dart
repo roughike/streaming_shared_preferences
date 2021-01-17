@@ -23,8 +23,9 @@ void main() {
       // machine, but fails in CI because of differences in geographic regions.
       //
       // For that reason, this test is a little fuzzy.
-      final String value =
-          verify(preferences.setString('key', captureAny)).captured.single;
+      final value = verify(preferences.setString('key', captureAny))
+          .captured
+          .single as String;
       expect(value, isNotNull);
       expect(value.length, 13);
     });

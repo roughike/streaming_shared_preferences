@@ -140,12 +140,12 @@ void main() {
 
 class _TestValueAdapter extends PreferenceAdapter<String> {
   @override
-  String getValue(preferences, key) {
+  String getValue(SharedPreferences preferences, String key) {
     return preferences.getString(key);
   }
 
   @override
-  Future<bool> setValue(keyValueStore, key, value) {
+  Future<bool> setValue(SharedPreferences keyValueStore, String key, String value) {
     return keyValueStore.setString(key, value);
   }
 }

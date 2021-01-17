@@ -5,11 +5,12 @@ import 'preference.dart';
 import 'preference_builder_base.dart';
 
 /// A function that builds a widget whenever a [Preference] emits a new value.
-typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
+typedef PreferenceWidgetBuilder<T> = Widget Function(
+    BuildContext context, T value);
 
 /// A function that builds a widget whenever one of the two [Preference]s
 /// provided to the [PreferenceBuilder2] emits a new value.
-typedef PreferenceWidgetBuilder2<A, B> = Function(
+typedef PreferenceWidgetBuilder2<A, B> = Widget Function(
   BuildContext context,
   A a,
   B b,
@@ -17,7 +18,7 @@ typedef PreferenceWidgetBuilder2<A, B> = Function(
 
 /// A function that builds a widget whenever one of the three [Preference]s
 /// provided to the [PreferenceBuilder3] emits a new value.
-typedef PreferenceWidgetBuilder3<A, B, C> = Function(
+typedef PreferenceWidgetBuilder3<A, B, C> = Widget Function(
   BuildContext context,
   A a,
   B b,
@@ -35,11 +36,12 @@ typedef PreferenceWidgetBuilder3<A, B, C> = Function(
 /// will not be called as it would be unnecessary to do so.
 class PreferenceBuilder<T> extends PreferenceBuilderBase<T> {
   PreferenceBuilder({
+    Key key,
     @required this.preference,
     @required this.builder,
   })  : assert(preference != null, 'Preference must not be null.'),
         assert(builder != null, 'PreferenceWidgetBuilder must not be null.'),
-        super([preference]);
+        super(preferences: [preference], key: key);
 
   /// The preference on which you want to react and rebuild your widgets based on.
   final Preference<T> preference;
@@ -64,8 +66,9 @@ class PreferenceBuilder2<A, B> extends PreferenceBuilderBase<dynamic> {
   PreferenceBuilder2(
     this.a,
     this.b, {
+    Key key,
     @required this.builder,
-  }) : super([a, b]);
+  }) : super(preferences: [a, b], key: key);
 
   final Preference<A> a;
   final Preference<B> b;
@@ -91,8 +94,9 @@ class PreferenceBuilder3<A, B, C> extends PreferenceBuilderBase<dynamic> {
     this.a,
     this.b,
     this.c, {
+    Key key,
     @required this.builder,
-  }) : super([a, b, c]);
+  }) : super(preferences: [a, b, c], key: key);
 
   final Preference<A> a;
   final Preference<B> b;

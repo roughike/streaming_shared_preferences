@@ -1,67 +1,85 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'preference_adapter.dart';
 
 /// A [PreferenceAdapter] implementation for storing and retrieving a [bool].
 class BoolAdapter extends PreferenceAdapter<bool> {
-  static const instance = BoolAdapter._();
-  const BoolAdapter._();
+  const BoolAdapter();
 
   @override
-  bool getValue(preferences, key) => preferences.getBool(key);
+  bool getValue(SharedPreferences preferences, String key) =>
+      preferences.getBool(key);
 
   @override
-  Future<bool> setValue(preferences, key, value) =>
+  Future<bool> setValue(
+    SharedPreferences preferences,
+    String key,
+    bool value,
+  ) =>
       preferences.setBool(key, value);
 }
 
 /// A [PreferenceAdapter] implementation for storing and retrieving an [int].
 class IntAdapter extends PreferenceAdapter<int> {
-  static const instance = IntAdapter._();
-  const IntAdapter._();
+  const IntAdapter();
 
   @override
-  int getValue(preferences, key) => preferences.getInt(key);
+  int getValue(SharedPreferences preferences, String key) =>
+      preferences.getInt(key);
 
   @override
-  Future<bool> setValue(preferences, key, value) =>
+  Future<bool> setValue(SharedPreferences preferences, String key, int value) =>
       preferences.setInt(key, value);
 }
 
 /// A [PreferenceAdapter] implementation for storing and retrieving a [double].
 class DoubleAdapter extends PreferenceAdapter<double> {
-  static const instance = DoubleAdapter._();
-  const DoubleAdapter._();
+  const DoubleAdapter();
 
   @override
-  double getValue(preferences, key) => preferences.getDouble(key);
+  double getValue(SharedPreferences preferences, String key) =>
+      preferences.getDouble(key);
 
   @override
-  Future<bool> setValue(preferences, key, value) =>
+  Future<bool> setValue(
+    SharedPreferences preferences,
+    String key,
+    double value,
+  ) =>
       preferences.setDouble(key, value);
 }
 
 /// A [PreferenceAdapter] implementation for storing and retrieving a [String].
 class StringAdapter extends PreferenceAdapter<String> {
-  static const instance = StringAdapter._();
-  const StringAdapter._();
+  const StringAdapter();
 
   @override
-  String getValue(preferences, key) => preferences.getString(key);
+  String getValue(SharedPreferences preferences, String key) =>
+      preferences.getString(key);
 
   @override
-  Future<bool> setValue(preferences, key, value) =>
+  Future<bool> setValue(
+    SharedPreferences preferences,
+    String key,
+    String value,
+  ) =>
       preferences.setString(key, value);
 }
 
 /// A [PreferenceAdapter] implementation for storing and retrieving a [List] of
 /// [String] objects.
 class StringListAdapter extends PreferenceAdapter<List<String>> {
-  static const instance = StringListAdapter._();
-  const StringListAdapter._();
+  const StringListAdapter();
 
   @override
-  List<String> getValue(preferences, key) => preferences.getStringList(key);
+  List<String> getValue(SharedPreferences preferences, String key) =>
+      preferences.getStringList(key);
 
   @override
-  Future<bool> setValue(preferences, key, values) =>
+  Future<bool> setValue(
+    SharedPreferences preferences,
+    String key,
+    List<String> values,
+  ) =>
       preferences.setStringList(key, values);
 }

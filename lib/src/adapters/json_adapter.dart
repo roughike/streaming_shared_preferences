@@ -67,7 +67,7 @@ class JsonAdapter<T> extends PreferenceAdapter<T> {
     if (value == null) return null;
 
     final decoded = jsonDecode(value);
-    return deserializer != null ? deserializer(decoded) : decoded;
+    return deserializer != null ? deserializer(decoded) : decoded as T;
   }
 
   @override

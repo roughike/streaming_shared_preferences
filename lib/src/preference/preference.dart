@@ -150,7 +150,8 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
             onDone: () => controller.close(),
           );
         },
-        onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
+        onPause: ([Future<void> resumeSignal]) =>
+            subscription.pause(resumeSignal),
         onResume: () => subscription.resume(),
         onCancel: () => subscription.cancel(),
       );

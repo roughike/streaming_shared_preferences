@@ -204,7 +204,7 @@ void main() {
         preferences.setDouble('key3', 3.0);
         preferences.setString('key4', 'value4');
         preferences.setStringList('key5', ['value5']);
-        preferences.setCustomValue('key6', '', adapter: StringAdapter.instance);
+        preferences.setCustomValue('key6', '', adapter: const StringAdapter());
 
         expect(
           keys,

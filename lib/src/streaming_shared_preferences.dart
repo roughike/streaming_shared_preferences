@@ -59,7 +59,7 @@ class StreamingSharedPreferences {
     return _getValue(
       null,
       defaultValue: Set(),
-      adapter: _GetKeysAdapter.instance,
+      adapter: const _GetKeysAdapter(),
     );
   }
 
@@ -73,7 +73,7 @@ class StreamingSharedPreferences {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
-      adapter: BoolAdapter.instance,
+      adapter: const BoolAdapter(),
     );
   }
 
@@ -87,7 +87,7 @@ class StreamingSharedPreferences {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
-      adapter: IntAdapter.instance,
+      adapter: const IntAdapter(),
     );
   }
 
@@ -101,7 +101,7 @@ class StreamingSharedPreferences {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
-      adapter: DoubleAdapter.instance,
+      adapter: const DoubleAdapter(),
     );
   }
 
@@ -115,7 +115,7 @@ class StreamingSharedPreferences {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
-      adapter: StringAdapter.instance,
+      adapter: const StringAdapter(),
     );
   }
 
@@ -132,7 +132,7 @@ class StreamingSharedPreferences {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
-      adapter: StringListAdapter.instance,
+      adapter: const StringListAdapter(),
     );
   }
 
@@ -170,7 +170,7 @@ class StreamingSharedPreferences {
   /// Returns true if a [value] was successfully set for the [key], otherwise
   /// returns false.
   Future<bool> setBool(String key, bool value) {
-    return setCustomValue(key, value, adapter: BoolAdapter.instance);
+    return setCustomValue(key, value, adapter: const BoolAdapter());
   }
 
   /// Sets a int value and notifies all active listeners that there's a new
@@ -179,7 +179,7 @@ class StreamingSharedPreferences {
   /// Returns true if a [value] was successfully set for the [key], otherwise
   /// returns false.
   Future<bool> setInt(String key, int value) {
-    return setCustomValue(key, value, adapter: IntAdapter.instance);
+    return setCustomValue(key, value, adapter: const IntAdapter());
   }
 
   /// Sets a double value and notifies all active listeners that there's a new
@@ -188,7 +188,7 @@ class StreamingSharedPreferences {
   /// Returns true if a [value] was successfully set for the [key], otherwise
   /// returns false.
   Future<bool> setDouble(String key, double value) {
-    return setCustomValue(key, value, adapter: DoubleAdapter.instance);
+    return setCustomValue(key, value, adapter: const DoubleAdapter());
   }
 
   /// Sets a String value and notifies all active listeners that there's a new
@@ -197,7 +197,7 @@ class StreamingSharedPreferences {
   /// Returns true if a [value] was successfully set for the [key], otherwise
   /// returns false.
   Future<bool> setString(String key, String value) {
-    return setCustomValue(key, value, adapter: StringAdapter.instance);
+    return setCustomValue(key, value, adapter: const StringAdapter());
   }
 
   /// Sets a String list value and notifies all active listeners that there's a
@@ -206,7 +206,7 @@ class StreamingSharedPreferences {
   /// Returns true if a [value] was successfully set for the [key], otherwise
   /// returns false.
   Future<bool> setStringList(String key, List<String> values) {
-    return setCustomValue(key, values, adapter: StringListAdapter.instance);
+    return setCustomValue(key, values, adapter: const StringListAdapter());
   }
 
   /// Sets a value of custom type [T] and notifies all active listeners that
@@ -281,11 +281,11 @@ class StreamingSharedPreferences {
 /// A special [PreferenceAdapter] for getting all currently stored keys. Does not
 /// support [set] operations.
 class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
-  static const instance = _GetKeysAdapter._();
-  const _GetKeysAdapter._();
+  const _GetKeysAdapter();
 
   @override
-  Set<String> getValue(preferences, _) => preferences.getKeys();
+  Set<String> getValue(SharedPreferences preferences, _) =>
+      preferences.getKeys();
 
   @override
   Future<bool> setValue(_, __, ___) =>

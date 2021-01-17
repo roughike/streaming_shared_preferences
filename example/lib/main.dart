@@ -64,6 +64,8 @@ class MyHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('StreamingSharedPreferences'),
@@ -93,12 +95,8 @@ class MyHomePage extends StatelessWidget {
             // has a new value.
             PreferenceBuilder<int>(
               preference: settings.counter,
-              builder: (context, counter) {
-                return Text(
-                  '$counter',
-                  style: Theme.of(context).textTheme.display1,
-                );
-              },
+              builder: (context, counter) =>
+                  Text('$counter', style: theme.textTheme.headline4),
             ),
           ],
         ),

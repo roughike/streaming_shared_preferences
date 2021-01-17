@@ -50,7 +50,7 @@ void main() {
         preferences,
         'test',
         'default value',
-        StringAdapter.instance,
+        const StringAdapter(),
         keyChanges,
       );
 
@@ -58,7 +58,7 @@ void main() {
         preferences,
         'test',
         0,
-        IntAdapter.instance,
+        const IntAdapter(),
         keyChanges,
       );
 
@@ -76,7 +76,7 @@ void main() {
               builder: (_, snapshot) {
                 return GestureDetector(
                   onTap: () => stateSetter(() {}),
-                  child: Text('X', textDirection: TextDirection.ltr),
+                  child: const Text('X', textDirection: TextDirection.ltr),
                 );
               },
             );
@@ -108,7 +108,7 @@ class TestPreference extends Preference<String> {
           preferences,
           key,
           'default value',
-          StringAdapter.instance,
+          const StringAdapter(),
           keyChanges,
         );
 }

@@ -139,7 +139,7 @@ void main() {
       testWidgets(
           'when the provided preference changes, calls builder with the new value',
           (tester) async {
-        final key = ValueKey('text widget');
+        const key = ValueKey('text widget');
 
         when(preferences.getString('test1')).thenReturn('value 1');
         final preference1 =
@@ -194,7 +194,7 @@ void main() {
       testWidgets(
           'starts listening to updates in values when the provided preference changes',
           (tester) async {
-        final key = ValueKey('text widget');
+        const key = ValueKey('text widget');
 
         when(preferences.getString('test1')).thenReturn('value 1');
         final preference1 =
@@ -534,7 +534,7 @@ class TestPreference extends Preference<String> {
           preferences,
           key,
           defaultValue,
-          StringAdapter.instance,
+          const StringAdapter(),
           keyChanges,
         );
 }
