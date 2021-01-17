@@ -20,6 +20,11 @@ abstract class PreferenceBuilderBase<T> extends StatefulWidget {
   _PreferenceBuilderBaseState<T> createState() =>
       _PreferenceBuilderBaseState<T>();
 
+  /// Called every time one of the [_preferences] emits a new value.
+  ///
+  /// The [values] contains the latest value of each [Preference] passed to the
+  /// list of [_preferences]. The [values] will be in the exact same order as
+  /// the passed list of [_preferences] are.
   Widget build(BuildContext context, List<T> values);
 }
 
@@ -30,7 +35,7 @@ class _PreferenceBuilderBaseState<T> extends State<PreferenceBuilderBase<T>> {
   @override
   void initState() {
     super.initState();
-    _updateStreams();
+    _updateStreamSubscription();
   }
 
   @override
@@ -39,7 +44,7 @@ class _PreferenceBuilderBaseState<T> extends State<PreferenceBuilderBase<T>> {
 
     if (oldWidget._preferences != widget._preferences) {
       _unsubscribe();
-      _updateStreams();
+      _updateStreamSubscription();
     }
   }
 
@@ -49,15 +54,20 @@ class _PreferenceBuilderBaseState<T> extends State<PreferenceBuilderBase<T>> {
     super.dispose();
   }
 
-  void _updateStreams() {
+  void _updateStreamSubscription() {
     final initialValues =
         widget._preferences.map<T>((p) => p.getValue()).toList();
     _data = initialValues;
-    _subscription = _StreamZip<T>(widget._preferences).listen((data) {
-      if (!mounted) return;
-      setState(() {
-        _data = data;
-      });
+    _subscription =
+        _PreferenceStreamBundle<T>(initialValues, widget._preferences)
+            .listen(_handleData);
+  }
+
+  void _handleData(data) {
+    if (!mounted) return;
+
+    setState(() {
+      _data = data;
     });
   }
 
@@ -74,103 +84,49 @@ class _PreferenceBuilderBaseState<T> extends State<PreferenceBuilderBase<T>> {
   }
 }
 
-class _StreamZip<T> extends Stream<List<T>> {
-  _StreamZip(this._streams);
-  final Iterable<Preference<T>> _streams;
+class _PreferenceStreamBundle<T> extends StreamView<List<T>> {
+  _PreferenceStreamBundle(
+    Iterable<T> initialValues,
+    Iterable<Preference<T>> preferences,
+  ) : super(_buildController(initialValues, preferences).stream);
 
-  @override
-  StreamSubscription<List<T>> listen(
-    void Function(List<T>) onData, {
-    Function onError,
-    void Function() onDone,
-    bool cancelOnError,
-  }) {
-    cancelOnError = identical(true, cancelOnError);
-    var subscriptions = <StreamSubscription<T>>[];
-    var controller = StreamController<List<T>>();
-    List<T> current;
+  static StreamController<List<T>> _buildController<T>(
+    Iterable<T> initialValues,
+    Iterable<Preference<T>> preferences,
+  ) {
+    final currentValues = List<T>.from(initialValues);
+    final subscriptions = <StreamSubscription<T>>[];
+    final controller = StreamController<List<T>>(
+      onPause: () => subscriptions.forEach((s) => s.pause()),
+      onResume: () => subscriptions.forEach((s) => s.resume()),
+      onCancel: () => subscriptions.forEach((s) => s.cancel()),
+    );
 
-    void _handleData(int index, T data) {
-      current[index] = data;
-      final values = List<T>.from(current);
-      controller.add(values);
+    for (final preference in preferences) {
+      final index = subscriptions.length;
+      final stream =
+          preference.cast<T>().transform(_EmitOnlyChangedValues<T>(preference));
+
+      subscriptions.add(
+        stream.listen(
+          (data) {
+            currentValues[index] = data;
+            controller.add(List<T>.from(currentValues));
+          },
+          onError: controller.addError,
+          onDone: () {
+            subscriptions.forEach((s) => s.cancel());
+            controller.close();
+          },
+        ),
+      );
     }
-
-    void _handlePause() {
-      for (final subscription in subscriptions) {
-        subscription.pause();
-      }
-    }
-
-    void _handleResume() {
-      for (final subscription in subscriptions) {
-        subscription.resume();
-      }
-    }
-
-    void _handleCancel() {
-      for (final subscription in subscriptions) {
-        subscription.cancel();
-      }
-    }
-
-    void _handleError(Object error, StackTrace stackTrace) {
-      controller.addError(error, stackTrace);
-    }
-
-    void _handleErrorCancel(Object error, StackTrace stackTrace) {
-      for (var i = 0; i < subscriptions.length; i++) {
-        subscriptions[i].cancel();
-      }
-      controller.addError(error, stackTrace);
-    }
-
-    void _handleDone() {
-      for (final subscription in subscriptions) {
-        subscription.cancel();
-      }
-      controller.close();
-    }
-
-    try {
-      for (final preference in _streams) {
-        final index = subscriptions.length;
-        final stream = preference
-            .cast<T>()
-            .transform(_EmitOnlyChangedValues<T>(preference));
-
-        subscriptions.add(
-          stream.listen(
-            (data) => _handleData(index, data),
-            onError: cancelOnError ? _handleError : _handleErrorCancel,
-            onDone: _handleDone,
-            cancelOnError: cancelOnError,
-          ),
-        );
-      }
-    } catch (e) {
-      for (var i = subscriptions.length - 1; i >= 0; i--) {
-        subscriptions[i].cancel();
-      }
-      rethrow;
-    }
-
-    current = List<T>.from(_streams.map((e) => e.getValue()));
-    controller
-      ..onPause = _handlePause
-      ..onResume = _handleResume
-      ..onCancel = _handleCancel;
 
     if (subscriptions.isEmpty) {
       controller.close();
     }
 
-    return controller.stream.listen(
-      onData,
-      onError: onError,
-      onDone: onDone,
-      cancelOnError: cancelOnError,
-    );
+    return controller;
   }
 }
 
