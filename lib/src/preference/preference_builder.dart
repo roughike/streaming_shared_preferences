@@ -4,17 +4,19 @@ import 'package:flutter/widgets.dart';
 import 'preference.dart';
 import 'preference_builder_base.dart';
 
-/// A function that builds a widget whenever a [Preference] has a new value.
+/// A function that builds a widget whenever a [Preference] emits a new value.
 typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
 
-/// A function that builds a widget whenever a [Preference] has a new value.
+/// A function that builds a widget whenever one of the two [Preference]s
+/// provided to the [PreferenceBuilder2] emits a new value.
 typedef PreferenceWidgetBuilder2<A, B> = Function(
   BuildContext context,
   A a,
   B b,
 );
 
-/// A function that builds a widget whenever a [Preference] has a new value.
+/// A function that builds a widget whenever one of the three [Preference]s
+/// provided to the [PreferenceBuilder3] emits a new value.
 typedef PreferenceWidgetBuilder3<A, B, C> = Function(
   BuildContext context,
   A a,
@@ -22,26 +24,12 @@ typedef PreferenceWidgetBuilder3<A, B, C> = Function(
   C c,
 );
 
-/// A function that builds a widget whenever a [Preference] has a new value.
-typedef PreferenceWidgetBuilder4<A, B, C, D> = Function(
-  BuildContext context,
-  A a,
-  B b,
-  C c,
-  D d,
-);
-
-/// A function that builds a widget whenever a [Preference] has a new value.
-typedef MultiPreferenceWidgetBuilder = Function(
-  BuildContext context,
-  List<dynamic> valuess,
-);
-
-/// Like a [StreamBuilder] but without the need to provide `initialData`.
+/// Widget that builds itself based on the latest value of the given [preference].
 ///
-/// If the preference has a persisted non-null value, the initial build will be
-/// done with that value. Otherwise the initial build will be done with the
-/// `defaultValue` of the [preference].
+/// Like [StreamBuilder] but without the need to provide `initialData`.
+///
+/// If the [preference] has an existing value, the initial build will be done with
+/// that value. Otherwise, the initial build will be done with [Preference.defaultValue].
 ///
 /// If a [preference] emits a value identical to the last emitted value, [builder]
 /// will not be called as it would be unnecessary to do so.
@@ -68,7 +56,10 @@ class PreferenceBuilder<T> extends PreferenceBuilderBase<T> {
   }
 }
 
-/// Just like [PreferenceBuilder], but supports
+/// Just like [PreferenceBuilder], but supports rebuilding itself based on the
+/// preferences [a] and [b].
+///
+/// The [builder] will be called whenever one of the preferences emits a new value.
 class PreferenceBuilder2<A, B> extends PreferenceBuilderBase<dynamic> {
   PreferenceBuilder2(
     this.a,
@@ -91,6 +82,10 @@ class PreferenceBuilder2<A, B> extends PreferenceBuilderBase<dynamic> {
   }
 }
 
+/// Just like [PreferenceBuilder], but supports rebuilding itself based on the
+/// preferences [a], [b], and [c].
+///
+/// The [builder] will be called whenever one of the preferences emits a new value.
 class PreferenceBuilder3<A, B, C> extends PreferenceBuilderBase<dynamic> {
   PreferenceBuilder3(
     this.a,

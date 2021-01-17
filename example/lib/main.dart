@@ -91,11 +91,12 @@ class MyHomePage extends StatelessWidget {
 
             // Rebuild the Text widget with a new value every time "counter"
             // has a new value.
-            PreferenceBuilder<int>(
-              preference: settings.counter,
-              builder: (BuildContext context, int counter) {
+            PreferenceBuilder2<int,bool>(
+              settings.counter,
+              settings.darkMode,
+              builder: (context, counter, darkMode) {
                 return Text(
-                  '$counter',
+                  '$counter - $darkMode',
                   style: Theme.of(context).textTheme.display1,
                 );
               },
