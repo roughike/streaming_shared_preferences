@@ -145,7 +145,8 @@ class _TestValueAdapter extends PreferenceAdapter<String> {
   }
 
   @override
-  Future<bool> setValue(SharedPreferences keyValueStore, String key, String value) {
+  Future<bool> setValue(
+      SharedPreferences keyValueStore, String key, String value) {
     return keyValueStore.setString(key, value);
   }
 }
