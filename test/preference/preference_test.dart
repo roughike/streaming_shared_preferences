@@ -103,11 +103,11 @@ void main() {
       expect(updateCount, 5);
     });
 
-    /// There was a bug where reusing a Preference between multiple listeners
-    /// only propagated the change to the first one. This test is here to prevent
-    /// that from happening again.
-    ///
-    /// For more context, see: https://github.com/roughike/streaming_shared_preferences/pull/1
+    // There was a bug where reusing a Preference between multiple listeners
+    // only propagated the change to the first one. This test is here to prevent
+    // that from happening again.
+    //
+    // For more context, see: https://github.com/roughike/streaming_shared_preferences/pull/1
     test('emits each value change to all listeners', () async {
       String value1;
       String value2;

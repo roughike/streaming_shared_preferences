@@ -173,11 +173,11 @@ void main() {
         final keys = preferences.getKeys();
         var count = 0;
 
-        /// This might seem wonky, but it is actually testing the relevant use
-        /// case. Every time a "setXYZ()" is called, we should fetch keys using
-        /// delegate.getKey() and then emit them. Although what delegate.getKeys()
-        /// returns doesn't matter in a test case, we're returning what would be
-        /// returned in a real scenario so that it's easier to follow.
+        // This might seem wonky, but it is actually testing the relevant use
+        // case. Every time a "setXYZ()" is called, we should fetch keys using
+        // delegate.getKey() and then emit them. Although what delegate.getKeys()
+        // returns doesn't matter in a test case, we're returning what would be
+        // returned in a real scenario so that it's easier to follow.
         when(delegate.getKeys()).thenAnswer((_) {
           count++;
 
@@ -195,6 +195,8 @@ void main() {
             case 6:
               return Set.from(['key1', 'key2', 'key3', 'key4', 'key5', 'key6']);
           }
+
+          return null;
         });
 
         preferences.setBool('key1', true);
@@ -234,11 +236,11 @@ void main() {
           final keys = preferences.getKeys();
           var count = 0;
 
-          /// This might seem wonky, but it is actually testing the relevant use
-          /// case. Every time a "setXYZ()" is called, we should fetch keys using
-          /// delegate.getKey() and then emit them. Although what delegate.getKeys()
-          /// returns doesn't matter in a test case, we're returning what would be
-          /// returned in a real scenario so that it's easier to follow.
+          // This might seem wonky, but it is actually testing the relevant use
+          // case. Every time a "setXYZ()" is called, we should fetch keys using
+          // delegate.getKey() and then emit them. Although what delegate.getKeys()
+          // returns doesn't matter in a test case, we're returning what would be
+          // returned in a real scenario so that it's easier to follow.
           when(delegate.getKeys()).thenAnswer((_) {
             count++;
 
@@ -254,6 +256,8 @@ void main() {
               case 5:
                 return Set.from(['key1', 'key2', 'key3', 'key4', 'key5']);
             }
+
+            return null;
           });
 
           preferences.setBool('key1', true);
