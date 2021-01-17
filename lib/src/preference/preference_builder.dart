@@ -1,17 +1,43 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
-import '../preference/preference.dart';
+import 'preference.dart';
+import 'preference_builder_base.dart';
 
 /// A function that builds a widget whenever a [Preference] has a new value.
 typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
 
-/// PreferenceBuilder is exactly like a [StreamBuilder] but without the need to
-/// provide `initialData`. It also solves the initial flicker problem that happens
-/// when a [StreamBuilder] transitions from its `initialData` to the values in
-/// it `stream`.
+/// A function that builds a widget whenever a [Preference] has a new value.
+typedef PreferenceWidgetBuilder2<A, B> = Function(
+  BuildContext context,
+  A a,
+  B b,
+);
+
+/// A function that builds a widget whenever a [Preference] has a new value.
+typedef PreferenceWidgetBuilder3<A, B, C> = Function(
+  BuildContext context,
+  A a,
+  B b,
+  C c,
+);
+
+/// A function that builds a widget whenever a [Preference] has a new value.
+typedef PreferenceWidgetBuilder4<A, B, C, D> = Function(
+  BuildContext context,
+  A a,
+  B b,
+  C c,
+  D d,
+);
+
+/// A function that builds a widget whenever a [Preference] has a new value.
+typedef MultiPreferenceWidgetBuilder = Function(
+  BuildContext context,
+  List<dynamic> valuess,
+);
+
+/// Like a [StreamBuilder] but without the need to provide `initialData`.
 ///
 /// If the preference has a persisted non-null value, the initial build will be
 /// done with that value. Otherwise the initial build will be done with the
@@ -19,12 +45,13 @@ typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
 ///
 /// If a [preference] emits a value identical to the last emitted value, [builder]
 /// will not be called as it would be unnecessary to do so.
-class PreferenceBuilder<T> extends StatefulWidget {
+class PreferenceBuilder<T> extends PreferenceBuilderBase<T> {
   PreferenceBuilder({
     @required this.preference,
     @required this.builder,
   })  : assert(preference != null, 'Preference must not be null.'),
-        assert(builder != null, 'PreferenceWidgetBuilder must not be null.');
+        assert(builder != null, 'PreferenceWidgetBuilder must not be null.'),
+        super([preference]);
 
   /// The preference on which you want to react and rebuild your widgets based on.
   final Preference<T> preference;
@@ -33,69 +60,58 @@ class PreferenceBuilder<T> extends StatefulWidget {
   final PreferenceWidgetBuilder<T> builder;
 
   @override
-  _PreferenceBuilderState<T> createState() => _PreferenceBuilderState<T>();
-}
+  Widget build(BuildContext context, List<T> values) {
+    assert(values != null);
+    assert(values.length == 1);
 
-class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
-  T _initialData;
-  Stream<T> _preference;
-
-  @override
-  void initState() {
-    super.initState();
-    _initialData = widget.preference.getValue();
-    _preference =
-        widget.preference.transform(_EmitOnlyChangedValues(_initialData));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<T>(
-      initialData: _initialData,
-      stream: _preference,
-      builder: (context, snapshot) => widget.builder(context, snapshot.data),
-    );
+    return builder(context, values.single);
   }
 }
 
-/// Makes sure that [PreferenceBuilder] does not run its builder function if the
-/// new value is identical to the last one.
-class _EmitOnlyChangedValues<T> extends StreamTransformerBase<T, T> {
-  _EmitOnlyChangedValues(this.startValue);
-  final T startValue;
+/// Just like [PreferenceBuilder], but supports
+class PreferenceBuilder2<A, B> extends PreferenceBuilderBase<dynamic> {
+  PreferenceBuilder2(
+    this.a,
+    this.b, {
+    @required this.builder,
+  }) : super([a, b]);
+
+  final Preference<A> a;
+  final Preference<B> b;
+  final PreferenceWidgetBuilder2<A, B> builder;
 
   @override
-  Stream<T> bind(Stream<T> stream) {
-    return StreamTransformer<T, T>((input, cancelOnError) {
-      T lastValue = startValue;
+  Widget build(BuildContext context, List<dynamic> values) {
+    assert(values != null);
+    assert(values.length == 2);
+    assert(values[0] is A);
+    assert(values[1] is B);
 
-      StreamController<T> controller;
-      StreamSubscription<T> subscription;
+    return builder(context, values[0] as A, values[1] as B);
+  }
+}
 
-      controller = StreamController<T>(
-        sync: true,
-        onListen: () {
-          subscription = input.listen(
-            (value) {
-              if (value != lastValue) {
-                controller.add(value);
-                lastValue = value;
-              }
-            },
-            onError: controller.addError,
-            onDone: controller.close,
-            cancelOnError: cancelOnError,
-          );
-        },
-        onPause: ([resumeSignal]) => subscription.pause(resumeSignal),
-        onResume: () => subscription.resume(),
-        onCancel: () {
-          lastValue = null;
-          return subscription.cancel();
-        },
-      );
+class PreferenceBuilder3<A, B, C> extends PreferenceBuilderBase<dynamic> {
+  PreferenceBuilder3(
+    this.a,
+    this.b,
+    this.c, {
+    @required this.builder,
+  }) : super([a, b, c]);
 
-      return controller.stream.listen(null);
-    }).bind(stream);
+  final Preference<A> a;
+  final Preference<B> b;
+  final Preference<C> c;
+  final PreferenceWidgetBuilder3<A, B, C> builder;
+
+  @override
+  Widget build(BuildContext context, List<dynamic> values) {
+    assert(values != null);
+    assert(values.length == 3);
+    assert(values[0] is A);
+    assert(values[1] is B);
+    assert(values[2] is C);
+
+    return builder(context, values[0] as A, values[1] as B, values[2] as C);
   }
 }
