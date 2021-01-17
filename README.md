@@ -25,9 +25,11 @@ To get a hold of `StreamingSharedPreferences`, _await_ on `instance`:
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 ...
-WidgetsFlutterBinding.ensureInitialized();
 final preferences = await StreamingSharedPreferences.instance;
 ```
+
+(If you're obtaining the instance before `runApp()` in your `main()` method, you probably need to call `
+WidgetsFlutterBinding.ensureInitialized();` first.)
 
 **Caveat**: The change detection works only in Dart side.
 This means that if you want to react to changes in values, you should always use `StreamingSharedPreferences` (**not** `SharedPreferences`) to store your values.
