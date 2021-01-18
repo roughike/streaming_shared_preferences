@@ -1,1 +1,10 @@
 include: package:lint/analysis_options_package.yaml
+
+linter:
+  rules:
+    avoid_positional_boolean_parameters: false
+
+    # The minimum supported Dart SDK is currently 2.1.0 where
+    # set literals didn't exist yet. We'll suppress this error
+    # until we bump the SDK constraint.
+    prefer_collection_literals: false
