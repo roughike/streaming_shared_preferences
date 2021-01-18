@@ -8,6 +8,9 @@ import 'preference.dart';
 /// A base class for widgets that builds itself based on the latest values of
 /// the given [preferences].
 ///
+/// Makes it easy to watch multiple [Preference] streams and rebuild a widget
+/// whenever one of the [preferences] has a new value.
+///
 /// For examples on how to extend this class, see:
 ///
 /// * [PreferenceBuilder]
@@ -84,6 +87,10 @@ class _PreferenceBuilderBaseState<T> extends State<PreferenceBuilderBase<T>> {
   }
 }
 
+// Subscribes to multiple preferences and emits a list of the most recent values.
+//
+// Starts by emitting the current values from each preference, then emits a list
+// of the most current values whenever one of the preferences has a new value.
 class _PreferenceStreamBundle<T> extends StreamView<List<T>> {
   _PreferenceStreamBundle(
     Iterable<T> initialValues,
@@ -134,8 +141,8 @@ class _PreferenceStreamBundle<T> extends StreamView<List<T>> {
       subscription.cancel();
 }
 
-// Makes sure that [PreferenceBuilder] does not run its builder function if the
-// new value is identical to the last one.
+// A stream transformer that only lets the stream emit a value if it is different
+// from the previously emitted value.
 class _EmitOnlyChangedValues<T> extends StreamTransformerBase<T, T> {
   const _EmitOnlyChangedValues(this._preference);
   final Preference<T> _preference;
