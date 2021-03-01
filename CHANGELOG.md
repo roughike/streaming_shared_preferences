@@ -1,3 +1,6 @@
+## 1.0.3
+* Make preference key public
+
 ## 1.0.2
 * [#7](https://github.com/roughike/streaming_shared_preferences/pull/7): Loosen constraints on `shared_preferences` dependency
 * [#10](https://github.com/roughike/streaming_shared_preferences/pull/10): Add `WidgetsFlutterBinding.ensureInitialize()` to README and example project
