@@ -26,12 +26,15 @@ class MockSharedPreferences extends Mock implements SharedPreferences {}
 /// good.
 void main() {
   group('StreamBuilder and equality tests', () {
-    MockSharedPreferences preferences;
-    StreamController<String> keyChanges;
+    late MockSharedPreferences preferences;
+    late StreamController<String> keyChanges;
 
     setUp(() {
       preferences = MockSharedPreferences();
       keyChanges = StreamController<String>();
+    });
+    tearDown(() {
+      keyChanges.close();
     });
 
     test('preferences with the same key and type are equal', () {

@@ -6,7 +6,7 @@ class BoolAdapter extends PreferenceAdapter<bool> {
   const BoolAdapter._();
 
   @override
-  bool getValue(preferences, key) => preferences.getBool(key);
+  bool? getValue(preferences, key) => preferences.getBool(key);
 
   @override
   Future<bool> setValue(preferences, key, value) =>
@@ -19,7 +19,7 @@ class IntAdapter extends PreferenceAdapter<int> {
   const IntAdapter._();
 
   @override
-  int getValue(preferences, key) => preferences.getInt(key);
+  int? getValue(preferences, key) => preferences.getInt(key);
 
   @override
   Future<bool> setValue(preferences, key, value) =>
@@ -32,7 +32,7 @@ class DoubleAdapter extends PreferenceAdapter<double> {
   const DoubleAdapter._();
 
   @override
-  double getValue(preferences, key) => preferences.getDouble(key);
+  double? getValue(preferences, key) => preferences.getDouble(key);
 
   @override
   Future<bool> setValue(preferences, key, value) =>
@@ -45,7 +45,7 @@ class StringAdapter extends PreferenceAdapter<String> {
   const StringAdapter._();
 
   @override
-  String getValue(preferences, key) => preferences.getString(key);
+  String? getValue(preferences, key) => preferences.getString(key);
 
   @override
   Future<bool> setValue(preferences, key, value) =>
@@ -59,7 +59,7 @@ class StringListAdapter extends PreferenceAdapter<List<String>> {
   const StringListAdapter._();
 
   @override
-  List<String> getValue(preferences, key) => preferences.getStringList(key);
+  List<String>? getValue(preferences, key) => preferences.getStringList(key);
 
   @override
   Future<bool> setValue(preferences, key, values) =>

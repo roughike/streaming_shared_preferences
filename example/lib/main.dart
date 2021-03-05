@@ -96,7 +96,7 @@ class MyHomePage extends StatelessWidget {
               builder: (BuildContext context, int counter) {
                 return Text(
                   '$counter',
-                  style: Theme.of(context).textTheme.display1,
+                  style: Theme.of(context).textTheme.headline4,
                 );
               },
             ),

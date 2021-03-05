@@ -6,32 +6,30 @@ import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+class MockSharedPreferences extends Mock implements SharedPreferences {
+  @override
+  Future<bool> setString(String? key, String? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setString, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+}
 
 void main() {
   group('PreferenceBuilder', () {
-    MockSharedPreferences preferences;
-    StreamController<String> keyChanges;
-    TestPreference preference;
+    late MockSharedPreferences preferences;
+    late StreamController<String> keyChanges;
+    late TestPreference preference;
 
     setUp(() {
       preferences = MockSharedPreferences();
       keyChanges = StreamController<String>();
       preference = TestPreference(preferences, keyChanges);
     });
-
-    test('passing null Preference throws an error', () {
-      expect(
-        () => PreferenceBuilder(preference: null, builder: (_, __) => null),
-        throwsA(isInstanceOf<AssertionError>()),
-      );
-    });
-
-    test('passing null PreferenceWidgetBuilder throws an error', () {
-      expect(
-        () => PreferenceBuilder(preference: preference, builder: null),
-        throwsA(isInstanceOf<AssertionError>()),
-      );
+    tearDown(() {
+      keyChanges.close();
     });
 
     testWidgets('initial build is done with current value of the preference',
@@ -84,13 +82,13 @@ void main() {
 
       // Value does not matter in a test case as the preferences are mocked.
       // This just tells the preference that something was updated.
-      preference.setValue(null);
+      preference.setValue('');
       await tester.pump();
       await tester.pump();
       expect(find.text('updated value'), findsOneWidget);
 
       when(preferences.getString('test')).thenReturn('another value');
-      preference.setValue(null);
+      preference.setValue('');
       await tester.pump();
       await tester.pump();
       expect(find.text('another value'), findsOneWidget);
@@ -111,15 +109,15 @@ void main() {
         ),
       );
 
-      preference.setValue(null);
+      preference.setValue('');
       await tester.pump();
       await tester.pump();
 
-      preference.setValue(null);
+      preference.setValue('');
       await tester.pump();
       await tester.pump();
 
-      preference.setValue(null);
+      preference.setValue('');
       await tester.pump();
       await tester.pump();
 
@@ -127,7 +125,7 @@ void main() {
 
       // So that there's no accidental lockdown because of duplicate values
       when(preferences.getString('test')).thenReturn('new value');
-      preference.setValue(null);
+      preference.setValue('');
       await tester.pump();
       await tester.pump();
       expect(find.text('new value'), findsOneWidget);

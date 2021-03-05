@@ -1,19 +1,19 @@
 name: streaming_shared_preferences
 description: A stream based wrapper over shared_preferences, allowing reactive key-value storage.
-version: 1.0.2
+version: 2.0.0
 homepage: https://github.com/roughike/streaming_shared_preferences
 
 environment:
-  sdk: '>=2.1.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: '>=0.5.0 <2.0.0'
-  meta: ^1.0.0
+  meta: ^1.3.0
+  shared_preferences: ^2.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mockito: ^5.0.0
   test: ^1.0.0
-  mockito: ^4.0.0

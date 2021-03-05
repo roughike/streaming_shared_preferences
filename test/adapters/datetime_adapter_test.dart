@@ -3,23 +3,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test/test.dart';
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+class MockSharedPreferences extends Mock implements SharedPreferences {
+  @override
+  Future<bool> setString(String key, String? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setString, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+}
 
 void main() {
   group('DateTimeAdapter', () {
-    MockSharedPreferences preferences;
+    late MockSharedPreferences preferences;
 
     setUp(() {
       preferences = MockSharedPreferences();
     });
 
     final adapter = DateTimeAdapter.instance;
-    final dateTime = DateTime(2019, 01, 02, 03, 04, 05, 99).toUtc();
+    final dateTime = DateTime.utc(2019, 01, 02, 03, 04, 05, 99);
 
     test('can persist date times properly', () {
       adapter.setValue(preferences, 'key', dateTime);
 
-      /// Comparing to a exact millisecond timestamp runs just fine on a local
+      /// Comparing to an exact millisecond timestamp runs just fine on a local
       /// machine, but fails in CI because of differences in geographic regions.
       ///
       /// For that reason, this test is a little fuzzy.
@@ -36,7 +45,7 @@ void main() {
       /// machine, but fails in CI because of differences in geographic regions.
       ///
       /// For that reason, this test is a little fuzzy.
-      final storedDateTime = adapter.getValue(preferences, 'key');
+      final storedDateTime = adapter.getValue(preferences, 'key')!;
       expect(
         storedDateTime.difference(dateTime) <
             const Duration(hours: 1, minutes: 1),
@@ -49,11 +58,6 @@ void main() {
 
       final storedDateTime = adapter.getValue(preferences, 'key');
       expect(storedDateTime, isNull);
-    });
-
-    test('handles persisting null datetimes gracefully', () {
-      adapter.setValue(preferences, 'key', null);
-      verify(preferences.setString('key', null));
     });
   });
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../preference/preference.dart';
@@ -21,10 +20,9 @@ typedef PreferenceWidgetBuilder<T> = Function(BuildContext context, T value);
 /// will not be called as it would be unnecessary to do so.
 class PreferenceBuilder<T> extends StatefulWidget {
   PreferenceBuilder({
-    @required this.preference,
-    @required this.builder,
-  })  : assert(preference != null, 'Preference must not be null.'),
-        assert(builder != null, 'PreferenceWidgetBuilder must not be null.');
+    required this.preference,
+    required this.builder,
+  });
 
   /// The preference on which you want to react and rebuild your widgets based on.
   final Preference<T> preference;
@@ -37,8 +35,8 @@ class PreferenceBuilder<T> extends StatefulWidget {
 }
 
 class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
-  T _initialData;
-  Stream<T> _preference;
+  late final T _initialData;
+  late final Stream<T> _preference;
 
   @override
   void initState() {
@@ -53,7 +51,7 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
     return StreamBuilder<T>(
       initialData: _initialData,
       stream: _preference,
-      builder: (context, snapshot) => widget.builder(context, snapshot.data),
+      builder: (context, snapshot) => widget.builder(context, snapshot.data!),
     );
   }
 }
@@ -67,10 +65,10 @@ class _EmitOnlyChangedValues<T> extends StreamTransformerBase<T, T> {
   @override
   Stream<T> bind(Stream<T> stream) {
     return StreamTransformer<T, T>((input, cancelOnError) {
-      T lastValue = startValue;
+      T? lastValue = startValue;
 
-      StreamController<T> controller;
-      StreamSubscription<T> subscription;
+      late final StreamController<T> controller;
+      late final StreamSubscription<T> subscription;
 
       controller = StreamController<T>(
         sync: true,

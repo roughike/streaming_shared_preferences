@@ -22,7 +22,7 @@ import 'preference/preference.dart';
 /// it is recommended to use a [PreferenceBuilder], as that gets rid of the initial
 /// flicker and you don't need to provide `initialData` parameter for it.
 class StreamingSharedPreferences {
-  static Completer<StreamingSharedPreferences> _instanceCompleter;
+  static Completer<StreamingSharedPreferences>? _instanceCompleter;
 
   /// Private constructor to prevent multiple instances. Creating multiple
   /// instances of the class breaks change detection.
@@ -39,11 +39,11 @@ class StreamingSharedPreferences {
 
       debugObtainSharedPreferencesInstance.then((preferences) {
         final streamingPreferences = StreamingSharedPreferences._(preferences);
-        _instanceCompleter.complete(streamingPreferences);
+        _instanceCompleter!.complete(streamingPreferences);
       });
     }
 
-    return _instanceCompleter.future;
+    return _instanceCompleter!.future;
   }
 
   /// Emits all the keys that currently exist - which means keys that have a
@@ -57,7 +57,8 @@ class StreamingSharedPreferences {
   /// If there are no keys, emits an empty [Set].
   Preference<Set<String>> getKeys() {
     return _getValue(
-      null,
+      // ignore: invalid_use_of_internal_member
+      Preference.$$_getKeysKey,
       defaultValue: Set(),
       adapter: _GetKeysAdapter.instance,
     );
@@ -69,7 +70,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultValue].
-  Preference<bool> getBool(String key, {@required bool defaultValue}) {
+  Preference<bool> getBool(String key, {required bool defaultValue}) {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
@@ -83,7 +84,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultValue].
-  Preference<int> getInt(String key, {@required int defaultValue}) {
+  Preference<int> getInt(String key, {required int defaultValue}) {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
@@ -97,7 +98,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultValue].
-  Preference<double> getDouble(String key, {@required double defaultValue}) {
+  Preference<double> getDouble(String key, {required double defaultValue}) {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
@@ -111,7 +112,7 @@ class StreamingSharedPreferences {
   /// If the value is null, starts with the value provided in [defaultValue]. When
   /// the value transitions from non-null to null (ie. when the value is removed),
   /// emits [defaultValue].
-  Preference<String> getString(String key, {@required String defaultValue}) {
+  Preference<String> getString(String key, {required String defaultValue}) {
     return getCustomValue(
       key,
       defaultValue: defaultValue,
@@ -127,7 +128,7 @@ class StreamingSharedPreferences {
   /// emits [defaultValue].
   Preference<List<String>> getStringList(
     String key, {
-    @required List<String> defaultValue,
+    required List<String> defaultValue,
   }) {
     return getCustomValue(
       key,
@@ -152,10 +153,15 @@ class StreamingSharedPreferences {
   /// emits [defaultValue].
   Preference<T> getCustomValue<T>(
     String key, {
-    @required T defaultValue,
-    @required PreferenceAdapter<T> adapter,
+    required T defaultValue,
+    required PreferenceAdapter<T> adapter,
   }) {
-    assert(key != null, 'Preference key must not be null.');
+    assert(
+      // ignore: invalid_use_of_internal_member
+      key != Preference.$$_getKeysKey || adapter is _GetKeysAdapter,
+      // ignore: invalid_use_of_internal_member
+      '"${Preference.$$_getKeysKey}" is a reserved key.',
+    );
 
     return _getValue(
       key,
@@ -212,19 +218,23 @@ class StreamingSharedPreferences {
   /// Sets a value of custom type [T] and notifies all active listeners that
   /// there's a new value for the [key].
   ///
-  /// Requires an implementation of a [PreferenceAdapter] for the type [T]. For an
-  /// example of a custom adapter, see the source code for [setString] and
+  /// Requires an implementation of a [PreferenceAdapter] for the type [T]. For
+  /// an example of a custom adapter, see the source code for [setString] and
   /// [StringAdapter].
   ///
-  /// Returns true if a [value] was successfully set for the [key], otherwise
-  /// returns false.
+  /// Returns `true` if a [value] was successfully set for the [key], otherwise
+  /// returns `false`.
   Future<bool> setCustomValue<T>(
     String key,
     T value, {
-    @required PreferenceAdapter<T> adapter,
+    required PreferenceAdapter<T> adapter,
   }) {
-    assert(key != null, 'key must not be null.');
-    assert(adapter != null, 'PreferenceAdapter must not be null.');
+    assert(
+      // ignore: invalid_use_of_internal_member
+      key != Preference.$$_getKeysKey,
+      // ignore: invalid_use_of_internal_member
+      '"${Preference.$$_getKeysKey}" is a reserved key.',
+    );
 
     return _updateAndNotify(key, adapter.setValue(_preferences, key, value));
   }
@@ -261,12 +271,9 @@ class StreamingSharedPreferences {
 
   Preference<T> _getValue<T>(
     String key, {
-    @required T defaultValue,
-    @required PreferenceAdapter<T> adapter,
+    required T defaultValue,
+    required PreferenceAdapter<T> adapter,
   }) {
-    assert(adapter != null, 'PreferenceAdapter must not be null.');
-    assert(defaultValue != null, 'The default value must not be null.');
-
     // ignore: invalid_use_of_visible_for_testing_member
     return Preference.$$_private(
       _preferences,

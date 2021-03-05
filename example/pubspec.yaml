@@ -1,18 +1,14 @@
-name: example
-description: A new Flutter project.
-version: 1.0.0+1
+name: streaming_shared_preferences_example
+description: An example project for streaming_shared_preferences.
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
+publish_to: 'none'
 
 dependencies:
   flutter:
     sdk: flutter
   streaming_shared_preferences:
     path: ../
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
 
 flutter:
   uses-material-design: true
