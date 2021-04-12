@@ -56,8 +56,8 @@ class _PreferenceBuilderState<T> extends State<PreferenceBuilder<T>> {
   }
 }
 
-/// Makes sure that [PreferenceBuilder] does not run its builder function if the
-/// new value is identical to the last one.
+// Makes sure that [PreferenceBuilder] does not run its builder function if the
+// new value is identical to the last one.
 class _EmitOnlyChangedValues<T> extends StreamTransformerBase<T, T> {
   _EmitOnlyChangedValues(this.startValue);
   final T startValue;

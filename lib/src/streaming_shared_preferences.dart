@@ -285,8 +285,8 @@ class StreamingSharedPreferences {
   }
 }
 
-/// A special [PreferenceAdapter] for getting all currently stored keys. Does not
-/// support [set] operations.
+// A special [PreferenceAdapter] for getting all currently stored keys. Does not
+// support [set] operations.
 class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
   static const instance = _GetKeysAdapter._();
   const _GetKeysAdapter._();
@@ -299,9 +299,9 @@ class _GetKeysAdapter extends PreferenceAdapter<Set<String>> {
       throw UnsupportedError('SharedPreferences.setKeys() is not supported.');
 }
 
-/// Used for obtaining an instance of [SharedPreferences] by [StreamingSharedPreferences].
-///
-/// Should not be used outside of tests.
+// Used for obtaining an instance of [SharedPreferences] by [StreamingSharedPreferences].
+//
+// Should not be used outside of tests.
 @visibleForTesting
 Future<SharedPreferences> debugObtainSharedPreferencesInstance =
     SharedPreferences.getInstance();
