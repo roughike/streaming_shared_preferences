@@ -28,10 +28,10 @@ void main() {
     test('can persist date times properly', () {
       adapter.setValue(preferences, 'key', dateTime);
 
-      /// Comparing to an exact millisecond timestamp runs just fine on a local
-      /// machine, but fails in CI because of differences in geographic regions.
-      ///
-      /// For that reason, this test is a little fuzzy.
+      // Comparing to an exact millisecond timestamp runs just fine on a local
+      // machine, but fails in CI because of differences in geographic regions.
+      //
+      // For that reason, this test is a little fuzzy.
       final String value =
           verify(preferences.setString('key', captureAny)).captured.single;
       expect(value, isNotNull);
@@ -41,10 +41,10 @@ void main() {
     test('can revive date times properly', () {
       when(preferences.getString('key')).thenReturn('1546394645099');
 
-      /// Comparing to a exact millisecond timestamp runs just fine on a local
-      /// machine, but fails in CI because of differences in geographic regions.
-      ///
-      /// For that reason, this test is a little fuzzy.
+      // Comparing to a exact millisecond timestamp runs just fine on a local
+      // machine, but fails in CI because of differences in geographic regions.
+      //
+      // For that reason, this test is a little fuzzy.
       final storedDateTime = adapter.getValue(preferences, 'key')!;
       expect(
         storedDateTime.difference(dateTime) <

@@ -245,11 +245,11 @@ void main() {
       test('setting a value emits latest keys in the stream', () async {
         var count = 0;
 
-        /// This might seem wonky, but it is actually testing the relevant use
-        /// case. Every time a "setXYZ()" is called, we should fetch keys using
-        /// delegate.getKey() and then emit them. Although what delegate.getKeys()
-        /// returns doesn't matter in a test case, we're returning what would be
-        /// returned in a real scenario so that it's easier to follow.
+        // This might seem wonky, but it is actually testing the relevant use
+        // case. Every time a "setXYZ()" is called, we should fetch keys using
+        // delegate.getKey() and then emit them. Although what delegate.getKeys()
+        // returns doesn't matter in a test case, we're returning what would be
+        // returned in a real scenario so that it's easier to follow.
         when(delegate.getKeys()).thenAnswer((_) {
           count++;
 
@@ -264,9 +264,15 @@ void main() {
               return Set.from(['key1', 'key2', 'key3', 'key4']);
             case 5:
               return Set.from(['key1', 'key2', 'key3', 'key4', 'key5']);
-            default:
+            case 6:
               return Set.from(['key1', 'key2', 'key3', 'key4', 'key5', 'key6']);
+            case 7:
+              return Set.from(
+                ['key1', 'key2', 'key3', 'key4', 'key5', 'key6', 'key7'],
+              );
           }
+
+          throw StateError('Unexpected count: $count');
         });
 
         final keys = preferences.getKeys();
@@ -307,11 +313,11 @@ void main() {
         () async {
           var count = 0;
 
-          /// This might seem wonky, but it is actually testing the relevant use
-          /// case. Every time a "setXYZ()" is called, we should fetch keys using
-          /// delegate.getKey() and then emit them. Although what delegate.getKeys()
-          /// returns doesn't matter in a test case, we're returning what would be
-          /// returned in a real scenario so that it's easier to follow.
+          // This might seem wonky, but it is actually testing the relevant use
+          // case. Every time a "setXYZ()" is called, we should fetch keys using
+          // delegate.getKey() and then emit them. Although what delegate.getKeys()
+          // returns doesn't matter in a test case, we're returning what would be
+          // returned in a real scenario so that it's easier to follow.
           when(delegate.getKeys()).thenAnswer((_) {
             count++;
 
@@ -324,9 +330,11 @@ void main() {
                 return Set.from(['key1', 'key2', 'key3']);
               case 4:
                 return Set.from(['key1', 'key2', 'key3', 'key4']);
-              default:
+              case 5:
                 return Set.from(['key1', 'key2', 'key3', 'key4', 'key5']);
             }
+
+            throw StateError('Unexpected count: $count');
           });
 
           final keys = preferences.getKeys();

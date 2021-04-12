@@ -46,13 +46,13 @@ class Preference<T> extends StreamView<T> {
   /// `false`.
   Future<bool> setValue(T value) async {
     if (key == $$_getKeysKey) {
-      /// This would not normally happen - it's a special case just for
-      /// `getKeys()`.
-      ///
-      /// As `getKeys()` returns a `Set<String>` which represents the keys for
-      /// currently stored values, its Preference key is a static, known value.
-      /// This is "a bug, not a feature" - setting a value for `getKeys()` would
-      /// not make sense.
+      // This would not normally happen - it's a special case just for
+      // `getKeys()`.
+      //
+      // As `getKeys()` returns a `Set<String>` which represents the keys for
+      // currently stored values, its Preference key is a static, known value.
+      // This is "a bug, not a feature" - setting a value for `getKeys()` would
+      // not make sense.
       throw UnsupportedError(
         'setValue() not supported for Preference with a null key.',
       );
@@ -86,6 +86,8 @@ class Preference<T> extends StreamView<T> {
     return isSuccessful;
   }
 
+  /// The key associated with this preference that can be used to update or
+  /// retrieve persisted values.
   final String key;
 
   /// The fallback value to emit when there's no stored value associated
@@ -108,8 +110,8 @@ class Preference<T> extends StreamView<T> {
   int get hashCode => key.hashCode;
 }
 
-/// A [StreamTransformer] that starts with the current persisted value and emits
-/// a new one whenever the [key] has update events.
+// A [StreamTransformer] that starts with the current persisted value and emits
+// a new one whenever the [key] has update events.
 class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   _EmitValueChanges(
     this.key,
@@ -172,11 +174,11 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   }
 }
 
-/// A [StreamTransformer] that filters out values that don't match the [key].
-///
-/// One exception is when the [key] is null - in this case, returns the source
-/// stream as is. One such case would be calling the `getKeys()` method on the
-/// `StreamingSharedPreferences`, as in that case there's no specific [key].
+// A [StreamTransformer] that filters out values that don't match the [key].
+//
+// One exception is when the [key] is null - in this case, returns the source
+// stream as is. One such case would be calling the `getKeys()` method on the
+// `StreamingSharedPreferences`, as in that case there's no specific [key].
 class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
   _EmitOnlyMatchingKeys(this.key);
 
