@@ -10,10 +10,10 @@ abstract class PreferenceAdapter<T> {
   const PreferenceAdapter();
 
   /// Retrieve a value associated with the [key] by using the [preferences].
-  T getValue(SharedPreferences preferences, String key);
+  T? getValue(SharedPreferences preferences, String key);
 
   /// Set a [value] for the [key] by using the [preferences].
   ///
-  /// Returns true if value was successfully set, otherwise false.
+  /// Returns `true` if value was successfully set, otherwise `false`.
   Future<bool> setValue(SharedPreferences preferences, String key, T value);
 }

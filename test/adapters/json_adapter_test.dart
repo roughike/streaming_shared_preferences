@@ -3,11 +3,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test/test.dart';
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+class MockSharedPreferences extends Mock implements SharedPreferences {
+  @override
+  Future<bool> setString(String? key, String? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setString, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+}
 
 void main() {
   group('ValueAdapter tests', () {
-    MockSharedPreferences preferences;
+    late MockSharedPreferences preferences;
 
     setUp(() {
       preferences = MockSharedPreferences();
@@ -52,10 +61,10 @@ void main() {
         when(preferences.getString('key')).thenReturn('{"hello":"world"}');
 
         final adapter = JsonAdapter<TestObject>(
-          deserializer: (v) => TestObject.fromJson(v),
+          deserializer: (v) => TestObject.fromJson(v as Map<String, dynamic>),
         );
 
-        final testObject = adapter.getValue(preferences, 'key');
+        final testObject = adapter.getValue(preferences, 'key')!;
         expect(testObject.hello, 'world');
       });
 
@@ -64,9 +73,9 @@ void main() {
           serializer: (v) => {'encoded': 'value'},
         );
 
-        // What value we set here doesn't matter - we're testing that it's replaced
-        // by the value returned by serializer.
-        adapter.setValue(preferences, 'key', null);
+        // What value we set here doesn't matter - we're testing that it's
+        // replaced by the value returned by serializer.
+        adapter.setValue(preferences, 'key', TestObject(''));
         verify(preferences.setString('key', '{"encoded":"value"}'));
       });
     });

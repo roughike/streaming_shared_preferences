@@ -7,14 +7,90 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test/test.dart';
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+class MockSharedPreferences extends Mock implements SharedPreferences {
+  @override
+  Set<String> getKeys() {
+    return super.noSuchMethod(
+      Invocation.method(#getKeys, []),
+      returnValue: <String>{},
+      returnValueForMissingStub: <String>{},
+    );
+  }
+
+  @override
+  String? getString(String? key) =>
+      super.noSuchMethod(Invocation.method(#getString, [key]));
+
+  @override
+  Future<bool> setBool(String? key, bool? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setBool, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+
+  @override
+  Future<bool> setInt(String? key, int? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setInt, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+
+  @override
+  Future<bool> setDouble(String? key, double? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setDouble, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+
+  @override
+  Future<bool> setString(String? key, String? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setString, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+
+  @override
+  Future<bool> setStringList(String? key, List<String>? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setStringList, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+
+  @override
+  Future<bool> remove(String? key) {
+    return super.noSuchMethod(
+      Invocation.method(#remove, [key]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+
+  @override
+  Future<bool> clear() {
+    return super.noSuchMethod(
+      Invocation.method(#clear, []),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+}
 
 void main() {
   flutter_test.TestWidgetsFlutterBinding.ensureInitialized();
 
   group('StreamingKeyValueStore', () {
-    MockSharedPreferences delegate;
-    StreamingSharedPreferences preferences;
+    late MockSharedPreferences delegate;
+    late StreamingSharedPreferences preferences;
 
     setUpAll(() async {
       // SharedPreferences calls "getAll" through a method channel initially when
@@ -88,9 +164,6 @@ void main() {
 
       preferences.remove('removeKey');
 
-      // Calling clear() calls delegate.getKeys() - so we must return a non-null
-      // value here.
-      when(delegate.getKeys()).thenReturn(Set());
       preferences.clear();
 
       verifyInOrder([
@@ -151,8 +224,8 @@ void main() {
         stream.listen((_) {});
       });
 
-      test('when keys are null or empty, emits an empty set', () async {
-        when(delegate.getKeys()).thenReturn(null);
+      test('when keys are empty, emits an empty set', () async {
+        when(delegate.getKeys()).thenReturn(Set());
         await expectLater(preferences.getKeys(), emits(Set()));
 
         when(delegate.getKeys()).thenReturn(Set());
@@ -170,7 +243,6 @@ void main() {
       });
 
       test('setting a value emits latest keys in the stream', () async {
-        final keys = preferences.getKeys();
         var count = 0;
 
         /// This might seem wonky, but it is actually testing the relevant use
@@ -192,10 +264,12 @@ void main() {
               return Set.from(['key1', 'key2', 'key3', 'key4']);
             case 5:
               return Set.from(['key1', 'key2', 'key3', 'key4', 'key5']);
-            case 6:
+            default:
               return Set.from(['key1', 'key2', 'key3', 'key4', 'key5', 'key6']);
           }
         });
+
+        final keys = preferences.getKeys();
 
         preferences.setBool('key1', true);
         preferences.setInt('key2', 2);
@@ -231,7 +305,6 @@ void main() {
       test(
         'calling .getValue() has a different result after setting values',
         () async {
-          final keys = preferences.getKeys();
           var count = 0;
 
           /// This might seem wonky, but it is actually testing the relevant use
@@ -251,10 +324,12 @@ void main() {
                 return Set.from(['key1', 'key2', 'key3']);
               case 4:
                 return Set.from(['key1', 'key2', 'key3', 'key4']);
-              case 5:
+              default:
                 return Set.from(['key1', 'key2', 'key3', 'key4', 'key5']);
             }
           });
+
+          final keys = preferences.getKeys();
 
           preferences.setBool('key1', true);
           expect(keys.getValue(), Set.from(['key1']));
@@ -375,10 +450,7 @@ void main() {
         scheduleMicrotask(() {
           when(delegate.getBool('key1')).thenReturn(true);
 
-          // Setting value to null won't matter here as the delegate is just a mock.
-          // What we're interested instead is triggering an update in the changed
-          // keys stream.
-          preferences.setBool('key1', null);
+          preferences.setBool('key1', false);
         });
 
         await expectLater(storedBool, emitsInOrder([false, true]));
@@ -440,10 +512,9 @@ void main() {
         scheduleMicrotask(() {
           when(delegate.getInt('key1')).thenReturn(2);
 
-          // Setting value to null won't matter here as the delegate is just a mock.
-          // What we're interested instead is triggering an update in the changed
-          // keys stream.
-          preferences.setInt('key1', null);
+          // Value does not matter in a test case as the delegate is mocked.
+          // This just tells the preference that something was updated.
+          preferences.setInt('key1', 0);
         });
 
         await expectLater(storedInt, emitsInOrder([1, 2]));
@@ -512,10 +583,9 @@ void main() {
         scheduleMicrotask(() {
           when(delegate.getDouble('key1')).thenReturn(2.2);
 
-          // Setting value to null won't matter here as the delegate is just a mock.
-          // What we're interested instead is triggering an update in the changed
-          // keys stream.
-          preferences.setDouble('key1', null);
+          // Value does not matter in a test case as the delegate is mocked.
+          // This just tells the preference that something was updated.
+          preferences.setDouble('key1', 0);
         });
 
         expect(storedDouble, emitsInOrder([1.1, 2.2]));
@@ -592,10 +662,9 @@ void main() {
         scheduleMicrotask(() {
           when(delegate.getString('key1')).thenReturn('updated string');
 
-          // Setting value to null won't matter here as the delegate is just a mock.
-          // What we're interested instead is triggering an update in the changed
-          // keys stream.
-          preferences.setString('key1', null);
+          // Value does not matter in a test case as the delegate is mocked.
+          // This just tells the preference that something was updated.
+          preferences.setString('key1', '');
         });
 
         await expectLater(
@@ -701,10 +770,9 @@ void main() {
         scheduleMicrotask(() {
           when(delegate.getStringList('key1')).thenReturn(['updated', 'value']);
 
-          // Setting value to null won't matter here as the delegate is just a mock.
-          // What we're interested instead is triggering an update in the changed
-          // keys stream.
-          preferences.setStringList('key1', null);
+          // Value does not matter in a test case as the delegate is mocked.
+          // This just tells the preference that something was updated.
+          preferences.setStringList('key1', []);
         });
 
         await expectLater(
@@ -722,7 +790,7 @@ void main() {
       final stringValue = preferences.getString('myString', defaultValue: '');
 
       scheduleMicrotask(() {
-        // We're  only testing that the removal triggers an update in the key stream.
+        // We're only testing that the removal triggers an update in the key stream.
         // While this "when" call here could return anything, we're returning null
         // because that's what would happen in a real scenario.
         when(delegate.getString('myString')).thenReturn(null);
@@ -755,80 +823,56 @@ void main() {
       expect(value3, emitsInOrder(['value', '']));
     });
 
-    test('setters throw assertion error when key is null', () {
+    test('getters throw assertion error using the getKeys key', () {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
-      expect(() => preferences.setBool(null, true), assertionError);
-      expect(() => preferences.setInt(null, 0), assertionError);
-      expect(() => preferences.setDouble(null, 0), assertionError);
-      expect(() => preferences.setString(null, ''), assertionError);
       expect(
-        () => preferences.setStringList(null, []),
+        () => preferences.getBool(Preference.$$_getKeysKey, defaultValue: true),
+        assertionError,
+      );
+      expect(
+        () => preferences.getInt(Preference.$$_getKeysKey, defaultValue: 0),
+        assertionError,
+      );
+      expect(
+        () => preferences.getDouble(Preference.$$_getKeysKey, defaultValue: 0),
+        assertionError,
+      );
+      expect(
+        () => preferences.getString(Preference.$$_getKeysKey, defaultValue: ''),
+        assertionError,
+      );
+      expect(
+        () => preferences
+            .getStringList(Preference.$$_getKeysKey, defaultValue: []),
         assertionError,
       );
     });
-
-    test('throws assertion error for null preference adapter', () {
-      final assertionError = throwsA(const TypeMatcher<AssertionError>());
-      expect(
-        () => preferences.getCustomValue('', defaultValue: '', adapter: null),
-        assertionError,
-      );
-
-      expect(
-        () => preferences.setCustomValue<String>('', '', adapter: null),
-        assertionError,
-      );
-    });
-
-    test('getters throw assertion error when key is null', () {
+    test('setters throw assertion error using the getKeys key', () {
       final assertionError = throwsA(const TypeMatcher<AssertionError>());
 
       expect(
-        () => preferences.getBool(null, defaultValue: true),
+        () => preferences.setBool(Preference.$$_getKeysKey, true),
         assertionError,
       );
-
-      expect(() => preferences.getInt(null, defaultValue: 0), assertionError);
       expect(
-        () => preferences.getDouble(null, defaultValue: 0),
+        () => preferences.setInt(Preference.$$_getKeysKey, 0),
         assertionError,
       );
-
       expect(
-        () => preferences.getString(null, defaultValue: ''),
+        () => preferences.setDouble(Preference.$$_getKeysKey, 0),
         assertionError,
       );
-
       expect(
-        () => preferences.getStringList(null, defaultValue: []),
+        () => preferences.setString(Preference.$$_getKeysKey, ''),
         assertionError,
       );
-    });
-
-    test('getters throw assertion error when default value is null', () {
-      final assertionError = throwsA(const TypeMatcher<AssertionError>());
-
       expect(
-        () => preferences.getBool('k', defaultValue: null),
-        assertionError,
-      );
-
-      expect(() => preferences.getInt('k', defaultValue: null), assertionError);
-      expect(
-        () => preferences.getDouble('', defaultValue: null),
-        assertionError,
-      );
-
-      expect(
-        () => preferences.getString('k', defaultValue: null),
-        assertionError,
-      );
-
-      expect(
-        () => preferences.getStringList('', defaultValue: null),
+        () => preferences.setStringList(Preference.$$_getKeysKey, []),
         assertionError,
       );
     });
   });
 }
+
+// ignore_for_file: invalid_use_of_internal_member

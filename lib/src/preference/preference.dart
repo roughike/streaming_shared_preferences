@@ -19,30 +19,40 @@ import '../adapters/preference_adapter.dart';
 class Preference<T> extends StreamView<T> {
   /// Only exposed for internal purposes. Do not call directly.
   @visibleForTesting
-  Preference.$$_private(this._preferences, this._key, this.defaultValue,
-      this._adapter, this._keyChanges)
-      : super(
+  Preference.$$_private(
+    this._preferences,
+    this._key,
+    this.defaultValue,
+    this._adapter,
+    this._keyChanges,
+  ) : super(
           _keyChanges.stream.transform(
             _EmitValueChanges(_key, defaultValue, _adapter, _preferences),
           ),
         );
 
+  /// Only exposed for internal purposes. Do not call directly.
+  @internal
+  static const $$_getKeysKey = 'streaming_shared_preferences.getKeys';
+
   /// Get the latest value from the persistent storage synchronously.
   ///
-  /// If the returned value doesn't exist (=is null), returns [defaultValue].
+  /// If the returned value doesn't exist (=is `null`), returns [defaultValue].
   T getValue() => _adapter.getValue(_preferences, _key) ?? defaultValue;
 
   /// Update the value and notify all listeners about the new value.
   ///
-  /// Returns true if the [value] was successfully set, otherwise returns false.
+  /// Returns `true` if the [value] was successfully set, otherwise returns
+  /// `false`.
   Future<bool> setValue(T value) async {
-    if (_key == null) {
-      /// This would not normally happen - it's a special case just for `getKeys()`.
+    if (_key == $$_getKeysKey) {
+      /// This would not normally happen - it's a special case just for
+      /// `getKeys()`.
       ///
-      /// As `getKeys()` returns a Set<String> which represents the keys for
-      /// currently stored values, its Preference will not have a key - therefore
-      /// the key will be null. This is "a bug, not a feature" - setting a value
-      /// for `getKeys()` would not make sense.
+      /// As `getKeys()` returns a `Set<String>` which represents the keys for
+      /// currently stored values, its Preference key is a static, known value.
+      /// This is "a bug, not a feature" - setting a value for `getKeys()` would
+      /// not make sense.
       throw UnsupportedError(
         'setValue() not supported for Preference with a null key.',
       );
@@ -52,12 +62,13 @@ class Preference<T> extends StreamView<T> {
   }
 
   /// Clear, or in other words, remove, the value. Effectively sets the [_key]
-  /// to a null value. After removing a value, the [Preference] will emit [defaultValue]
-  /// once.
+  /// to a null value. After removing a value, the [Preference] will emit
+  /// [defaultValue] once.
   ///
-  /// Returns true if the clear operation was successful, otherwise returns false.
+  /// Returns `true` if the clear operation was successful, otherwise returns
+  /// `false`.
   Future<bool> clear() async {
-    if (_key == null) {
+    if (_key == $$_getKeysKey) {
       throw UnsupportedError(
         'clear() not supported for Preference with a null key.',
       );
@@ -120,8 +131,8 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
   @override
   Stream<T> bind(Stream<String> stream) {
     return StreamTransformer<String, T>((input, cancelOnError) {
-      StreamController<T> controller;
-      StreamSubscription<T> subscription;
+      late final StreamController<T> controller;
+      late final StreamSubscription<T> subscription;
 
       controller = StreamController<T>(
         sync: true,
@@ -167,11 +178,12 @@ class _EmitValueChanges<T> extends StreamTransformerBase<String, T> {
 /// `StreamingSharedPreferences`, as in that case there's no specific [key].
 class _EmitOnlyMatchingKeys extends StreamTransformerBase<String, String> {
   _EmitOnlyMatchingKeys(this.key);
+
   final String key;
 
   @override
   Stream<String> bind(Stream<String> stream) {
-    if (key != null) {
+    if (key != Preference.$$_getKeysKey) {
       // If key is non-null, emit only the changes that match the key.
       // Otherwise, emit all changes.
       return stream.where((changedKey) => changedKey == key);

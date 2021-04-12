@@ -6,21 +6,38 @@ import 'package:streaming_shared_preferences/src/preference/preference.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import 'package:test/test.dart';
 
-class MockSharedPreferences extends Mock implements SharedPreferences {}
+class MockSharedPreferences extends Mock implements SharedPreferences {
+  @override
+  Future<bool> setString(String? key, String? value) {
+    return super.noSuchMethod(
+      Invocation.method(#setString, [key, value]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+
+  @override
+  Future<bool> remove(String? key) {
+    return super.noSuchMethod(
+      Invocation.method(#remove, [key]),
+      returnValue: Future.value(true),
+      returnValueForMissingStub: Future.value(true),
+    );
+  }
+}
 
 void main() {
   group('Preference', () {
-    MockSharedPreferences preferences;
-    _TestValueAdapter adapter;
-    StreamController<String> keyChanges;
-    Preference<String> preference;
+    late MockSharedPreferences preferences;
+    late _TestValueAdapter adapter;
+    late StreamController<String> keyChanges;
+    late Preference<String> preference;
 
     setUp(() {
       preferences = MockSharedPreferences();
       adapter = _TestValueAdapter();
       keyChanges = StreamController<String>.broadcast();
 
-      // ignore: deprecated_member_use_from_same_package
       preference = Preference.$$_private(
         preferences,
         'key',
@@ -29,13 +46,24 @@ void main() {
         keyChanges,
       );
     });
+    tearDown(() {
+      keyChanges.close();
+    });
 
     Future<void> _updateValue(String newValue) async {
       when(preferences.getString('key')).thenReturn(newValue);
 
       // The value passed to setValue does not matter in tests - it just merely
       // tells the preference that something just changed.
-      await preference.setValue(null);
+      await preference.setValue('');
+    }
+
+    Future<void> _clear() async {
+      when(preferences.getString('key')).thenReturn(null);
+
+      // The value passed to setValue does not matter in tests - it just merely
+      // tells the preference that something just changed.
+      await preference.clear();
     }
 
     test('calling setValue() calls the correct key and emits key updates', () {
@@ -60,10 +88,17 @@ void main() {
       expect(keyChanges.stream, emits('key'));
     });
 
-    test('calling setValue() or clear() on a Preference with null key throws',
+    test(
+        'calling setValue() or clear() on a Preference with the getKeys key throws',
         () {
-      final pref =
-          Preference.$$_private(preferences, null, '', adapter, keyChanges);
+      final pref = Preference.$$_private(
+        preferences,
+        // ignore: invalid_use_of_internal_member
+        Preference.$$_getKeysKey,
+        '',
+        adapter,
+        keyChanges,
+      );
 
       expect(pref.clear, throwsA(const TypeMatcher<UnsupportedError>()));
       expect(
@@ -109,15 +144,15 @@ void main() {
     ///
     /// For more context, see: https://github.com/roughike/streaming_shared_preferences/pull/1
     test('emits each value change to all listeners', () async {
-      String value1;
-      String value2;
-      String value3;
+      late String value1;
+      late String value2;
+      late String value3;
 
       preference.listen((value) => value1 = value);
       preference.listen((value) => value2 = value);
       preference.listen((value) => value3 = value);
 
-      await _updateValue(null);
+      await _clear();
 
       expect(value1, 'default value');
       expect(value2, 'default value');
@@ -140,7 +175,7 @@ void main() {
 
 class _TestValueAdapter extends PreferenceAdapter<String> {
   @override
-  String getValue(preferences, key) {
+  String? getValue(preferences, key) {
     return preferences.getString(key);
   }
 

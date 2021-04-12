@@ -4,11 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'preference_adapter.dart';
 
-/// A convenience adapter that handles common pitfalls when storing and retrieving
-/// JSON values.
+/// A convenience adapter that handles common pitfalls when storing and
+/// retrieving JSON values.
 ///
 /// [JsonAdapter] eliminates the need for a custom [PreferenceAdapter]. It also
-/// saves you from duplicating `if (value == null) return null` for custom adapters.
+/// saves you from duplicating `if (value == null) return null` for custom
+/// adapters.
 ///
 /// For example, if we have a class called `SampleObject`:
 ///
@@ -58,21 +59,21 @@ import 'preference_adapter.dart';
 /// ```
 class JsonAdapter<T> extends PreferenceAdapter<T> {
   const JsonAdapter({this.serializer, this.deserializer});
-  final Object Function(T) serializer;
-  final T Function(Object) deserializer;
+  final Object Function(T)? serializer;
+  final T Function(Object)? deserializer;
 
   @override
-  T getValue(SharedPreferences preferences, String key) {
+  T? getValue(SharedPreferences preferences, String key) {
     final value = preferences.getString(key);
     if (value == null) return null;
 
     final decoded = jsonDecode(value);
-    return deserializer != null ? deserializer(decoded) : decoded;
+    return deserializer != null ? deserializer!(decoded) : decoded;
   }
 
   @override
   Future<bool> setValue(SharedPreferences preferences, String key, T value) {
-    final serializedValue = serializer != null ? serializer(value) : value;
+    final serializedValue = serializer != null ? serializer!(value) : value;
     return preferences.setString(key, jsonEncode(serializedValue));
   }
 }
