@@ -1,5 +1,6 @@
 ## 2.0.0
 * [#16](https://github.com/roughike/streaming_shared_preferences/pull/16): Migrate to null-safety
+* [#14](https://github.com/roughike/streaming_shared_preferences/pull/14): Make preference key public
 
 **Breaking changes:**
 
