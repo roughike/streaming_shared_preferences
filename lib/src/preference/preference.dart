@@ -21,13 +21,13 @@ class Preference<T> extends StreamView<T> {
   @visibleForTesting
   Preference.$$_private(
     this._preferences,
-    this._key,
+    this.key,
     this.defaultValue,
     this._adapter,
     this._keyChanges,
   ) : super(
           _keyChanges.stream.transform(
-            _EmitValueChanges(_key, defaultValue, _adapter, _preferences),
+            _EmitValueChanges(key, defaultValue, _adapter, _preferences),
           ),
         );
 
@@ -38,14 +38,14 @@ class Preference<T> extends StreamView<T> {
   /// Get the latest value from the persistent storage synchronously.
   ///
   /// If the returned value doesn't exist (=is `null`), returns [defaultValue].
-  T getValue() => _adapter.getValue(_preferences, _key) ?? defaultValue;
+  T getValue() => _adapter.getValue(_preferences, key) ?? defaultValue;
 
   /// Update the value and notify all listeners about the new value.
   ///
   /// Returns `true` if the [value] was successfully set, otherwise returns
   /// `false`.
   Future<bool> setValue(T value) async {
-    if (_key == $$_getKeysKey) {
+    if (key == $$_getKeysKey) {
       /// This would not normally happen - it's a special case just for
       /// `getKeys()`.
       ///
@@ -58,33 +58,35 @@ class Preference<T> extends StreamView<T> {
       );
     }
 
-    return _updateAndNotify(_adapter.setValue(_preferences, _key, value));
+    return _updateAndNotify(_adapter.setValue(_preferences, key, value));
   }
 
-  /// Clear, or in other words, remove, the value. Effectively sets the [_key]
+  /// Clear, or in other words, remove, the value. Effectively sets the [key]
   /// to a null value. After removing a value, the [Preference] will emit
   /// [defaultValue] once.
   ///
   /// Returns `true` if the clear operation was successful, otherwise returns
   /// `false`.
   Future<bool> clear() async {
-    if (_key == $$_getKeysKey) {
+    if (key == $$_getKeysKey) {
       throw UnsupportedError(
         'clear() not supported for Preference with a null key.',
       );
     }
 
-    return _updateAndNotify(_preferences.remove(_key));
+    return _updateAndNotify(_preferences.remove(key));
   }
 
   /// Invokes [fn] and captures the result, notifies all listeners about an
-  /// update to [_key], and then returns the previously captured result.
+  /// update to [key], and then returns the previously captured result.
   Future<bool> _updateAndNotify(Future<bool> fn) async {
     final isSuccessful = await fn;
-    _keyChanges.add(_key);
+    _keyChanges.add(key);
 
     return isSuccessful;
   }
+
+  final String key;
 
   /// The fallback value to emit when there's no stored value associated
   /// with the [key].
@@ -92,7 +94,6 @@ class Preference<T> extends StreamView<T> {
 
   // Private fields to not clutter autocompletion results for this class.
   final SharedPreferences _preferences;
-  final String _key;
   final PreferenceAdapter<T> _adapter;
   final StreamController<String> _keyChanges;
 
@@ -101,10 +102,10 @@ class Preference<T> extends StreamView<T> {
       identical(this, other) ||
       other is Preference &&
           runtimeType == other.runtimeType &&
-          _key == other._key;
+          key == other.key;
 
   @override
-  int get hashCode => _key.hashCode;
+  int get hashCode => key.hashCode;
 }
 
 /// A [StreamTransformer] that starts with the current persisted value and emits
