@@ -16,7 +16,7 @@ If you're already using `shared_preferences`, **you should replace the dependenc
 
 ```yaml
 dependencies:
-  streaming_shared_preferences: ^2.0.0
+  streaming_shared_preferences: ^2.0.1
 ```
 
 To get a hold of `StreamingSharedPreferences`, _await_ on `instance`:
